@@ -1,0 +1,6 @@
+__pycache__
+notes.md
+MANIFEST.in
+dist/
+build/
+*.egg-info/

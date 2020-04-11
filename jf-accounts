@@ -1,0 +1,99 @@
+#!/usr/bin/env python3
+
+import secrets
+import configparser
+import shutil
+import argparse
+from pathlib import Path
+from flask import Flask, g
+
+parser = argparse.ArgumentParser(description="jellyfin-accounts")
+
+parser.add_argument("-c", "--config",
+                    help="specifies path to configuration file.")
+parser.add_argument("-d", "--data",
+                    help=("specifies directory to store data in. " +
+                          "defaults to ~/.jf-accounts."))
+parser.add_argument("--host",
+                    help="address to host web ui on.")
+parser.add_argument("-p", "--port",
+                    help="port to host web ui on.")
+parser.add_argument("-g", "--get_policy",
+                    help=("tool to grab a JF users " +
+                    "policy (access, perms, etc.) and " +
+                    "output as json to be used as a user template."),
+                    action='store_true')
+
+args, leftovers = parser.parse_known_args()
+
+if args.data is not None:
+    data_dir = Path(args.data)
+else:
+    data_dir = Path.home() / '.jf-accounts'
+
+local_dir = (Path(__file__).parents[2] / 'data').resolve()
+
+if not data_dir.exists():
+    Path.mkdir(data_dir)
+    print(f'Config dir not found, so created at {str(data_dir)}')
+    if args.config is None:
+        config_path = data_dir / 'config.ini'
+        shutil.copy(str(local_dir / 'config-default.ini'),
+                    str(config_path))
+        print("Edit the configuration and restart.")
+        raise SystemExit
+    else:
+        config_path = Path(args.config)
+    print(f'config.ini can be found at {str(config_path)}')
+else:
+    config_path = data_dir / 'config.ini'
+
+config = configparser.ConfigParser()
+config.read(config_path)
+
+if args.host is not None:
+    config['ui']['host'] = args.host
+if args.port is not None:
+    config['ui']['port'] = args.port
+
+for key in config['files']:
+    if config['files'][key] == '':
+        config['files'][key] = str(data_dir / (key + '.json'))
+
+if args.get_policy:
+    import json
+    from jellyfin_accounts.jf_api import Jellyfin
+    jf = Jellyfin(config['jellyfin']['server'],
+              config['jellyfin']['client'],
+              config['jellyfin']['version'],
+              config['jellyfin']['device'],
+              config['jellyfin']['device_id'])
+    # No auth needed.
+    print("Make sure the user is publicly visible!")
+    users = jf.getUsers()
+    for index, user in enumerate(users):
+        print(f'{index+1}) {user["Name"]}')
+    success = False
+    while not success:
+        try:
+            policy = users[int(input(">: "))-1]['Policy']
+            success = True
+        except (ValueError, IndexError):
+            pass
+    with open(config['files']['user_template'], 'w') as f:
+        f.write(json.dumps(policy, indent=4))
+    print(f'Policy written to "{config["files"]["user_template"]}".')
+    print('In future, this policy will be copied to all new users.')
+else:
+    app = Flask(__name__, root_path=str(local_dir))
+    app.config['DEBUG'] = config.getboolean('ui', 'debug')
+    app.config['SECRET_KEY'] = secrets.token_urlsafe(16)
+
+    if __name__ == '__main__':
+        import jellyfin_accounts.web_api
+        import jellyfin_accounts.web
+        print(jellyfin_accounts.web.__file__)
+        from waitress import serve
+        serve(app,
+              host=config['ui']['host'],
+              port=int(config['ui']['port']))
