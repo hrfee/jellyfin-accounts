@@ -8,7 +8,19 @@ A simple, web-based invite system for [Jellyfin](https://github.com/jellyfin/jel
     <img src="images/admin.png" width="45%"></img> <img src="images/create.png" width="45%"></img>
 </p>
 
-## Install
+## Get it
+### Requirements
+* python >= 3.6
+* flask
+* flask_httpauth
+* requests
+* itsdangerous
+* passlib
+* secrets
+* configparser
+* waitress
+
+### Install
 ```
 git clone https://github.com/hrfee/jellyfin-accounts.git
 cd jellyfin-accounts
