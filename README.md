@@ -39,6 +39,8 @@ optional arguments:
 * Make a temporary account and change its settings, then run `jf-accounts --get_policy`. Choose your user, and the policy will be stored at the location you set in `user_template`, and used for all subsequent new accounts.
 
 ### Configuration
+* Note: Make sure to put this behind a reverse proxy with HTTPS.
+
 On first run, the default configuration is copied to `~/.jf-accounts/config.ini`.
 ```
 ; It is reccommended to create a limited admin account for this program.
