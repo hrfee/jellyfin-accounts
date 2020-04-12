@@ -144,8 +144,4 @@ emails =
 user_template = 
 ```
 
-### Todo
-* Fix pip install (possible related to using `data_files` over `package_data`?)
-* Properly integrate with a janky password reset email system i've written.
-* Improve `generateInvites` in admin.js to refresh each invite's data, instead of deleting and recreating them.
-* Fix weird alignment of invite codes and the generate button (I know, i'm very new to web development)
+
