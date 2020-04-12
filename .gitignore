@@ -1,6 +1,9 @@
-__pycache__
+__pycache__/
 notes.md
 MANIFEST.in
 dist/
 build/
+test.txt
+data/node_modules/
 *.egg-info/
+pw-reset/

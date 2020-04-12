@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
-
 import secrets
 import configparser
 import shutil
 import argparse
+import logging
+import threading
+import signal
+import sys
 from pathlib import Path
 from flask import Flask, g
 
@@ -48,17 +51,48 @@ if not data_dir.exists():
 else:
     config_path = data_dir / 'config.ini'
 
-config = configparser.ConfigParser()
+config = configparser.RawConfigParser()
 config.read(config_path)
 
+def create_log(name):
+    log = logging.getLogger(name)
+    handler = logging.StreamHandler(sys.stdout)
+    if config.getboolean('ui', 'debug'):
+        log.setLevel(logging.DEBUG)
+        handler.setLevel(logging.DEBUG)
+    else:
+        log.setLevel(logging.INFO)
+        handler.setLevel(logging.INFO)
+    fmt = ' %(name)s - %(levelname)s - %(message)s'
+    format = logging.Formatter(fmt)
+    handler.setFormatter(format)
+    log.addHandler(handler)
+    log.propagate = False
+    return log
+
+log = create_log('main')
+email_log = create_log('emails')
+web_log = create_log('waitress')
+auth_log = create_log('auth')
+
 if args.host is not None:
+    log.debug(f'Using specified host {args.host}')
     config['ui']['host'] = args.host
 if args.port is not None:
+    log.debug(f'Using specified port {args.port}')
     config['ui']['port'] = args.port
 
 for key in config['files']:
     if config['files'][key] == '':
+        log.debug(f'Using default {key}')
         config['files'][key] = str(data_dir / (key + '.json'))
+
+if config['email']['email_template'] == '':
+    log.debug('Using default email HTML template')
+    config['email']['email_template'] = str(local_dir / 'email.html')
+if config['email']['email_plaintext'] == '':
+    log.debug('Using default email plaintext template')
+    config['email']['email_plaintext'] = str(local_dir / 'email.txt')
 
 if args.get_policy:
     import json
@@ -85,15 +119,31 @@ if args.get_policy:
     print(f'Policy written to "{config["files"]["user_template"]}".')
     print('In future, this policy will be copied to all new users.')
 else:
+    def signal_handler(sig, frame):
+        print('Quitting...')
+        sys.exit(0)
+    
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
     app = Flask(__name__, root_path=str(local_dir))
     app.config['DEBUG'] = config.getboolean('ui', 'debug')
     app.config['SECRET_KEY'] = secrets.token_urlsafe(16)
-
+    
     if __name__ == '__main__':
         import jellyfin_accounts.web_api
         import jellyfin_accounts.web
-        print(jellyfin_accounts.web.__file__)
         from waitress import serve
+        host = config['ui']['host']
+        port = config['ui']['port']
+        log.info(f'Starting web UI on {host}:{port}')
+        if config.getboolean('email', 'enabled'):
+            def start_pwr():
+                import jellyfin_accounts.pw_reset
+                jellyfin_accounts.pw_reset.start()
+            pwr = threading.Thread(target=start_pwr, daemon=True)
+            log.info('Starting email thread')
+            pwr.start()
+
         serve(app,
-              host=config['ui']['host'],
-              port=int(config['ui']['port']))
+              host=host,
+              port=int(port))

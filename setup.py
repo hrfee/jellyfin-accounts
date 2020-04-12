@@ -20,7 +20,10 @@ setup(
     ],
     packages=find_packages(),
     # include_package_data=True,
-    data_files=[('data', ['data/config-default.ini']),
+    data_files=[('data', ['data/config-default.ini',
+                          'data/email.html',
+                          'data/email.mjml',
+                          'data/email.txt']),
                 ('data/static', ['data/static/admin.js']),
                 ('data/templates', [
                           'data/templates/404.html',

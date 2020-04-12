@@ -7,6 +7,7 @@ from itsdangerous import (TimedJSONWebSignatureSerializer
 from passlib.apps import custom_app_context as pwd_context
 import uuid
 from __main__ import config, app, g
+from __main__ import auth_log as log
 
 
 class Account():
@@ -44,11 +45,13 @@ def verify_password(username, password):
     if not user:
         if username == adminAccount.username and adminAccount.verify_password(password):
             g.user = adminAccount
-            print(g)
+            log.debug("HTTPAuth Allowed")
             return True
         else:
+            log.debug("HTTPAuth Denied")
             return False
     g.user = adminAccount
+    log.debug("HTTPAuth Allowed")
     return True
  
 
