@@ -1,8 +1,25 @@
+function parseInvite(invite, empty = false) {
+    if (empty === true) {
+        return ["None", "", "1"]
+    } else {
+        var i = ["", "", "0"];
+        i[0] = invite['code'];
+        if (invite['hours'] == 0) {
+            i[1] = invite['minutes'] + 'm';
+        } else if (invite['minutes'] == 0) {
+            i[1] = invite['hours'] + 'h';
+        } else {
+            i[1] = invite['hours'] + 'h ' + invite['minutes'] + 'm';
+        }
+        i[1] = "Expires in " + i[1] + "  ";
+        return i
+    }
+}
 function addItem(invite) {
     var links = document.getElementById('invites');
     var listItem = document.createElement('li');
-    listItem.classList.add('list-group-item');
-    listItem.classList.add('align-middle');
+    listItem.id = invite[0]
+    listItem.classList.add('list-group-item', 'align-middle');
     var listCode = document.createElement('div');
     listCode.classList.add('float-left');
     var codeLink = document.createElement('a');
@@ -11,28 +28,37 @@ function addItem(invite) {
     listItem.appendChild(listCode);
     var listRight = document.createElement('div');
     listRight.classList.add('float-right');
-    listRight.appendChild(document.createTextNode(invite[1]));
+    listText = document.createElement('div');
+    listText.id = invite[0] + '_expiry'
+    listText.appendChild(document.createTextNode(invite[1]));
+    listRight.appendChild(listText);
     if (invite[2] == 0) {    
         var inviteCode = window.location.href + 'invite/' + invite[0];
         codeLink.href = inviteCode;
         listCode.appendChild(document.createTextNode(" "));
         var codeCopy = document.createElement('i');
         codeCopy.onclick = function(){toClipboard(inviteCode)};
-        codeCopy.classList.add('fa');
-        codeCopy.classList.add('fa-clipboard');
+        codeCopy.classList.add('fa', 'fa-clipboard');
         listCode.appendChild(codeCopy);
         var listDelete = document.createElement('button');
         listDelete.onclick = function(){deleteInvite(invite[0])};
-        listDelete.classList.add('btn');
-        listDelete.classList.add('btn-outline-danger');
+        listDelete.classList.add('btn', 'btn-outline-danger', 'float-right');
         listDelete.appendChild(document.createTextNode('Delete'));
         listRight.appendChild(listDelete);
     };
     listItem.appendChild(listRight);
     links.appendChild(listItem);
 };
+function updateInvite(invite) {
+    var expiry = document.getElementById(invite[0] + '_expiry');
+    expiry.textContent = invite[1];
+}
+function removeInvite(code) {
+    var item = document.getElementById(code);
+    item.parentNode.removeChild(item);
+}
 function generateInvites(empty = false) {
-    document.getElementById('invites').textContent = '';
+    // document.getElementById('invites').textContent = '';
     if (empty === false) {
         $.ajax('/getInvites', {
             type : 'GET',
@@ -48,26 +74,40 @@ function generateInvites(empty = false) {
             complete: function(response) {
                 var data = JSON.parse(response['responseText']);
                 if (data['invites'].length == 0) {
-                    addItem(["None", "", "1"]);
+                    document.getElementById('invites').textContent = '';
+                    addItem(parseInvite([], true));
                 } else {
-                    data['invites'].forEach(function(item) {
-                        var i = ["", "", "0"];
-                        i[0] = item['code'];
-                        if (item['hours'] == 0) {
-                            i[1] = item['minutes'] + 'm';
-                        } else if (item['minutes'] == 0) {
-                            i[1] = item['hours'] + 'h';
-                        } else {
-                            i[1] = item['hours'] + 'h ' + item['minutes'] + 'm';
-                        }
-                        i[1] = "Expires in " + i[1] + "  ";
-                        addItem(i)
+                    data['invites'].forEach(function(invite) {
+                        var match = false;
+                        var items = document.getElementById('invites').children;
+                        for (var i = 0; i < items.length; i++) {
+                            if (items[i].id == invite['code']) {
+                                match = true;
+                                updateInvite(parseInvite(invite));
+                            };
+                        };
+                        if (match == false) {
+                            addItem(parseInvite(invite));
+                        };
                     });
-                }
+                    var items = document.getElementById('invites').children;
+                    for (var i = 0; i < items.length; i++) {
+                        var exists = false;
+                        data['invites'].forEach(function(invite) {
+                            if (items[i].id == invite['code']) {
+                                exists = true;
+                            }
+                        });
+                        if (exists == false) {
+                            removeInvite(items[i].id);
+                        }
+                    };
+                };
             }
         });
     } else if (empty === true) {
-        addItem(["None", "", "1"]);
+        document.getElementById('invites').textContent = '';
+        addItem(parseInvite([], true));
     };
 };
 function deleteInvite(code) {
@@ -147,8 +187,7 @@ $("form#loginForm").submit(function() {
             if (data['status'] == 401) {
                 var formBody = document.getElementById('formBody');
                 var wrongPassword = document.createElement('div');
-                wrongPassword.classList.add('alert');
-                wrongPassword.classList.add('alert-danger');
+                wrongPassword.classList.add('alert', 'alert-danger');
                 wrongPassword.setAttribute('role', 'alert');
                 wrongPassword.appendChild(document.createTextNode('Incorrect username or password.'));
                 formBody.appendChild(wrongPassword);
