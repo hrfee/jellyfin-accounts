@@ -32,13 +32,14 @@ setup(
                           'data/templates/form.html'])],
     zip_safe=False,
     install_requires=[
-        'flask',
+        'Flask',
         'flask_httpauth',
         'requests',
         'itsdangerous',
         'passlib',
         'secrets',
         'configparser',
+        'pyOpenSSL',
         'waitress',
     ],
 )

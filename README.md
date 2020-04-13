@@ -27,6 +27,7 @@ A basic account management system for [Jellyfin](https://github.com/jellyfin/jel
 * passlib
 * secrets
 * configparser
+* pyOpenSSL
 * waitress
 * pytz
 * dateutil
