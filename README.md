@@ -16,7 +16,7 @@ A basic account management system for [Jellyfin](https://github.com/jellyfin/jel
 ## Get it
 ### Requirements
 
-* This should work anywhere Python does, i've tried to not use anything OS-specific. Drop an issue if you encounter issues, of course.
+* This should work anywhere Python does, i've tried to not use anything OS-specific. Drop an issue if there's a problem, of course.
 ```
 * python >= 3.6
 * flask
@@ -34,11 +34,13 @@ A basic account management system for [Jellyfin](https://github.com/jellyfin/jel
 * watchdog
 ```
 ### Install
+Usually as simple as:
 ```
 git clone https://github.com/hrfee/jellyfin-accounts.git
 cd jellyfin-accounts
 python3 setup.py install
 ```
+If not, see [install](https://github.com/hrfee/jellyfin-accounts/wiki/Install).
 
 ### Usage
 * Passing no arguments will run the server
@@ -70,6 +72,8 @@ optional arguments:
 
 #### Configuration
 * Note: Make sure to put this behind a reverse proxy with HTTPS.
+
+For detailed descriptions of each setting, see [setup](https://github.com/hrfee/jellyfin-accounts/wiki/Setup).
 
 On first run, the default configuration is copied to `~/.jf-accounts/config.ini`.
 ```
