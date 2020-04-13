@@ -30,7 +30,7 @@ A basic account management system for [Jellyfin](https://github.com/jellyfin/jel
 * pyOpenSSL
 * waitress
 * pytz
-* dateutil
+* python-dateutil
 * watchdog
 ```
 ### Install

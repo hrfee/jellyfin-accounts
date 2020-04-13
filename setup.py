@@ -39,7 +39,7 @@ setup(
         'passlib',
         'secrets',
         'pytz',
-        'dateutil',
+        'python-dateutil',
         'watchdog',
         'configparser',
         'pyOpenSSL',
