@@ -102,6 +102,18 @@ help_message =  Enter your details to create an account.
 ; Displayed when an account is created.
 success_message = Your account has been created. Click below to continue to Jellyfin.
 
+[password_validation]
+; Enables password validation.
+enabled = true 
+; Min. password length
+min_length = 8
+; Min. number of uppercase characters
+upper = 1
+; Min. number of numbers
+number = 1
+; Min. number of special characters
+special = 0
+
 [email]
 ; Enable to store provided email addresses, monitor jellyfin directory for pw-resets, and send pin
 enabled = true

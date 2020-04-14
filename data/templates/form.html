@@ -10,19 +10,15 @@
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-serialize-object/2.5.0/jquery.serialize-object.min.js" integrity="sha256-E8KRdFk/LTaaCBoQIV/rFNc0s3ICQQiOHFT4Cioifa8=" crossorigin="anonymous"></script>
         <style>
-            .pageTitle {
+            .pageContainer {
                 margin: 20%;
-                margin-bottom: 5%;
-            }
-            .accountForm {
-                margin: 20%;
-                margin-bottom: 5%;
-                margin-top: 5%;
             }
             .contactBox {
-                margin: 20%;
-                margin-top: 5%;
                 color: grey;
+            }
+            #container {
+                margin-top: 5%;
+                margin-bottom: 5%;
             }
         </style>
         <title>Create Jellyfin Account</title>
@@ -43,44 +39,126 @@
                 </div>
             </div>
         </div>
-        <div class="pageTitle">
+        <div class="pageContainer">
             <h1>
                 Create Account
             </h1>
             <p>{{ helpMessage }}</p>
-        </div>
-        <div class="accountForm" id="accountForm">
-            <form action="#" method="POST">
-                <div class="form-group">
-                    <label for="inputEmail">Email</label>
-                    <input type="email" class="form-control" id="inputEmail" name="email" placeholder="Email" required>
+            <p class="contactBox">{{ contactMessage }}</p>
+            <div class="container" id="container">
+                <div class="row" id="cardContainer">
+                    <div class="col-sm" id="accountForm">
+                        <div class="card bg-light mb-3">
+                            <div class="card-header">Details</div>
+                            <div class="card-body">
+                                <form action="#" method="POST">
+                                    <div class="form-group">
+                                        <label for="inputEmail">Email</label>
+                                        <input type="email" class="form-control" id="inputEmail" name="email" placeholder="Email" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="inputUsername">Username</label>
+                                        <input type="username" class="form-control" id="inputUsername" name="username" placeholder="Username" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="inputPassword">Password</label>
+                                        <input type="password" class="form-control" id="inputPassword" name="password" placeholder="Password" required>
+                                    </div>
+                                    <div class="btn-group" role="group" aria-label="Button & Error" id="errorBox">
+                                        <input type="submit" class="btn btn-outline-primary" value="Create Account">
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="inputUsername">Username</label>
-                    <input type="username" class="form-control" id="inputUsername" name="username" placeholder="Username" required>
-                </div>
-                <div class="form-group">
-                    <label for="inputPassword">Password</label>
-                    <input type="password" class="form-control" id="inputPassword" name="password" placeholder="Password" required>
-                </div>
-                <input type="submit" class="btn btn-primary" value="Create Account">
-            </form>
-        </div>
-        <div class="contactBox">
-            <p>{{ contactMessage }}</p>
+            </div>
         </div>
         <script>
+            var code = window.location.href.split('/').pop();
+            $.ajax('/getRequirements', {
+                data : JSON.stringify({ 'code': code }),
+                contentType : 'application/json',
+                type : 'POST',
+                crossDomain : true,
+                complete : function(response){
+                    var data = response['responseJSON'];
+                    if (Object.keys(data).length > 1) {
+                        var col = document.createElement('div');
+                        col.classList.add('col-sm');
+                        col.id = 'requirementBox';
+                        var card = document.createElement('div');
+                        card.classList.add('card', 'bg-light', 'mb-3', 'requirementBox');
+                        // card.setAttribute('style', 'max-width: 18rem;');
+                        var header = document.createElement('div');
+                        header.classList.add('card-header');
+                        header.appendChild(document.createTextNode('Password Requirements'));
+                        card.appendChild(header);
+                        var body = document.createElement('div');
+                        body.classList.add('card-body');
+                        var listGroup = document.createElement('ul');
+                        listGroup.classList.add('list-group');
+                        listGroup.id = 'requirements';
+                        for (var key in data) {
+                            if (data.hasOwnProperty(key)) {
+                                var criterion = document.createElement('li');
+                                criterion.id = key;
+                                criterion.classList.add('list-group-item', 'list-group-item-danger');
+                                var text = document.createElement('div');
+                                text.appendChild(document.createTextNode(' ' + data[key]));
+                                criterion.appendChild(text);
+                                listGroup.appendChild(criterion);
+                            };
+                        };
+                        body.appendChild(listGroup);
+                        card.appendChild(body);
+                        col.appendChild(card);
+                        document.getElementById('cardContainer').appendChild(col);
+                    };
+                }
+            });
             $("form").submit(function() {
                 var send = $("form").serializeObject();
-                send['code'] = window.location.href.split('/').pop();
+                send['code'] = code;
                 send = JSON.stringify(send);
                 $.ajax('/newUser', {
                     data : send,
                     contentType : 'application/json',
                     type : 'POST',
-                    crossDomain: true,
-                    success : function(){
-                        $('#successBox').modal('show');
+                    crossDomain : true,
+                    complete : function(response){
+                        var data = response['responseJSON'];
+                        if ('error' in data) {
+                            var text = document.createTextNode(data['error']);
+                                    // <div class="alert alert-danger" id="errorBox"></div>
+                            var error = document.createElement('button');
+                            error.classList.add('btn', 'btn-outline-danger');
+                            error.setAttribute('disabled', '');
+                            error.appendChild(text);
+                            document.getElementById('errorBox').appendChild(error);
+                        } else {
+                            var valid = true
+                            for (var key in data) {
+                                if (data.hasOwnProperty(key)) {
+                                    var criterion = document.getElementById(key);
+                                    if (data[key] == false) {
+                                        valid = false;
+                                        if (criterion.classList.contains('list-group-item-success')) {
+                                            criterion.classList.remove('list-group-item-success');
+                                            criterion.classList.add('list-group-item-danger');
+                                        };
+                                    } else {
+                                        if (criterion.classList.contains('list-group-item-danger')) {
+                                            criterion.classList.remove('list-group-item-danger');
+                                            criterion.classList.add('list-group-item-success');
+                                        };
+                                    };
+                                };
+                            };
+                            if (valid == true) {
+                                $('#successBox').modal('show');
+                            };
+                        }
                     }
                 });
                 return false;
