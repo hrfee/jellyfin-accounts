@@ -38,6 +38,7 @@ Usually as simple as:
 ```
 git clone https://github.com/hrfee/jellyfin-accounts.git
 cd jellyfin-accounts
+pip3 install -r requirements.txt
 python3 setup.py install
 ```
 If not, see [install](https://github.com/hrfee/jellyfin-accounts/wiki/Install).

@@ -32,6 +32,7 @@ setup(
                           'data/templates/form.html'])],
     zip_safe=False,
     install_requires=[
+        'pyOpenSSL',
         'Flask',
         'flask_httpauth',
         'requests',
@@ -42,7 +43,6 @@ setup(
         'python-dateutil',
         'watchdog',
         'configparser',
-        'pyOpenSSL',
         'waitress',
     ],
 )
