@@ -34,6 +34,7 @@ A basic account management system for [Jellyfin](https://github.com/jellyfin/jel
 * watchdog
 ```
 ### Install
+
 Usually as simple as:
 ```
 git clone https://github.com/hrfee/jellyfin-accounts.git
@@ -41,7 +42,7 @@ cd jellyfin-accounts
 pip3 install -r requirements.txt
 python3 setup.py install
 ```
-If not, see [install](https://github.com/hrfee/jellyfin-accounts/wiki/Install).
+If not, or if you want to use docker, see [install](https://github.com/hrfee/jellyfin-accounts/wiki/Install).
 
 ### Usage
 * Passing no arguments will run the server
@@ -90,7 +91,8 @@ device = jf-accounts
 device_id = jf-accounts-0.1
 
 [ui]
-host = 127.0.0.1
+; Set to 0.0.0.0 to run localhost
+host = 0.0.0.0
 port = 8056
 username = your username
 password = your password
