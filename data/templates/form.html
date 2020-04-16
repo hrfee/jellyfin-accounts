@@ -141,16 +141,18 @@
                             for (var key in data) {
                                 if (data.hasOwnProperty(key)) {
                                     var criterion = document.getElementById(key);
-                                    if (data[key] == false) {
-                                        valid = false;
-                                        if (criterion.classList.contains('list-group-item-success')) {
-                                            criterion.classList.remove('list-group-item-success');
-                                            criterion.classList.add('list-group-item-danger');
-                                        };
-                                    } else {
-                                        if (criterion.classList.contains('list-group-item-danger')) {
-                                            criterion.classList.remove('list-group-item-danger');
-                                            criterion.classList.add('list-group-item-success');
+                                    if (criterion) {
+                                        if (data[key] == false) {
+                                            valid = false;
+                                            if (criterion.classList.contains('list-group-item-success')) {
+                                                criterion.classList.remove('list-group-item-success');
+                                                criterion.classList.add('list-group-item-danger');
+                                            };
+                                        } else {
+                                            if (criterion.classList.contains('list-group-item-danger')) {
+                                                criterion.classList.remove('list-group-item-danger');
+                                                criterion.classList.add('list-group-item-success');
+                                            };
                                         };
                                     };
                                 };

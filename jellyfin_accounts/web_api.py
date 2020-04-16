@@ -69,10 +69,11 @@ while attempts != 3:
 if config.getboolean('password_validation', 'enabled'):
     validator = PasswordValidator(config['password_validation']['min_length'],
                                   config['password_validation']['upper'],
+                                  config['password_validation']['lower'],
                                   config['password_validation']['number'],
                                   config['password_validation']['special'])
 else:
-    validator = PasswordValidator(0, 0, 0, 0)
+    validator = PasswordValidator(0, 0, 0, 0, 0)
 
 
 @app.route('/getRequirements', methods=['GET', 'POST'])

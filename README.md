@@ -112,6 +112,8 @@ enabled = true
 min_length = 8
 ; Min. number of uppercase characters
 upper = 1
+; Min. number of lowercase characters
+lower = 0
 ; Min. number of numbers
 number = 1
 ; Min. number of special characters
