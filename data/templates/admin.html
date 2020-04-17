@@ -68,27 +68,29 @@
         <h1>
             Accounts admin
         </h1>
-        <div class="linkGroup">
-            Current Invites
-            <div class="list-group" id="invites">
-            </div>
+        <div class="card bg-light mb-3 linkGroup">
+            <div class="card-header">Current Invites</div>
+            <ul class="list-group list-group-flush" id="invites">
+            </ul>
         </div>
         <div class="linkForm">
-            Generate Invite
-            <div class="list-group">
-                <form action="#" method="POST" id="inviteForm">
-                    <div class="form-group">
-                        <div class="list-group-item">
-                            <label for="hours">Hours</label>
-                            <select class="form-control" id="hours" name="hours">
-                            </select>
-                            <label for="minutes">Minutes</label>
-                            <select class="form-control" id="minutes" name="minutes">
-                            </select>
+            <div class="card bg-light mb-3">
+                <div class="card-header">Generate Invite</div>
+                <div class="card-body">
+                    <form action="#" method="POST" id="inviteForm">
+                            <div class="form-group">
+                                <label for="hours">Hours</label>
+                                <select class="form-control" id="hours" name="hours">
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="minutes">Minutes</label>
+                                <select class="form-control" id="minutes" name="minutes">
+                                </select>
+                            </div>
                             <input type="submit" class="btn btn-primary" value="Generate">
-                        </div>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
         </div>
         <div class="contactBox">

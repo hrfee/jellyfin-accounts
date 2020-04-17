@@ -19,30 +19,30 @@ function addItem(invite) {
     var links = document.getElementById('invites');
     var listItem = document.createElement('li');
     listItem.id = invite[0]
-    listItem.classList.add('list-group-item', 'align-middle');
+    listItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'd-inline-block');
     var listCode = document.createElement('div');
-    listCode.classList.add('float-left');
+    listCode.classList.add('d-flex', 'align-items-center', 'text-monospace');
     var codeLink = document.createElement('a');
-    codeLink.appendChild(document.createTextNode(invite[0]));
+    codeLink.setAttribute('style', 'margin-right: 2%;');
+    codeLink.appendChild(document.createTextNode(invite[0].replace(/-/g, '‑')));
     listCode.appendChild(codeLink);
     listItem.appendChild(listCode);
     var listRight = document.createElement('div');
-    listRight.classList.add('float-right');
-    listText = document.createElement('div');
+    listText = document.createElement('span');
     listText.id = invite[0] + '_expiry'
     listText.appendChild(document.createTextNode(invite[1]));
     listRight.appendChild(listText);
     if (invite[2] == 0) {    
         var inviteCode = window.location.href + 'invite/' + invite[0];
         codeLink.href = inviteCode;
-        listCode.appendChild(document.createTextNode(" "));
+        // listCode.appendChild(document.createTextNode(" "));
         var codeCopy = document.createElement('i');
         codeCopy.onclick = function(){toClipboard(inviteCode)};
         codeCopy.classList.add('fa', 'fa-clipboard');
         listCode.appendChild(codeCopy);
         var listDelete = document.createElement('button');
         listDelete.onclick = function(){deleteInvite(invite[0])};
-        listDelete.classList.add('btn', 'btn-outline-danger', 'float-right');
+        listDelete.classList.add('btn', 'btn-outline-danger');
         listDelete.appendChild(document.createTextNode('Delete'));
         listRight.appendChild(listDelete);
     };

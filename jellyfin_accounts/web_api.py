@@ -92,7 +92,7 @@ def newUser():
         validation = validator.validate(data['password'])
         valid = True
         for criterion in validation:
-            if validation[criterion] == False:
+            if validation[criterion] is False:
                 valid = False
         if valid:
             log.debug('User password valid')
@@ -170,7 +170,8 @@ def getInvites():
         invites = {'invites': []}
     response = {'invites': []}
     for index, i in enumerate(invites['invites']):
-        expiry = datetime.datetime.strptime(i['valid_till'], '%Y-%m-%dT%H:%M:%S.%f')
+        expiry = datetime.datetime.strptime(i['valid_till'],
+                                            '%Y-%m-%dT%H:%M:%S.%f')
         if current_time >= expiry:
             log.debug(('Housekeeping: Deleting old invite ' +
                        invites['invites'][index]['code']))
