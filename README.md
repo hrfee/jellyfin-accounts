@@ -8,10 +8,17 @@ A basic account management system for [Jellyfin](https://github.com/jellyfin/jel
 * Uses [Flask](https://github.com/pallets/flask), [HTTPAuth](https://github.com/miguelgrinberg/Flask-HTTPAuth), [itsdangerous](https://github.com/pallets/itsdangerous), and [Waitress](https://github.com/Pylons/waitress)
 * Frontend uses [Bootstrap](https://getbootstrap.com), [jQuery](https://jquery.com) and [jQuery-serialize-object](https://github.com/macek/jquery-serialize-object)
 * Password resets are handled using smtplib, requests, and [jinja](https://github.com/pallets/jinja)
-## Screenshots
+## Interface
 <p align="center">
-    <img src="images/admin.png" width="45%"></img> <img src="images/create.png" width="45%"></img>
+    <img src="images/jfa.gif" width="100%"></img>
 </p>
+
+<p align="center">
+    <img src="images/admin.png" width="48%" style="margin-right: 1.5%;" alt="Admin page"></img> 
+    <img src="images/create.png" width="48%" style="margin-left: 1.5%;" alt="Account creation page"></img>
+</p>
+
+
 
 ## Get it
 ### Requirements
