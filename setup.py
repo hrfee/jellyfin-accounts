@@ -23,7 +23,10 @@ setup(
     data_files=[('data', ['data/config-default.ini',
                           'data/email.html',
                           'data/email.mjml',
-                          'data/email.txt']),
+                          'data/email.txt',
+                          'data/invite-email.html',
+                          'data/invite-email.mjml',
+                          'data/invite-email.txt']),
                 ('data/static', ['data/static/admin.js']),
                 ('data/templates', [
                           'data/templates/404.html',

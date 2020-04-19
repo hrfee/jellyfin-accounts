@@ -2,7 +2,7 @@ function parseInvite(invite, empty = false) {
     if (empty === true) {
         return ["None", "", "1"]
     } else {
-        var i = ["", "", "0"];
+        var i = ["", "", "0", invite['email']];
         i[0] = invite['code'];
         if (invite['hours'] == 0) {
             i[1] = invite['minutes'] + 'm';
@@ -40,6 +40,13 @@ function addItem(invite) {
         codeCopy.onclick = function(){toClipboard(inviteCode)};
         codeCopy.classList.add('fa', 'fa-clipboard');
         listCode.appendChild(codeCopy);
+        console.log(invite[3]);
+        if (typeof(invite[3]) != 'undefined') {
+            var sentTo = document.createElement('span');
+            sentTo.setAttribute('style', 'color: grey; margin-left: 2%; font-style: italic; font-size: 75%;');
+            sentTo.appendChild(document.createTextNode('Sent to ' + invite[3]));
+            listCode.appendChild(sentTo);
+        };
         var listDelete = document.createElement('button');
         listDelete.onclick = function(){deleteInvite(invite[0])};
         listDelete.classList.add('btn', 'btn-outline-danger');
@@ -153,7 +160,11 @@ function toClipboard(str) {
     }
 };
 $("form#inviteForm").submit(function() {
-    var send = $("form#inviteForm").serializeJSON();
+    var send_object = $("form#inviteForm").serializeObject();
+    if (document.getElementById('send_to_address_enabled').checked) {
+        send_object['email'] = document.getElementById('send_to_address').value;
+    }
+    var send = JSON.stringify(send_object);
     $.ajax('/generateInvite', {
         data : send,
         contentType : 'application/json',

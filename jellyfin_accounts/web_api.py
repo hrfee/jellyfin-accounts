@@ -62,7 +62,7 @@ while attempts != 3:
     except Jellyfin.AuthenticationError:
         attempts += 1
         log.error(('Failed to authenticate with ' +
-                   config['jellyfin']['server'] + 
+                   config['jellyfin']['server'] +
                    '. Retrying...'))
         time.sleep(5)
 
@@ -140,12 +140,26 @@ def newUser():
 def generateInvite():
     current_time = datetime.datetime.now()
     data = request.get_json()
-    delta = datetime.timedelta(hours=int(data['hours']), 
+    delta = datetime.timedelta(hours=int(data['hours']),
                                minutes=int(data['minutes']))
     invite = {'code': secrets.token_urlsafe(16)}
     log.debug(f'Creating new invite: {invite["code"]}')
-    invite['valid_till'] = (current_time +
-                            delta).strftime('%Y-%m-%dT%H:%M:%S.%f')
+    valid_till = current_time + delta
+    invite['valid_till'] = valid_till.strftime('%Y-%m-%dT%H:%M:%S.%f')
+    if 'email' in data and config.getboolean('invite_emails', 'enabled'):
+        address = data['email']
+        invite['email'] = address
+        log.info(f'Sending invite to {address}')
+        method = config['email']['method']
+        if method == 'mailgun':
+            from jellyfin_accounts.email import Mailgun
+            email = Mailgun(address)
+        elif method == 'smtp':
+            from jellyfin_accounts.email import Smtp
+            email = Smtp(address)
+        email.construct_invite({'expiry': valid_till,
+                                'code': invite['code']})
+        email.send()
     try:
         with open(config['files']['invites'], 'r') as f:
             invites = json.load(f)
@@ -178,13 +192,15 @@ def getInvites():
             del invites['invites'][index]
         else:
             valid_for = expiry - current_time
-            response['invites'].append({
-                'code': i['code'],
-                'hours': valid_for.seconds//3600,
-                'minutes': (valid_for.seconds//60) % 60})
+            invite = {'code': i['code'],
+                      'hours': valid_for.seconds//3600,
+                      'minutes': (valid_for.seconds//60) % 60}
+            if 'email' in i:
+                invite['email'] = i['email']
+            response['invites'].append(invite)
     with open(config['files']['invites'], 'w') as f:
         f.write(json.dumps(invites, indent=4, default=str))
-    return jsonify(response)  
+    return jsonify(response)
 
 
 @app.route('/deleteInvite', methods=['POST'])
@@ -235,5 +251,3 @@ def modifyConfig():
         temp_config.write(config_file)
     log.debug('Config written')
     return jsonify(data)
-
-

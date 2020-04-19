@@ -1,4 +1,4 @@
-<!-- FILE: email.mjml -->
+<!-- FILE: invite-email.mjml -->
 <!doctype html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 
@@ -150,11 +150,10 @@
                   <tr>
                     <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
                       <div style="font-family:Noto Sans, Helvetica, Arial, sans-serif;font-size:15px;line-height:1;text-align:left;color:#000000;">
-                        <p>Hi {{ username }},</p>
-                        <p> Someone has recently requested a password reset on Jellyfin.</p>
-                        <p>If this was you, enter the below pin into the prompt.</p>
-                        <p>The code will expire on {{ expiry_date }}, at {{ expiry_time }}, which is in {{ expires_in }}.</p>
-                        <p>If this wasn't you, please ignore this email.</p>
+                        <p>Hi,</p>
+                        <h2>You've been invited to Jellyfin.</h2>
+                        <p>To join, click the button below.</p>
+                        <p>This invite will expire on {{ expiry_date }}, at {{ expiry_time }}, which is in {{ expires_in }}, so act quick.</p>
                       </div>
                     </td>
                   </tr>
@@ -163,9 +162,7 @@
                       <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:separate;line-height:100%;">
                         <tr>
                           <td align="center" bgcolor="#414141" role="presentation" style="border:none;border-radius:3px;cursor:auto;mso-padding-alt:10px 25px;background:#414141;" valign="middle">
-                            <p style="display:inline-block;background:#414141;color:#ffffff;font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;font-weight:normal;line-height:120%;margin:0;text-decoration:none;text-transform:none;padding:10px 25px;mso-padding-alt:0px;border-radius:3px;">
-                              {{ pin }}
-                            </p>
+                            <a href="{{ invite_link }}" style="display:inline-block;background:#414141;color:#ffffff;font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;font-weight:normal;line-height:120%;margin:0;text-decoration:none;text-transform:none;padding:10px 25px;mso-padding-alt:0px;border-radius:3px;" target="_blank"> Setup your account </a>
                           </td>
                         </tr>
                       </table>

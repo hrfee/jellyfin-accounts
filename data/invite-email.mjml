@@ -13,13 +13,12 @@
         <mj-section>
             <mj-column>
                 <mj-text font-size="15px" font-family="Noto Sans, Helvetica, Arial, sans-serif">
-                    <p>Hi {{ username }},</p>
-                    <p>    Someone has recently requested a password reset on Jellyfin.</p>
-                    <p>If this was you, enter the below pin into the prompt.</p>
-                    <p>The code will expire on {{ expiry_date }}, at {{ expiry_time }}, which is in {{ expires_in }}.</p>
-                    <p>If this wasn't you, please ignore this email.</p>
+                    <p>Hi,</p>
+                    <h2>You've been invited to Jellyfin.</h2>
+                    <p>To join, click the button below.</p>
+                    <p>This invite will expire on {{ expiry_date }}, at {{ expiry_time }}, which is in {{ expires_in }}, so act quick.</p>
                 </mj-text>
-                <mj-button>{{ pin }}</mj-button>
+                <mj-button href="{{ invite_link }}">Setup your account</mj-button>
             </mj-column>
         </mj-section>
         <mj-section background-color="#f0f0f0">

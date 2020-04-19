@@ -85,6 +85,7 @@ optional arguments:
 For detailed descriptions of each setting, see [setup](https://github.com/hrfee/jellyfin-accounts/wiki/Setup).
 
 On first run, the default configuration is copied to `~/.jf-accounts/config.ini`.
+
 ```
 [jellyfin]
 ; It is reccommended to create a limited admin account for this program.
@@ -98,7 +99,7 @@ device = jf-accounts
 device_id = jf-accounts-0.1
 
 [ui]
-; Set to 0.0.0.0 to run localhost
+; Set 0.0.0.0 to run localhost
 host = 0.0.0.0
 port = 8056
 username = your username
@@ -127,27 +128,41 @@ number = 1
 special = 0
 
 [email]
-; Enable to store provided email addresses, monitor jellyfin directory for pw-resets, and send pin
-enabled = true
-; Directory to monitor for passwordReset*.json files. Usually the jellyfin config directory
-watch_directory = /path/to/jellyfin
+; Leave this whole section if you aren't using any email-related features.
 use_24h = true
 ; Date format follows datetime's strftime.
 date_format = %-d/%-m/%-y
-; Path to custom email html. If blank, uses the internal template.
-email_template =
-; Path to alternate plaintext email. If blank, uses the internal template.
-email_plaintext = 
 ; Displayed at bottom of emails
 message = Need help? contact me.
 ; Mail methods: mailgun, smtp
-method = mailgun
-; Subject of emails
-subject = Password Reset - Jellyfin
+method = smtp
 ; Address to send from
 address = jellyfin@jellyf.in
 ; The name of the sender
 from = Jellyfin
+
+[password_resets]
+; Enable to store provided email addresses, monitor jellyfin directory for pw-resets, and send pin
+enabled = true
+; Directory to monitor for passwordReset*.json files. Usually the jellyfin config directory
+watch_directory = /path/to/jellyfin
+; Path to custom email html. If blank, uses the internal template.
+email_html =
+; Path to alternate plaintext email. If blank, uses the internal template.
+email_text = 
+; Subject of emails
+subject = Password Reset - Jellyfin
+
+[invite_emails]
+; If enabled, allows one to send an invite directly to an email address.
+enabled = true
+; Path to custom email html. If blank, uses the internal template.
+email_html =
+; Path to alternate plaintext email. If blank, uses the internal template.
+email_text = 
+subject = Invite - Jellyfin
+; Base url for jf-accounts. This necessary because most will use a reverse proxy, so the program has no other way of knowing what URL to send.
+url_base = http://accounts.jellyf.in:8056/invite
 
 [mailgun]
 
@@ -167,7 +182,7 @@ password = smtp password
 
 ; Path to store valid invites.
 invites = 
-; Path to store email addresses in JSON
+; Path to store emails addresses in JSON
 emails = 
 ; Path to the user policy template. Can be acquired with get-template.
 user_template = 

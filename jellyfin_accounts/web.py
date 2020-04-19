@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 from flask import Flask, send_from_directory, render_template
 from __main__ import config, app, g
@@ -31,11 +32,23 @@ from jellyfin_accounts.web_api import checkInvite
 def inviteProxy(path):
     if checkInvite(path):
         log.info(f'Invite {path} used to request form')
+        try:
+            with open(config['files']['invites'], 'r') as f:
+                invites = json.load(f)
+        except (FileNotFoundError, json.decoder.JSONDecodeError):
+            invites = {'invites': []}
+        for invite in invites['invites']:
+            if invite['code'] == path:
+                try:
+                    email = invite['email']
+                except KeyError:
+                    email = ""
         return render_template('form.html',
                                contactMessage=config['ui']['contact_message'],
                                helpMessage=config['ui']['help_message'],
                                successMessage=config['ui']['success_message'],
-                               jfLink=config['jellyfin']['server'])
+                               jfLink=config['jellyfin']['server'],
+                               email=email)
     elif 'admin.html' not in path and 'admin.html' not in path:
         return app.send_static_file(path)
     else:

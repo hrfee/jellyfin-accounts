@@ -13,6 +13,11 @@
             .pageContainer {
                 margin: 20%;
             }
+            @media (max-width: 1100px) {
+                .pageContainer {
+                    margin: 2%;
+                }
+            }
             .contactBox {
                 color: grey;
             }
@@ -54,7 +59,7 @@
                                 <form action="#" method="POST">
                                     <div class="form-group">
                                         <label for="inputEmail">Email</label>
-                                        <input type="email" class="form-control" id="inputEmail" name="email" placeholder="Email" required>
+                                        <input type="email" class="form-control" id="inputEmail" name="email" placeholder="Email" value="{{ email }}" required>
                                     </div>
                                     <div class="form-group">
                                         <label for="inputUsername">Username</label>
