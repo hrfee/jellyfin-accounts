@@ -77,7 +77,7 @@ optional arguments:
 * When someone initiates forget password on Jellyfin, a file named `passwordreset*.json` is created in its configuration directory. This directory is monitored and when created, the program reads the username, expiry time and PIN, puts it into a template and sends it to whatever address is specified in `emails.json`.
 * **The default forget password popup references the `passwordreset*.json` file created. This is confusing for users, so a quick fix is to edit the `MessageForgotPasswordFileCreated` string in Jellyfin's language folder.**
 * Currently, jellyfin-accounts supports generic SSL/TLS secured SMTP, and the [mailgun](https://mailgun.com) REST API. 
-* Email html is created using [mjml](https://mjml.io), and [jinja](https://github.com/pallets/jinja) templating is used. If you wish to create your own, ensure you use the same jinja expressions (`{{ pin }}`, etc.) as used in `data/email.mjml`, and also create a plain text version for legacy email clients.
+* Email html is created using [mjml](https://mjml.io), and [jinja](https://github.com/pallets/jinja) templating is used. If you wish to create your own, ensure you use the same jinja expressions (`{{ pin }}`, etc.) as used in `data/email.mjml` or `invite-email.mjml`, and also create plain text versions for legacy email clients.
 
 #### Configuration
 * Note: Make sure to put this behind a reverse proxy with HTTPS.

@@ -73,10 +73,32 @@
                 </div>
             </div>
         </div>
+        <div class="modal fade" id="users" tabindex="-1" role="dialog" aria-labelledby="users" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="usersTitle">Users</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <ul class="list-group list-group-flush" id="userList">
+                        </ul>
+                    </div>
+                    <div class="modal-footer" id="userFooter">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="pageContainer">
             <h1>
                 Accounts admin
             </h1>
+            <button type="button" class="btn btn-secondary" id="openUsers">
+                Users <i class="fa fa-user"></i>
+            </button>
             <div class="card bg-light mb-3 linkGroup">
                 <div class="card-header">Current Invites</div>
                 <ul class="list-group list-group-flush" id="invites">

@@ -35,14 +35,32 @@ class Jellyfin:
            "User-Agent": self.useragent,
            "X-Emby-Authorization": self.auth
         }
-    def getUsers(self, username="all"):
-        response = requests.get(self.server+"/emby/Users/Public").json()
-        if username == "all":
-            return response
+    def getUsers(self, username="all", id="all", public=True):
+        if public:
+            response = requests.get(self.server+"/emby/Users/Public").json()
         else:
+            response = requests.get(self.server+"/emby/Users",
+                                    headers=self.header,
+                                    params={'Username': self.username,
+                                            'Pw': self.password})
+            if response.status_code == 200:
+                response = response.json()
+            else:
+                raise self.AuthenticationRequiredError
+        if username == "all" and id == "all":
+            return response
+        elif id == "all":
             match = False
             for user in response:
                 if user['Name'] == username:
+                    match = True
+                    return user
+            if not match:
+                raise self.UserNotFoundError
+        else:
+            match = False
+            for user in response:
+                if user['Id'] == id:
                     match = True
                     return user
             if not match:

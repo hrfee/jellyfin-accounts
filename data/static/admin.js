@@ -32,7 +32,7 @@ function addItem(invite) {
     listText.id = invite[0] + '_expiry'
     listText.appendChild(document.createTextNode(invite[1]));
     listRight.appendChild(listText);
-    if (invite[2] == 0) {    
+    if (invite[2] == 0) {
         var inviteCode = window.location.href + 'invite/' + invite[0];
         codeLink.href = inviteCode;
         // listCode.appendChild(document.createTextNode(" "));
@@ -141,22 +141,22 @@ function addOptions(le, sel) {
     }
 };
 function toClipboard(str) {
-    const el = document.createElement('textarea'); 
-    el.value = str;                                
-    el.setAttribute('readonly', '');               
-    el.style.position = 'absolute';                
-    el.style.left = '-9999px';                     
-    document.body.appendChild(el);                 
-    const selected =            
-        document.getSelection().rangeCount > 0     
+    const el = document.createElement('textarea');
+    el.value = str;
+    el.setAttribute('readonly', '');
+    el.style.position = 'absolute';
+    el.style.left = '-9999px';
+    document.body.appendChild(el);
+    const selected =
+        document.getSelection().rangeCount > 0
             ? document.getSelection().getRangeAt(0)
-            : false;                               
-    el.select();                                   
-    document.execCommand('copy');                  
-    document.body.removeChild(el);                 
-    if (selected) {                                
-        document.getSelection().removeAllRanges(); 
-        document.getSelection().addRange(selected); 
+            : false;
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+    if (selected) {
+        document.getSelection().removeAllRanges();
+        document.getSelection().addRange(selected);
     }
 };
 $("form#inviteForm").submit(function() {
@@ -176,7 +176,7 @@ $("form#inviteForm").submit(function() {
             xhr.setRequestHeader("Authorization", "Basic " + btoa(window.token + ":"));
         },
         success: function() { generateInvites(); },
-        
+
     });
     return false;
 });
@@ -218,6 +218,96 @@ $("form#loginForm").submit(function() {
     });
     return false;
 });
+document.getElementById('openUsers').onclick = function () {
+    $.ajax('/getUsers', {
+        type : 'GET',
+        dataType : 'json',
+        contentType: 'json',
+        xhrFields : {
+            withCredentials: true
+        },
+        beforeSend : function (xhr) {
+            xhr.setRequestHeader("Authorization", "Basic " + btoa(window.token + ":"));
+        },
+        data: { get_param: 'value' },
+        complete : function(data) {
+            if (data['status'] == 200) {
+                var list = document.getElementById('userList');
+                list.textContent = '';
+                if (document.getElementById('saveUsers')) {
+                    document.getElementById('saveUsers').remove()
+                };
+                var users = data['responseJSON']['users'];
+                for (var i = 0; i < users.length; i++) {
+                    var user = users[i]
+                    var entry = document.createElement('p');
+                    entry.id = 'user_' + user['name'];
+                    entry.appendChild(document.createTextNode(user['name']));
+                    var address = document.createElement('span');
+                    address.setAttribute('style', 'margin-left: 2%; margin-right: 2%; color: grey;');
+                    address.classList.add('addressText');
+                    address.id = 'address_' + user['email'];
+                    if (typeof(user['email']) != 'undefined') {
+                        address.appendChild(document.createTextNode(user['email']));
+                    };
+                    var editButton = document.createElement('i');
+                    editButton.classList.add('fa', 'fa-edit');
+                    editButton.onclick = function() {
+                        this.classList.remove('fa', 'fa-edit');
+                        var input = document.createElement('input');
+                        input.setAttribute('type', 'email');
+                        input.setAttribute('style', 'margin-left: 2%; color: grey;');
+                        var addressElement = this.parentNode.getElementsByClassName('addressText')[0];
+                        if (addressElement.textContent != '') {
+                            input.value = addressElement.textContent;
+                        } else {
+                            input.placeholder = 'Email Address';
+                        };
+                        this.parentNode.replaceChild(input, addressElement);
+                        if (document.getElementById('saveUsers') == null) {
+                            var footer = document.getElementById('userFooter')
+                            var saveUsers = document.createElement('input');
+                            saveUsers.classList.add('btn', 'btn-primary');
+                            saveUsers.setAttribute('type', 'button');
+                            saveUsers.value = 'Save Changes';
+                            saveUsers.id = 'saveUsers';
+                            saveUsers.onclick = function() {
+                                var send = {}
+                                var entries = document.getElementById('userList').children;
+                                for (var i = 0; i < entries.length; i++) {
+                                    var entry = entries[i];
+                                    if (typeof(entry.getElementsByTagName('input')[0]) != 'undefined') {
+                                        var name = entry.id.replace(/user_/g, '')
+                                        var address = entry.getElementsByTagName('input')[0].value;
+                                        send[name] = address
+                                    };
+                                };
+                                console.log(send);
+                                send = JSON.stringify(send);
+                                $.ajax('/modifyUsers', {
+                                    data : send,
+                                    contentType : 'application/json',
+                                    type : 'POST',
+                                    xhrFields : {
+                                        withCredentials: true
+                                    },
+                                    beforeSend : function (xhr) {
+                                        xhr.setRequestHeader("Authorization", "Basic " + btoa(window.token + ":"));
+                                    },
+                                    success: function() { $('#users').modal('hide'); },
+                                });
+                            };
+                            footer.appendChild(saveUsers);
+                        };
+                    };
+                    entry.appendChild(address);
+                    entry.appendChild(editButton);
+                    list.appendChild(entry);
+                };
+            };
+        }
+    });
+    $('#users').modal('show');
+};
 generateInvites(empty = true);
 $("#login").modal('show');
-

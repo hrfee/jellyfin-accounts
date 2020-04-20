@@ -3,6 +3,7 @@ import json
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from jellyfin_accounts.email import Mailgun, Smtp
+from jellyfin_accounts.web_api import jf
 from __main__ import config
 from __main__ import email_log as log
 
@@ -41,7 +42,8 @@ class Handler(FileSystemEventHandler):
                 try:
                     with open(config['files']['emails'], 'r') as f:
                         emails = json.load(f)
-                        address = emails[reset['UserName']]
+                        id = jf.getUsers(reset['UserName'], public=False)['Id']
+                        address = emails[id]
                     method = config['email']['method']
                     if method == 'mailgun':
                         email = Mailgun(address)

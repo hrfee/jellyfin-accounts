@@ -66,6 +66,36 @@ while attempts != 3:
                    '. Retrying...'))
         time.sleep(5)
 
+
+def switchToIds():
+    try:
+        with open(config['files']['emails'], 'r') as f:
+            emails = json.load(f)
+    except (FileNotFoundError, json.decoder.JSONDecodeError):
+        emails = {}
+    users = jf.getUsers(public=False)
+    new_emails = {}
+    match = False
+    for key in emails:
+        for user in users:
+            if user['Name'] == key:
+                match = True
+                new_emails[user['Id']] = emails[key]
+            elif user['Id'] == key:
+                new_emails[user['Id']] = emails[key]
+    if match:
+        from pathlib import Path
+        email_file = Path(config['files']['emails']).name
+        log.info((f'{email_file} modified to use userID instead of ' +
+                  'usernames. These will be used in future.'))
+        emails = new_emails
+        with open(config['files']['emails'], 'w') as f:
+            f.write(json.dumps(emails, indent=4))
+
+
+# Temporary, switches emails.json over from using Usernames to User IDs.
+switchToIds()
+
 if config.getboolean('password_validation', 'enabled'):
     validator = PasswordValidator(config['password_validation']['min_length'],
                                   config['password_validation']['upper'],
@@ -113,13 +143,13 @@ def newUser():
                     jf.setPolicy(user.json()['Id'], default_policy)
                 except:
                     log.debug('setPolicy failed')
-                if config.getboolean('email', 'enabled'):
+                if config.getboolean('password_resets', 'enabled'):
                     try:
                         with open(config['files']['emails'], 'r') as f:
                             emails = json.load(f)
                     except (FileNotFoundError, json.decoder.JSONDecodeError):
                         emails = {}
-                    emails[data['username']] = data['email']
+                    emails[user.json()['Id']] = data['email']
                     with open(config['files']['emails'], 'w') as f:
                         f.write(json.dumps(emails, indent=4))
                     log.debug('Email address stored')
@@ -251,3 +281,45 @@ def modifyConfig():
         temp_config.write(config_file)
     log.debug('Config written')
     return jsonify(data)
+
+
+@app.route('/getUsers', methods=['GET', 'POST'])
+@auth.login_required
+def getUsers():
+    log.debug('User and email list requested')
+    try:
+        with open(config['files']['emails'], 'r') as f:
+            emails = json.load(f)
+    except (FileNotFoundError, json.decoder.JSONDecodeError):
+        emails = {}
+    response = {'users': []}
+    users = jf.getUsers(public=False)
+    for user in users:
+        entry = {'name': user['Name']}
+        if user['Id'] in emails:
+            entry['email'] = emails[user['Id']]
+        response['users'].append(entry)
+    return jsonify(response)
+
+@app.route('/modifyUsers', methods=['POST'])
+@auth.login_required
+def modifyUsers():
+    data = request.get_json()
+    log.debug('User and email list modification requested')
+    try:
+        with open(config['files']['emails'], 'r') as f:
+            emails = json.load(f)
+    except (FileNotFoundError, json.decoder.JSONDecodeError):
+        emails = {}
+    for key in data:
+        uid = jf.getUsers(key, public=False)['Id']
+        log.debug(f'Email for user "{key}" modified')
+        emails[uid] = data[key]
+    try:
+        with open(config['files']['emails'], 'w') as f:
+            f.write(json.dumps(emails, indent=4))
+        return resp()
+    except:
+        return resp(success=False)
+
+
