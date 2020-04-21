@@ -70,7 +70,9 @@
                                         <input type="password" class="form-control" id="inputPassword" name="password" placeholder="Password" required>
                                     </div>
                                     <div class="btn-group" role="group" aria-label="Button & Error" id="errorBox">
-                                        <input type="submit" class="btn btn-outline-primary" value="Create Account">
+                                        <button type="submit" class="btn btn-outline-primary" id="submitButton">
+                                            <span id="createAccount">Create Account</span>
+                                        </button>
                                     </div>
                                 </form>
                             </div>
@@ -122,7 +124,29 @@
                     };
                 }
             });
+            function toggleSpinner () {
+                var submitButton = document.getElementById('submitButton');
+                var oldSpan = document.getElementById('createAccount');
+                var newSpan = document.createElement('span');
+                newSpan.id = 'createAccount';
+                if (document.getElementById('createAccountSpinner')) {
+                    newSpan.appendChild(document.createTextNode('Create Account'));
+                    submitButton.disabled = false;
+                } else {
+                    var spinner = document.createElement('span');
+                    spinner.id = 'createAccountSpinner';
+                    spinner.classList.add('spinner-border', 'spinner-border-sm');
+                    spinner.setAttribute('role', 'status');
+                    spinner.setAttribute('aria-hidden', 'true');
+                    var text = document.createTextNode(' Creating...');
+                    newSpan.appendChild(spinner);
+                    newSpan.appendChild(text);
+                    submitButton.disabled = true;
+                }
+                submitButton.replaceChild(newSpan, oldSpan);
+            };
             $("form").submit(function() {
+                toggleSpinner();
                 var send = $("form").serializeObject();
                 send['code'] = code;
                 send = JSON.stringify(send);
@@ -132,6 +156,7 @@
                     type : 'POST',
                     crossDomain : true,
                     complete : function(response){
+                        toggleSpinner();
                         var data = response['responseJSON'];
                         if ('error' in data) {
                             var text = document.createTextNode(data['error']);
