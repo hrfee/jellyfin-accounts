@@ -76,6 +76,11 @@ class Jellyfin:
             json = response.json()
             self.userId = json['User']['Id']
             self.accessToken = json['AccessToken']
+            self.auth = "MediaBrowser "
+            self.auth += f"Client={self.client}, "
+            self.auth += f"Device={self.device}, "
+            self.auth += f"DeviceId={self.deviceId}, "
+            self.auth += f"Version={self.version}"
             self.auth += f", Token={self.accessToken}"
             self.header['X-Emby-Authorization'] = self.auth
             return True

@@ -52,10 +52,12 @@ jf = Jellyfin(config['jellyfin']['server'],
               config['jellyfin']['device_id'])
 
 attempts = 0
+success = False
 while attempts != 3:
     try:
         jf.authenticate(config['jellyfin']['username'],
                         config['jellyfin']['password'])
+        success = True
         log.info(('Successfully authenticated with ' +
                  config['jellyfin']['server']))
         break
@@ -65,6 +67,9 @@ while attempts != 3:
                    config['jellyfin']['server'] +
                    '. Retrying...'))
         time.sleep(5)
+
+if not success:
+    log.error('Could not authenticate after 3 tries.')
 
 
 def switchToIds():
@@ -126,7 +131,9 @@ def newUser():
                 valid = False
         if valid:
             log.debug('User password valid')
-            try:
+            try: 
+                jf.authenticate(config['jellyfin']['username'],
+                                config['jellyfin']['password'])
                 user = jf.newUser(data['username'], data['password'])
             except Jellyfin.UserExistsError:
                 error = 'User already exists with name '
@@ -293,6 +300,8 @@ def getUsers():
     except (FileNotFoundError, json.decoder.JSONDecodeError):
         emails = {}
     response = {'users': []}
+    jf.authenticate(config['jellyfin']['username'],
+                    config['jellyfin']['password'])
     users = jf.getUsers(public=False)
     for user in users:
         entry = {'name': user['Name']}
@@ -311,6 +320,8 @@ def modifyUsers():
             emails = json.load(f)
     except (FileNotFoundError, json.decoder.JSONDecodeError):
         emails = {}
+    jf.authenticate(config['jellyfin']['username'],
+                    config['jellyfin']['password'])
     for key in data:
         uid = jf.getUsers(key, public=False)['Id']
         log.debug(f'Email for user "{key}" modified')
