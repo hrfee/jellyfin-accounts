@@ -1,0 +1,241 @@
+[2020-04-25 20:06:42.825] [info] Resources files: /home/hrfee/.config/waybar/config.json, /home/hrfee/.config/waybar/style.css
+Unknown option -c
+[2020-04-25 20:06:42.834] [warning] For a functional tray you must have libappindicator-* installed and export XDG_CURRENT_DESKTOP=Unity
+[2020-04-25 20:06:42.865] [info] mpd: Connected to MPD
+[2020-04-25 20:06:43.062] [warning] Requested height: 30 exceeds the minimum height: 37 required by the modules
+[2020-04-25 20:06:43.062] [info] Height size is defined in the config file so it will stay like that
+[2020-04-25 20:06:43.062] [warning] Requested width: 0 exceeds the minimum width: 3840 required by the modules
+[2020-04-25 20:07:14.861] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:07:14.863] [info] mpd: Connected to MPD
+[2020-04-25 20:07:46.891] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:07:46.892] [info] mpd: Connected to MPD
+[2020-04-25 20:08:18.921] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:08:18.922] [info] mpd: Connected to MPD
+[2020-04-25 20:09:03.147] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:09:03.149] [info] mpd: Connected to MPD
+[2020-04-25 20:09:52.171] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:09:52.172] [info] mpd: Connected to MPD
+[2020-04-25 20:10:43.011] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:10:43.012] [info] mpd: Connected to MPD
+[2020-04-25 20:11:15.041] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:11:15.041] [info] mpd: Connected to MPD
+[2020-04-25 20:11:47.071] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:11:47.071] [info] mpd: Connected to MPD
+[2020-04-25 20:12:19.101] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:12:19.103] [info] mpd: Connected to MPD
+[2020-04-25 20:12:51.131] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:12:51.132] [info] mpd: Connected to MPD
+[2020-04-25 20:13:23.161] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:13:23.161] [info] mpd: Connected to MPD
+[2020-04-25 20:13:55.191] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:13:55.191] [info] mpd: Connected to MPD
+[2020-04-25 20:14:27.221] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:14:27.222] [info] mpd: Connected to MPD
+[2020-04-25 20:14:59.251] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:14:59.251] [info] mpd: Connected to MPD
+[2020-04-25 20:15:31.281] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:15:31.282] [info] mpd: Connected to MPD
+[2020-04-25 20:16:03.311] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:16:03.311] [info] mpd: Connected to MPD
+[2020-04-25 20:16:35.341] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:16:35.342] [info] mpd: Connected to MPD
+[2020-04-25 20:17:07.371] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:17:07.372] [info] mpd: Connected to MPD
+[2020-04-25 20:17:39.401] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:17:39.402] [info] mpd: Connected to MPD
+[2020-04-25 20:18:11.431] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:18:11.431] [info] mpd: Connected to MPD
+[2020-04-25 20:18:43.461] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:18:43.461] [info] mpd: Connected to MPD
+[2020-04-25 20:19:15.491] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:19:15.492] [info] mpd: Connected to MPD
+[2020-04-25 20:19:47.521] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:19:47.522] [info] mpd: Connected to MPD
+[2020-04-25 20:20:19.551] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:20:19.553] [info] mpd: Connected to MPD
+[2020-04-25 20:20:51.581] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:20:51.582] [info] mpd: Connected to MPD
+[2020-04-25 20:21:23.611] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:21:23.612] [info] mpd: Connected to MPD
+[2020-04-25 20:21:55.641] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:21:55.642] [info] mpd: Connected to MPD
+[2020-04-25 20:22:27.671] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:22:27.671] [info] mpd: Connected to MPD
+[2020-04-25 20:22:59.701] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:22:59.702] [info] mpd: Connected to MPD
+[2020-04-25 20:23:31.731] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:23:31.732] [info] mpd: Connected to MPD
+[2020-04-25 20:24:03.761] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:24:03.762] [info] mpd: Connected to MPD
+[2020-04-25 20:24:35.791] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:24:35.792] [info] mpd: Connected to MPD
+[2020-04-25 20:25:07.821] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:25:07.822] [info] mpd: Connected to MPD
+[2020-04-25 20:25:39.851] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:25:39.853] [info] mpd: Connected to MPD
+[2020-04-25 20:26:11.881] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:26:11.882] [info] mpd: Connected to MPD
+[2020-04-25 20:26:43.911] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:26:43.911] [info] mpd: Connected to MPD
+[2020-04-25 20:27:15.941] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:27:15.943] [info] mpd: Connected to MPD
+[2020-04-25 20:27:47.971] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:27:47.972] [info] mpd: Connected to MPD
+[2020-04-25 20:28:20.001] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:28:20.002] [info] mpd: Connected to MPD
+[2020-04-25 20:28:52.031] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:28:52.032] [info] mpd: Connected to MPD
+[2020-04-25 20:29:24.061] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:29:24.062] [info] mpd: Connected to MPD
+[2020-04-25 20:29:56.091] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:29:56.092] [info] mpd: Connected to MPD
+[2020-04-25 20:30:28.121] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:30:28.124] [info] mpd: Connected to MPD
+[2020-04-25 20:31:00.151] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:31:00.152] [info] mpd: Connected to MPD
+[2020-04-25 20:31:32.181] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:31:32.182] [info] mpd: Connected to MPD
+[2020-04-25 20:32:04.211] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:32:04.212] [info] mpd: Connected to MPD
+[2020-04-25 20:32:36.241] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:32:36.242] [info] mpd: Connected to MPD
+[2020-04-25 20:33:08.271] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:33:08.272] [info] mpd: Connected to MPD
+[2020-04-25 20:33:40.301] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:33:40.303] [info] mpd: Connected to MPD
+[2020-04-25 20:34:12.331] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:34:12.332] [info] mpd: Connected to MPD
+[2020-04-25 20:34:44.361] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:34:44.362] [info] mpd: Connected to MPD
+[2020-04-25 20:35:16.391] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:35:16.392] [info] mpd: Connected to MPD
+[2020-04-25 20:35:48.421] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:35:48.422] [info] mpd: Connected to MPD
+[2020-04-25 20:36:20.451] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:36:20.452] [info] mpd: Connected to MPD
+[2020-04-25 20:36:52.481] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:36:52.481] [info] mpd: Connected to MPD
+[2020-04-25 20:37:24.511] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:37:24.512] [info] mpd: Connected to MPD
+[2020-04-25 20:37:56.541] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:37:56.542] [info] mpd: Connected to MPD
+[2020-04-25 20:38:28.571] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:38:28.572] [info] mpd: Connected to MPD
+[2020-04-25 20:39:00.601] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:39:00.602] [info] mpd: Connected to MPD
+[2020-04-25 20:39:32.631] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:39:32.632] [info] mpd: Connected to MPD
+[2020-04-25 20:40:04.660] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:40:04.661] [info] mpd: Connected to MPD
+[2020-04-25 20:40:36.691] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:40:36.692] [info] mpd: Connected to MPD
+[2020-04-25 20:41:08.720] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:41:08.721] [info] mpd: Connected to MPD
+[2020-04-25 20:41:40.751] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:41:40.752] [info] mpd: Connected to MPD
+[2020-04-25 20:42:12.781] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:42:12.782] [info] mpd: Connected to MPD
+[2020-04-25 20:42:44.811] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:42:44.812] [info] mpd: Connected to MPD
+[2020-04-25 20:43:16.840] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:43:16.841] [info] mpd: Connected to MPD
+[2020-04-25 20:43:48.871] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:43:48.872] [info] mpd: Connected to MPD
+[2020-04-25 20:44:20.901] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:44:20.902] [info] mpd: Connected to MPD
+[2020-04-25 20:44:52.931] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:44:52.932] [info] mpd: Connected to MPD
+[2020-04-25 20:45:24.960] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:45:24.961] [info] mpd: Connected to MPD
+[2020-04-25 20:45:56.990] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:45:56.991] [info] mpd: Connected to MPD
+[2020-04-25 20:46:29.021] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:46:29.022] [info] mpd: Connected to MPD
+[2020-04-25 20:47:01.051] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:47:01.052] [info] mpd: Connected to MPD
+[2020-04-25 20:47:33.080] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:47:33.081] [info] mpd: Connected to MPD
+[2020-04-25 20:48:05.111] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:48:05.112] [info] mpd: Connected to MPD
+[2020-04-25 20:48:37.124] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:48:37.125] [info] mpd: Connected to MPD
+[2020-04-25 20:49:09.154] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:49:09.155] [info] mpd: Connected to MPD
+[2020-04-25 20:49:41.162] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:49:41.163] [info] mpd: Connected to MPD
+[2020-04-25 20:50:13.191] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:50:13.191] [info] mpd: Connected to MPD
+[2020-04-25 20:50:45.214] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:50:45.215] [info] mpd: Connected to MPD
+[2020-04-25 20:51:17.244] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:51:17.244] [info] mpd: Connected to MPD
+[2020-04-25 20:51:49.274] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:51:49.275] [info] mpd: Connected to MPD
+[2020-04-25 20:52:21.304] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:52:21.305] [info] mpd: Connected to MPD
+[2020-04-25 20:52:53.334] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:52:53.335] [info] mpd: Connected to MPD
+[2020-04-25 20:53:25.364] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:53:25.364] [info] mpd: Connected to MPD
+[2020-04-25 20:53:57.394] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:53:57.395] [info] mpd: Connected to MPD
+[2020-04-25 20:54:29.424] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:54:29.426] [info] mpd: Connected to MPD
+[2020-04-25 20:55:01.454] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:55:01.455] [info] mpd: Connected to MPD
+[2020-04-25 20:55:33.484] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:55:33.486] [info] mpd: Connected to MPD
+[2020-04-25 20:56:05.515] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:56:05.516] [info] mpd: Connected to MPD
+[2020-04-25 20:56:37.544] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:56:37.545] [info] mpd: Connected to MPD
+[2020-04-25 20:57:09.563] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:57:09.564] [info] mpd: Connected to MPD
+[2020-04-25 20:57:41.594] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:57:41.595] [info] mpd: Connected to MPD
+[2020-04-25 20:58:13.624] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:58:13.625] [info] mpd: Connected to MPD
+[2020-04-25 20:58:45.654] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:58:45.655] [info] mpd: Connected to MPD
+[2020-04-25 20:59:17.684] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:59:17.684] [info] mpd: Connected to MPD
+[2020-04-25 20:59:49.714] [warning] mpd: Connection to MPD closed
+[2020-04-25 20:59:49.715] [info] mpd: Connected to MPD
+[2020-04-25 21:00:21.744] [warning] mpd: Connection to MPD closed
+[2020-04-25 21:00:21.745] [info] mpd: Connected to MPD
+[2020-04-25 21:00:53.774] [warning] mpd: Connection to MPD closed
+[2020-04-25 21:00:53.775] [info] mpd: Connected to MPD
+[2020-04-25 21:01:25.792] [warning] mpd: Connection to MPD closed
+[2020-04-25 21:01:25.794] [info] mpd: Connected to MPD
+[2020-04-25 21:01:57.821] [warning] mpd: Connection to MPD closed
+[2020-04-25 21:01:57.822] [info] mpd: Connected to MPD
+[2020-04-25 21:02:29.851] [warning] mpd: Connection to MPD closed
+[2020-04-25 21:02:29.852] [info] mpd: Connected to MPD
+[2020-04-25 21:03:01.880] [warning] mpd: Connection to MPD closed
+[2020-04-25 21:03:01.881] [info] mpd: Connected to MPD
+[2020-04-25 21:03:33.910] [warning] mpd: Connection to MPD closed
+[2020-04-25 21:03:33.911] [info] mpd: Connected to MPD
+[2020-04-25 21:04:05.941] [warning] mpd: Connection to MPD closed
+[2020-04-25 21:04:05.942] [info] mpd: Connected to MPD
+[2020-04-25 21:04:37.970] [warning] mpd: Connection to MPD closed
+[2020-04-25 21:04:37.972] [info] mpd: Connected to MPD
+[2020-04-25 21:05:10.000] [warning] mpd: Connection to MPD closed
+[2020-04-25 21:05:10.001] [info] mpd: Connected to MPD
+[2020-04-25 21:05:42.031] [warning] mpd: Connection to MPD closed
+[2020-04-25 21:05:42.032] [info] mpd: Connected to MPD
+[2020-04-25 21:06:14.060] [warning] mpd: Connection to MPD closed
+[2020-04-25 21:06:14.061] [info] mpd: Connected to MPD
+[2020-04-25 21:06:46.090] [warning] mpd: Connection to MPD closed
+[2020-04-25 21:06:46.091] [info] mpd: Connected to MPD
+[2020-04-25 21:07:18.120] [warning] mpd: Connection to MPD closed
+[2020-04-25 21:07:18.121] [info] mpd: Connected to MPD
+[2020-04-25 21:07:50.151] [warning] mpd: Connection to MPD closed
+[2020-04-25 21:07:50.152] [info] mpd: Connected to MPD
+[2020-04-25 21:08:22.180] [warning] mpd: Connection to MPD closed
+[2020-04-25 21:08:22.182] [info] mpd: Connected to MPD
+[2020-04-25 21:08:54.211] [warning] mpd: Connection to MPD closed
+[2020-04-25 21:08:54.211] [info] mpd: Connected to MPD
+[2020-04-25 21:09:26.240] [warning] mpd: Connection to MPD closed
+[2020-04-25 21:09:26.241] [info] mpd: Connected to MPD
+[2020-04-25 21:09:58.257] [warning] mpd: Connection to MPD closed
+[2020-04-25 21:09:58.258] [info] mpd: Connected to MPD

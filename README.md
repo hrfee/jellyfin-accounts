@@ -138,7 +138,7 @@ special = 0
 ; Leave this whole section if you aren't using any email-related features.
 use_24h = true
 ; Date format follows datetime's strftime.
-date_format = %-d/%-m/%-y
+date_format = %d/%m/%y
 ; Displayed at bottom of emails
 message = Need help? contact me.
 ; Mail methods: mailgun, smtp
