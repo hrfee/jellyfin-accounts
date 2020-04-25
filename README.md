@@ -46,7 +46,7 @@ Usually as simple as:
 ```
 git clone https://github.com/hrfee/jellyfin-accounts.git
 cd jellyfin-accounts
-pip3 install -r requirements.txt
+pip3 install pyOpenSSL
 python3 setup.py install
 ```
 If not, or if you want to use docker, see [install](https://github.com/hrfee/jellyfin-accounts/wiki/Install).
@@ -102,8 +102,15 @@ device_id = jf-accounts-0.1
 ; Set 0.0.0.0 to run localhost
 host = 0.0.0.0
 port = 8056
+; Enable this to use Jellyfin users instead of the below username and pw.
+jellyfin_login = true
+; Allows only admin users on Jellyfin to access admin page.
+admin_only = true
+; Username to use on admin page... (leave blank if using jellyfin_login)
 username = your username
+; ..and its corresponding password (leave blank if using jellyfin_login)
 password = your password
+
 debug = false
 
 ; Displayed at the bottom of all pages except admin

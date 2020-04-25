@@ -7,7 +7,6 @@ import secrets
 import time
 from __main__ import config, config_path, app, g
 from __main__ import web_log as log
-from jellyfin_accounts.login import auth
 from jellyfin_accounts.validate_password import PasswordValidator
 
 def resp(success=True, code=500):
@@ -50,6 +49,8 @@ jf = Jellyfin(config['jellyfin']['server'],
               config['jellyfin']['version'],
               config['jellyfin']['device'],
               config['jellyfin']['device_id'])
+
+from jellyfin_accounts.login import auth
 
 attempts = 0
 success = False
@@ -262,7 +263,6 @@ def deleteInvite():
 @auth.login_required
 def get_token():
     token = g.user.generate_token()
-    log.debug('Token generated')
     return jsonify({'token': token.decode('ascii')})
 
 
