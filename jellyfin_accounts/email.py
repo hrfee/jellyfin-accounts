@@ -139,7 +139,6 @@ class Smtp(Email):
         except ValueError:
             self.port = 465
             log.debug(f'{self.address}: Defaulting to port {self.port}')
-        self.context = ssl.create_default_context()
 
     def send(self):
         message = MIMEMultipart("alternative")
@@ -151,15 +150,29 @@ class Smtp(Email):
         message.attach(text)
         message.attach(html)
         try:
-            with smtplib.SMTP_SSL(self.server,
-                                  self.port,
-                                  context=self.context) as server:
-                server.login(self.from_address, self.password)
-                server.sendmail(self.from_address,
-                                self.address,
-                                message.as_string())
-            log.info(f'{self.address}: Sent via smtp')
-            return True
+            if config['smtp']['encryption'] == 'ssl_tls':
+                self.context = ssl.create_default_context()
+                with smtplib.SMTP_SSL(self.server,
+                                      self.port,
+                                      context=self.context) as server:
+                    server.ehlo()
+                    server.login(self.from_address, self.password)
+                    server.sendmail(self.from_address,
+                                    self.address,
+                                    message.as_string())
+                log.info(f'{self.address}: Sent via smtp (ssl/tls)')
+                return True
+            elif config['smtp']['encryption'] == 'starttls':
+                with smtplib.SMTP(self.server,
+                                  self.port) as server:
+                    server.ehlo()
+                    server.starttls()
+                    server.login(self.from_address, self.password)
+                    server.sendmail(self.from_address,
+                                    self.address,
+                                    message.as_string())
+                    log.info(f'{self.address}: Sent via smtp (starttls)')
+                    return True
         except Exception as e:
             err = f'{self.address}: Failed to send via smtp: '
             err += type(e).__name__
