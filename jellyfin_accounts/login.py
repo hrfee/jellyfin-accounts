@@ -68,7 +68,10 @@ auth = HTTPBasicAuth()
 
 accounts = {}
 
-if not config.getboolean('ui', 'jellyfin_login'):
+if config.getboolean('ui', 'jellyfin_login'):
+    log.debug('Using jellyfin for admin authentication')
+else:
+    log.debug('Using configured login details for admin authentication')
     accounts['adminAccount'] = Account(config['ui']['username'],
                                        config['ui']['password'])
 

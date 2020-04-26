@@ -36,9 +36,9 @@ class Jellyfin:
            "X-Emby-Authorization": self.auth
         }
     def getUsers(self, username="all", id="all", public=True):
-        if public:
+        if public is True:
             response = requests.get(self.server+"/emby/Users/Public").json()
-        else:
+        elif public is False and hasattr(self, 'username') and hasattr(self, 'password'):
             response = requests.get(self.server+"/emby/Users",
                                     headers=self.header,
                                     params={'Username': self.username,
@@ -46,7 +46,13 @@ class Jellyfin:
             if response.status_code == 200:
                 response = response.json()
             else:
-                raise self.AuthenticationRequiredError
+                try:
+                    self.authenticate(self.username, self.password)
+                    return self.getUsers(username, id, public)
+                except self.AuthenticationError:
+                    raise self.AuthenticationRequiredError
+        else:
+            raise self.AuthenticationRequiredError
         if username == "all" and id == "all":
             return response
         elif id == "all":
@@ -99,7 +105,11 @@ class Jellyfin:
                                  params={'Name': username,
                                          'Password': password})
         if response.status_code == 401:
-            raise self.AuthenticationRequiredError
+            if hasattr(self, 'username') and hasattr(self, 'password'):
+                self.authenticate(self.username, self.password)
+                return self.newUser(username, password)
+            else:
+                raise self.AuthenticationRequiredError
         return response
 
 # template user's policies should be copied to each new account.
