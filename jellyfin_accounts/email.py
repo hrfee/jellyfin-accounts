@@ -177,3 +177,7 @@ class Smtp(Email):
             err = f'{self.address}: Failed to send via smtp: '
             err += type(e).__name__
             log.error(err)
+            try:
+                log.error(e.smtp_error)
+            except:
+                pass

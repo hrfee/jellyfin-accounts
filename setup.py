@@ -27,12 +27,14 @@ setup(
                           'data/invite-email.html',
                           'data/invite-email.mjml',
                           'data/invite-email.txt']),
-                ('data/static', ['data/static/admin.js']),
+                ('data/static', ['data/static/admin.js',
+                                 'data/static/setup.js']),
                 ('data/templates', [
                           'data/templates/404.html',
                           'data/templates/invalidCode.html',
                           'data/templates/admin.html',
-                          'data/templates/form.html'])],
+                          'data/templates/form.html',
+                          'data/templates/setup.html'])],
     zip_safe=False,
     install_requires=[
         'pyOpenSSL',

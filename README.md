@@ -82,9 +82,12 @@ optional arguments:
 #### Configuration
 * Note: Make sure to put this behind a reverse proxy with HTTPS.
 
+On first run, access the setup wizard at `0.0.0.0:8056`. When finished, restart the program.
+
+The configuration is stored at `~/.jf-accounts/config.ini`.
+
 For detailed descriptions of each setting, see [setup](https://github.com/hrfee/jellyfin-accounts/wiki/Setup).
 
-On first run, the default configuration is copied to `~/.jf-accounts/config.ini`.
 
 ```
 [jellyfin]

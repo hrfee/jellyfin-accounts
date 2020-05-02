@@ -36,6 +36,7 @@ else:
 
 local_dir = (Path(__file__).parents[2] / 'data').resolve()
 
+first_run = False
 if not data_dir.exists():
     Path.mkdir(data_dir)
     print(f'Config dir not found, so created at {str(data_dir)}')
@@ -43,8 +44,8 @@ if not data_dir.exists():
         config_path = data_dir / 'config.ini'
         shutil.copy(str(local_dir / 'config-default.ini'),
                     str(config_path))
-        print("Edit the configuration and restart.")
-        raise SystemExit
+        print("Setup through the web UI, or quit and edit the configuration manually.")
+        first_run = True
     else:
         config_path = Path(args.config)
     print(f'config.ini can be found at {str(config_path)}')
@@ -71,9 +72,10 @@ def create_log(name):
     return log
 
 log = create_log('main')
-email_log = create_log('emails')
 web_log = create_log('waitress')
-auth_log = create_log('auth')
+if not first_run:
+    email_log = create_log('emails')
+    auth_log = create_log('auth')
 
 if args.host is not None:
     log.debug(f'Using specified host {args.host}')
@@ -144,20 +146,29 @@ else:
     app.config['SECRET_KEY'] = secrets.token_urlsafe(16)
     
     if __name__ == '__main__':
-        import jellyfin_accounts.web_api
-        import jellyfin_accounts.web
         from waitress import serve
-        host = config['ui']['host']
-        port = config['ui']['port']
-        log.info(f'Starting web UI on {host}:{port}')
-        if config.getboolean('password_resets', 'enabled'):
-            def start_pwr():
-                import jellyfin_accounts.pw_reset
-                jellyfin_accounts.pw_reset.start()
-            pwr = threading.Thread(target=start_pwr, daemon=True)
-            log.info('Starting email thread')
-            pwr.start()
+        if first_run:
+            import jellyfin_accounts.setup
+            host = '0.0.0.0'
+            port = 8056
+            log.info('Starting web UI for first run setup...')
+            serve(app,
+                   host=host,
+                   port=port)
+        else:  
+            import jellyfin_accounts.web_api
+            import jellyfin_accounts.web
+            host = config['ui']['host']
+            port = config['ui']['port']
+            log.info(f'Starting web UI on {host}:{port}')
+            if config.getboolean('password_resets', 'enabled'):
+                def start_pwr():
+                    import jellyfin_accounts.pw_reset
+                    jellyfin_accounts.pw_reset.start()
+                pwr = threading.Thread(target=start_pwr, daemon=True)
+                log.info('Starting email thread')
+                pwr.start()
 
-        serve(app,
-              host=host,
-              port=int(port))
+            serve(app,
+                  host=host,
+                  port=int(port))

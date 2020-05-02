@@ -20,7 +20,7 @@ def admin():
 
 @app.route('/<path:path>')
 def static_proxy(path):
-    if 'form.html' not in path and 'admin.html' not in path:
+    if 'html' not in path:
         return app.send_static_file(path)
     return render_template('404.html',
                            contactMessage=config['ui']['contact_message']), 404

@@ -266,30 +266,6 @@ def get_token():
     return jsonify({'token': token.decode('ascii')})
 
 
-@app.route('/modifyConfig', methods=['POST'])
-@auth.login_required
-def modifyConfig():
-    log.info('Config modification requested')
-    data = request.get_json()
-    temp_config = RawConfigParser(comment_prefixes='/',
-                                  allow_no_value=True)
-    temp_config.read(config_path)
-    for section in data:
-        if section in temp_config:
-            for item in data[section]:
-                if item in temp_config[section]:
-                    temp_config[section][item] = data[section][item]
-                    data[section][item] = True
-                    log.debug(f'{section}/{item} modified')
-                else:
-                    data[section][item] = False
-                    log.debug(f'{section}/{item} does not exist in config')
-    with open(config_path, 'w') as config_file:
-        temp_config.write(config_file)
-    log.debug('Config written')
-    return jsonify(data)
-
-
 @app.route('/getUsers', methods=['GET', 'POST'])
 @auth.login_required
 def getUsers():
@@ -333,4 +309,4 @@ def modifyUsers():
     except:
         return resp(success=False)
 
-
+import jellyfin_accounts.setup
