@@ -37,9 +37,10 @@ else:
 local_dir = (Path(__file__).parents[2] / 'data').resolve()
 
 first_run = False
-if not data_dir.exists():
-    Path.mkdir(data_dir)
-    print(f'Config dir not found, so created at {str(data_dir)}')
+if data_dir.exists() is False or (data_dir / 'config.ini').exists() is False:
+    if not data_dir.exists():
+        Path.mkdir(data_dir)
+        print(f'Config dir not found, so created at {str(data_dir)}')
     if args.config is None:
         config_path = data_dir / 'config.ini'
         shutil.copy(str(local_dir / 'config-default.ini'),
