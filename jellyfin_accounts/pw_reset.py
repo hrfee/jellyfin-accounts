@@ -33,7 +33,8 @@ class Handler(FileSystemEventHandler):
     def on_any_event(event):
         if event.is_directory:
             return None
-        elif (event.event_type == 'created' and
+        elif ((event.event_type == 'modified' or
+              event.event_type == 'created') and
               'passwordreset' in event.src_path):
             log.debug(f'Password reset file: {event.src_path}')
             time.sleep(1)
