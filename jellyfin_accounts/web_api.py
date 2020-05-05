@@ -197,7 +197,9 @@ def generateInvite():
             email = Smtp(address)
         email.construct_invite({'expiry': valid_till,
                                 'code': invite['code']})
-        email.send()
+        response = email.send()
+        if response is False or type(response) != bool:
+            invite['email'] = f'Failed to send to {address}'
     try:
         with open(config['files']['invites'], 'r') as f:
             invites = json.load(f)

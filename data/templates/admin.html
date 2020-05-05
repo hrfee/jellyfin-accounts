@@ -66,9 +66,10 @@
                                 <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
                             </div>
                         </form>
+                        <div id="loginErrorArea"></div>
                     </div>
                     <div class="modal-footer">
-                        <input type="submit" class="btn btn-primary" value="Login" form="loginForm">
+                        <button type="submit" id="loginSubmit" class="btn btn-primary" form="loginForm">Login</button>
                     </div>
                 </div>
             </div>
@@ -130,7 +131,7 @@
                                         <input type="email" class="form-control" placeholder="example@example.com" id="send_to_address" disabled>
                                     </div>
                                 </div>
-                                <input type="submit" class="btn btn-primary" value="Generate">
+                                <button type="submit" id="generateSubmit" class="btn btn-primary">Generate</button>
                         </form>
                     </div>
                 </div>

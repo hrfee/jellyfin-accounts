@@ -181,3 +181,4 @@ class Smtp(Email):
                 log.error(e.smtp_error)
             except:
                 pass
+            return False

@@ -40,11 +40,14 @@ function addItem(invite) {
         codeCopy.onclick = function(){toClipboard(inviteCode)};
         codeCopy.classList.add('fa', 'fa-clipboard');
         listCode.appendChild(codeCopy);
-        console.log(invite[3]);
         if (typeof(invite[3]) != 'undefined') {
             var sentTo = document.createElement('span');
             sentTo.setAttribute('style', 'color: grey; margin-left: 2%; font-style: italic; font-size: 75%;');
-            sentTo.appendChild(document.createTextNode('Sent to ' + invite[3]));
+            if (invite[3].includes('Failed to send to')) {
+                sentTo.appendChild(document.createTextNode(invite[3]));
+            } else {
+                sentTo.appendChild(document.createTextNode('Sent to ' + invite[3]));
+            }
             listCode.appendChild(sentTo);
         };
         var listDelete = document.createElement('button');
@@ -159,7 +162,13 @@ function toClipboard(str) {
         document.getSelection().addRange(selected);
     }
 };
+
 $("form#inviteForm").submit(function() {
+    var button = document.getElementById('generateSubmit');
+    button.disabled = true;
+    button.innerHTML =
+        '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="margin-right: 0.5rem;"></span>' +
+        'Loading...';
     var send_object = $("form#inviteForm").serializeObject();
     if (document.getElementById('send_to_address_enabled').checked) {
         send_object['email'] = document.getElementById('send_to_address').value;
@@ -175,7 +184,11 @@ $("form#inviteForm").submit(function() {
         beforeSend : function (xhr) {
             xhr.setRequestHeader("Authorization", "Basic " + btoa(window.token + ":"));
         },
-        success: function() { generateInvites(); },
+        success: function() {
+            button.textContent = 'Generate';
+            button.disabled = false;
+            generateInvites(); 
+        },
 
     });
     return false;
@@ -183,6 +196,13 @@ $("form#inviteForm").submit(function() {
 $("form#loginForm").submit(function() {
     window.token = "";
     var details = $("form#loginForm").serializeObject();
+    var errorArea = document.getElementById('loginErrorArea');
+    errorArea.textContent = '';
+    var button = document.getElementById('loginSubmit');
+    button.disabled = true;
+    button.innerHTML =
+        '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="margin-right: 0.5rem;"></span>' +
+        'Loading...';
     $.ajax('/getToken', {
         type : 'GET',
         dataType : 'json',
@@ -196,12 +216,13 @@ $("form#loginForm").submit(function() {
         data: { get_param: 'value' },
         complete: function(data) {
             if (data['status'] == 401) {
-                var formBody = document.getElementById('formBody');
+                button.disabled = false;
+                button.textContent = 'Login';
                 var wrongPassword = document.createElement('div');
                 wrongPassword.classList.add('alert', 'alert-danger');
                 wrongPassword.setAttribute('role', 'alert');
                 wrongPassword.appendChild(document.createTextNode('Incorrect username or password.'));
-                formBody.appendChild(wrongPassword);
+                errorArea.appendChild(wrongPassword);
             } else {
                 window.token = JSON.parse(data['responseText'])['token'];
                 generateInvites();
@@ -219,6 +240,10 @@ $("form#loginForm").submit(function() {
     return false;
 });
 document.getElementById('openUsers').onclick = function () {
+    this.disabled = true;
+    this.innerHTML =
+        '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="margin-right: 0.5rem;"></span>' +
+        'Loading...';
     $.ajax('/getUsers', {
         type : 'GET',
         dataType : 'json',
@@ -282,7 +307,6 @@ document.getElementById('openUsers').onclick = function () {
                                         send[name] = address
                                     };
                                 };
-                                console.log(send);
                                 send = JSON.stringify(send);
                                 $.ajax('/modifyUsers', {
                                     data : send,
@@ -304,10 +328,13 @@ document.getElementById('openUsers').onclick = function () {
                     entry.appendChild(editButton);
                     list.appendChild(entry);
                 };
+                var button = document.getElementById('openUsers');
+                button.disabled = false;
+                button.innerHTML = 'Users <i class="fa fa-user"></i>';
+                $('#users').modal('show');
             };
         }
     });
-    $('#users').modal('show');
 };
 generateInvites(empty = true);
 $("#login").modal('show');
