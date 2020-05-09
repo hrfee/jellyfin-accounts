@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import requests
-
+import time
 
 class Error(Exception):
     pass
@@ -20,6 +20,9 @@ class Jellyfin:
         self.version = version
         self.device = device
         self.deviceId = deviceId
+        self.timeout = 30 * 60
+        self.userCacheAge = time.time() - self.timeout - 1
+        self.userCachePublicAge = self.userCacheAge
         self.useragent = f"{self.client}/{self.version}"
         self.auth = "MediaBrowser "
         self.auth += f"Client={self.client}, "
@@ -37,20 +40,32 @@ class Jellyfin:
         }
     def getUsers(self, username="all", id="all", public=True):
         if public is True:
-            response = requests.get(self.server+"/emby/Users/Public").json()
-        elif public is False and hasattr(self, 'username') and hasattr(self, 'password'):
-            response = requests.get(self.server+"/emby/Users",
-                                    headers=self.header,
-                                    params={'Username': self.username,
-                                            'Pw': self.password})
-            if response.status_code == 200:
-                response = response.json()
+            if (time.time() - self.userCachePublicAge) >= self.timeout:
+                response = requests.get(self.server+"/emby/Users/Public").json()
+                self.userCachePublic = response
+                self.userCachePublicAge = time.time()
             else:
-                try:
-                    self.authenticate(self.username, self.password)
-                    return self.getUsers(username, id, public)
-                except self.AuthenticationError:
-                    raise self.AuthenticationRequiredError
+                response = self.userCachePublic
+        elif (public is False and
+              hasattr(self, 'username') and
+              hasattr(self, 'password')):
+            if (time.time() - self.userCacheAge) >= self.timeout:
+                response = requests.get(self.server+"/emby/Users",
+                                        headers=self.header,
+                                        params={'Username': self.username,
+                                                'Pw': self.password})
+                if response.status_code == 200:
+                    response = response.json()
+                    self.userCache = response
+                    self.userCacheAge = time.time()
+                else:
+                    try:
+                        self.authenticate(self.username, self.password)
+                        return self.getUsers(username, id, public)
+                    except self.AuthenticationError:
+                        raise self.AuthenticationRequiredError
+            else:
+                response = self.userCache
         else:
             raise self.AuthenticationRequiredError
         if username == "all" and id == "all":

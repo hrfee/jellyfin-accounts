@@ -11,13 +11,11 @@ from __main__ import auth_log as log
 from jellyfin_accounts.jf_api import Jellyfin
 from jellyfin_accounts.web_api import jf
 
-
-def tempJF():
-    return Jellyfin(config['jellyfin']['server'],
-                    config['jellyfin']['client'],
-                    config['jellyfin']['version'],
-                    config['jellyfin']['device'] + '_temp',
-                    config['jellyfin']['device_id'] + '_temp')
+auth_jf = Jellyfin(config['jellyfin']['server'],
+                   config['jellyfin']['client'],
+                   config['jellyfin']['version'],
+                   config['jellyfin']['device'],
+                   config['jellyfin']['device_id'] + '_authClient')
 
 class Account():
     def __init__(self, username=None, password=None):
@@ -35,9 +33,8 @@ class Account():
         if not self.jf:
             return pwd_context.verify(password, self.password_hash)
         else:
-            temp_jf = tempJF()
             try:
-                return temp_jf.authenticate(self.username, password)
+                return auth_jf.authenticate(self.username, password)
             except Jellyfin.AuthenticationError:
                 return False
     def generate_token(self, expiration=1200):
@@ -107,7 +104,6 @@ def verify_password(username, password):
     else:
         user = accounts['adminAccount']
         verified = Account().verify_token(username, accounts) 
-        
     if not verified:
         if username == user.username and user.verify_password(password):
             g.user = user
