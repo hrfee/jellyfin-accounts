@@ -78,52 +78,27 @@
                             </div>
                         </div>
                     </div>
+                    {% if validate %}
+                    <div class="col-sm" id="requirementBox">
+                        <div class="card bg-light mb-3 requirementBox">
+                            <div class="card-header">Password Requirements</div>
+                            <div class="card-body">
+                                <ul class="list-group">
+                                    {% for key, value in requirements.items() %}
+                                    <li id="{{ key }}" class="list-group-item list-group-item-danger">
+                                        <div> {{ value }}</div>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
         <script>
             var code = window.location.href.split('/').pop();
-            $.ajax('/getRequirements', {
-                data : JSON.stringify({ 'code': code }),
-                contentType : 'application/json',
-                type : 'POST',
-                crossDomain : true,
-                complete : function(response){
-                    var data = response['responseJSON'];
-                    if (Object.keys(data).length > 1) {
-                        var col = document.createElement('div');
-                        col.classList.add('col-sm');
-                        col.id = 'requirementBox';
-                        var card = document.createElement('div');
-                        card.classList.add('card', 'bg-light', 'mb-3', 'requirementBox');
-                        // card.setAttribute('style', 'max-width: 18rem;');
-                        var header = document.createElement('div');
-                        header.classList.add('card-header');
-                        header.appendChild(document.createTextNode('Password Requirements'));
-                        card.appendChild(header);
-                        var body = document.createElement('div');
-                        body.classList.add('card-body');
-                        var listGroup = document.createElement('ul');
-                        listGroup.classList.add('list-group');
-                        listGroup.id = 'requirements';
-                        for (var key in data) {
-                            if (data.hasOwnProperty(key)) {
-                                var criterion = document.createElement('li');
-                                criterion.id = key;
-                                criterion.classList.add('list-group-item', 'list-group-item-danger');
-                                var text = document.createElement('div');
-                                text.appendChild(document.createTextNode(' ' + data[key]));
-                                criterion.appendChild(text);
-                                listGroup.appendChild(criterion);
-                            };
-                        };
-                        body.appendChild(listGroup);
-                        card.appendChild(body);
-                        col.appendChild(card);
-                        document.getElementById('cardContainer').appendChild(col);
-                    };
-                }
-            });
             function toggleSpinner () {
                 var submitButton = document.getElementById('submitButton');
                 var oldSpan = document.getElementById('createAccount');

@@ -112,14 +112,6 @@ else:
     validator = PasswordValidator(0, 0, 0, 0, 0)
 
 
-@app.route('/getRequirements', methods=['GET', 'POST'])
-def getRequirements():
-    data = request.get_json()
-    log.debug('Password Requirements requested')
-    if checkInvite(data['code']):
-        return jsonify(validator.getCriteria())
-
-
 @app.route('/newUser', methods=['GET', 'POST'])
 def newUser():
     data = request.get_json()

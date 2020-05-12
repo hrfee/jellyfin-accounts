@@ -8,3 +8,7 @@ data/node_modules/
 *.egg-info/
 pw-reset/
 jfa/
+colors.txt
+theme.css
+data/static/bootstrap-jf.css
+old/
