@@ -1,12 +1,12 @@
 import time
 import json
-import platform
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from jellyfin_accounts.email import Mailgun, Smtp
 from jellyfin_accounts.web_api import jf
 from __main__ import config
 from __main__ import email_log as log
+
 
 
 class Watcher:
