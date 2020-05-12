@@ -16,7 +16,9 @@ def page_not_found(e):
 def admin():
     # return app.send_static_file('admin.html')
     return render_template('admin.html',
-                           contactMessage='')
+                           contactMessage='',
+                           email_enabled=config.getboolean(
+                               'invite_emails', 'enabled'))
 
 
 @app.route('/<path:path>')
@@ -25,7 +27,6 @@ def static_proxy(path):
         return app.send_static_file(path)
     return render_template('404.html',
                            contactMessage=config['ui']['contact_message']), 404
-
 
 
 @app.route('/invite/<path:path>')
@@ -48,8 +49,9 @@ def inviteProxy(path):
                                helpMessage=config['ui']['help_message'],
                                successMessage=config['ui']['success_message'],
                                jfLink=config['jellyfin']['server'],
-                               validate=config.getboolean('password_validation',
-                                                          'enabled'),
+                               validate=config.getboolean(
+                                   'password_validation',
+                                   'enabled'),
                                requirements=validator.getCriteria(),
                                email=email)
     elif 'admin.html' not in path and 'admin.html' not in path:
