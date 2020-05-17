@@ -87,9 +87,34 @@ if args.port is not None:
 
 for key in config['files']:
     if config['files'][key] == '':
-        log.debug(f'Using default {key}')
-        config['files'][key] = str(data_dir / (key + '.json'))
+        if key != 'custom_css':
+            log.debug(f'Using default {key}')
+            config['files'][key] = str(data_dir / (key + '.json'))
 
+
+def default_css():
+    css = {}
+    css['href'] = "https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+    css['integrity'] = "sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+    css['crossorigin'] = "anonymous"
+    return css
+
+
+css = {}
+css = default_css()
+if 'custom_css' in config['files']: 
+    if config['files']['custom_css'] != '':
+        try:
+            shutil.copy(config['files']['custom_css'],
+                        (local_dir / 'static' / 'bootstrap.css'))
+            log.debug('Loaded custom CSS')
+            css['href'] = '/bootstrap.css'
+            css['integrity'] = ''
+            css['crossorigin'] = ''
+        except FileNotFoundError:
+            log.error(f'Custom CSS {config["files"]["custom_css"]} not found, using default.')
+        
+        
 if ('email_html' not in config['password_resets'] or
         config['password_resets']['email_html'] == ''):
     log.debug('Using default password reset email HTML template')
@@ -109,7 +134,6 @@ if ('email_text' not in config['invite_emails'] or
     log.debug('Using default invite email plaintext template')
     config['invite_emails']['email_text'] = str(local_dir /
                                                 'invite-email.txt')
-
 
 if args.get_policy:
     import json
