@@ -170,7 +170,7 @@ $("form#inviteForm").submit(function() {
         '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="margin-right: 0.5rem;"></span>' +
         'Loading...';
     var send_object = $("form#inviteForm").serializeObject();
-    if (document.getElementById('sent_to_address') != null) {
+    if (document.getElementById('send_to_address') != null) {
         if (document.getElementById('send_to_address_enabled').checked) {
             send_object['email'] = document.getElementById('send_to_address').value;
         }
