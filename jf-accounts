@@ -174,8 +174,8 @@ else:
         from waitress import serve
         if first_run:
             import jellyfin_accounts.setup
-            host = '0.0.0.0'
-            port = 8056
+            host = config['ui']['host']
+            port = config['ui']['port']
             log.info('Starting web UI for first run setup...')
             serve(app,
                    host=host,
