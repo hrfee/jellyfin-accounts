@@ -6,15 +6,38 @@ class Error(Exception):
     pass
 
 class Jellyfin:
+    """
+    Basic Jellyfin API client, providing account related function only.
+    """
     class UserExistsError(Error):
+        """
+        Thrown if a user already exists with the same name
+        when creating an account.
+        """
         pass
     class UserNotFoundError(Error):
+        """Thrown if account with specified user ID/name does not exist."""
         pass
     class AuthenticationError(Error):
+        """Thrown if authentication with Jellyfin fails."""
         pass
     class AuthenticationRequiredError(Error):
+        """
+        Thrown if privileged action is attempted without authentication.
+        """
         pass
     def __init__(self, server, client, version, device, deviceId):
+        """
+        Initializes the Jellyfin object. All parameters except server
+        have no effect on the client's capability.
+
+        :param server: Web address of the server to connect to.
+        :param client: Name of the client. Appears on Jellyfin
+                       server dashboard.
+        :param version: Version of the client.
+        :param device: Name of the device the client is running on.
+        :param deviceId: ID of the device the client is running on.
+        """
         self.server = server
         self.client = client
         self.version = version
@@ -39,6 +62,16 @@ class Jellyfin:
            "X-Emby-Authorization": self.auth
         }
     def getUsers(self, username="all", id="all", public=True):
+        """
+        Returns details on user(s), such as ID, Name, Policy.
+
+        :param username: (optional) Username to get info about.
+                         Leave blank to get all users.
+        :param id: (optional) User ID to get info about.
+                   Leave blank to get all users.
+        :param public: True = Get publicly visible users only (no auth required),
+                        False = Get all users (auth required).
+        """
         if public is True:
             if (time.time() - self.userCachePublicAge) >= self.timeout:
                 response = requests.get(self.server+"/emby/Users/Public").json()
@@ -87,6 +120,12 @@ class Jellyfin:
             if not match:
                 raise self.UserNotFoundError
     def authenticate(self, username, password):
+        """
+        Authenticates by name with Jellyfin.
+
+        :param username: Plaintext username.
+        :param password: Plaintext password.
+        """
         self.username = username
         self.password = password
         response = requests.post(self.server+"/emby/Users/AuthenticateByName",
@@ -108,6 +147,12 @@ class Jellyfin:
         else:
             raise self.AuthenticationError
     def setPolicy(self, userId, policy):
+        """
+        Sets a user's policy (Admin rights, Library Access, etc.) by user ID.
+
+        :param userId: ID of the user to modify.
+        :param policy: User policy in dictionary form.
+        """
         return requests.post(self.server+"/Users/"+userId+"/Policy",
                              headers=self.header,
                              params=policy)
