@@ -93,8 +93,11 @@ For detailed descriptions of each setting, see [setup](https://github.com/hrfee/
 ; It is reccommended to create a limited admin account for this program.
 username = username
 password = password
-; Server will also be used in the invite form, so make sure it's publicly accessible.
-server = https://jellyf.in:443
+; Jellyfin server address. Can be public, or local for security purposes.
+server = http://jellyfin.local:8096
+; Publicly accessible Jellyfin address, used on invite form.
+; Leave blank to use the same address as above.
+public_server = https://jellyf.in:443
 client = jf-accounts
 version = 0.1
 device = jf-accounts

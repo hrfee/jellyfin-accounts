@@ -60,7 +60,7 @@ def inviteProxy(path):
                                contactMessage=config['ui']['contact_message'],
                                helpMessage=config['ui']['help_message'],
                                successMessage=config['ui']['success_message'],
-                               jfLink=config['jellyfin']['server'],
+                               jfLink=config['jellyfin']['public_server'],
                                validate=config.getboolean(
                                    'password_validation',
                                    'enabled'),
