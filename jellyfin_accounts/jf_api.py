@@ -26,6 +26,11 @@ class Jellyfin:
         Thrown if privileged action is attempted without authentication.
         """
         pass
+    class UnknownError(Error):
+        """
+        Thrown if i've been too lazy to figure out an error's meaning.
+        """
+        pass
     def __init__(self, server, client, version, device, deviceId):
         """
         Initializes the Jellyfin object. All parameters except server
@@ -171,5 +176,38 @@ class Jellyfin:
             else:
                 raise self.AuthenticationRequiredError
         return response
+    def getViewOrder(self, userId, public=True):
+        if not public:
+            param = '?IncludeHidden=true'
+        else:
+            param = ''
+        views = requests.get(self.server+"/Users/"+userId+"/Views"+param,
+                             headers=self.header).json()['Items']
+        orderedViews = []
+        for library in views:
+            orderedViews.append(library['Id'])
+        return orderedViews
+    def setConfiguration(self, userId, configuration):
+        """
+        Sets a user's configuration (Settings the user can change themselves).
+        :param userId: ID of the user to modify.
+        :param configuration: Configuration to write in dictionary form.
+        """
+        resp = requests.post(self.server+"/Users/"+userId+"/Configuration",
+                               headers=self.header,
+                               params=configuration)
+        if (resp.status_code == 200 or
+                resp.status_code == 204):
+            return True
+        elif resp.status_code == 401:
+            if hasattr(self, 'username') and hasattr(self, 'password'):
+                self.authenticate(self.username, self.password)
+                return self.setConfiguration(userId, configuration)
+            else:
+                raise self.AuthenticationRequiredError
+        else:
+            return resp.status_code
+
+
 
 # template user's policies should be copied to each new account.
