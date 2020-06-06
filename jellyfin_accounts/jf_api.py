@@ -206,8 +206,59 @@ class Jellyfin:
             else:
                 raise self.AuthenticationRequiredError
         else:
-            return resp.status_code
-
+            raise self.UnknownError
+    def getConfiguration(self, username="all", id="all"):
+        """
+        Gets a user's Configuration. This can also be found in getUsers if
+        public is set to False.
+        :param username: The user's username.
+        :param id: The user's ID.
+        """
+        return self.getUsers(username=username,
+                             id=id,
+                             public=False)['Configuration']
+    def getDisplayPreferences(self, userId):
+        """
+        Gets a user's Display Preferences (Home layout).
+        :param userId: The user's ID.
+        """
+        resp = requests.get((self.server+"/DisplayPreferences/usersettings" +
+                            "?userId="+userId+"&client=emby"),
+                            headers=self.header)
+        if resp.status_code == 200:
+            return resp.json()
+        elif resp.status_code == 401:
+            if hasattr(self, 'username') and hasattr(self, 'password'):
+                self.authenticate(self.username, self.password)
+                return self.getDisplayPreferences(userId)
+            else:
+                raise self.AuthenticationRequiredError
+        else:
+            raise self.UnknownError
+    def setDisplayPreferences(self, userId, preferences):
+        """
+        Sets a user's Display Preferences (Home layout).
+        :param userId: The user's ID.
+        :param preferences: The preferences to set.
+        """
+        tempheader = self.header
+        tempheader['Content-type'] = 'application/json'
+        resp = requests.post((self.server+"/DisplayPreferences/usersettings" +
+                              "?userId="+userId+"&client=emby"),
+                             headers=tempheader,
+                             json=preferences)
+        if (resp.status_code == 200 or
+                resp.status_code == 204):
+            return True
+        elif resp.status_code == 401:
+            if hasattr(self, 'username') and hasattr(self, 'password'):
+                self.authenticate(self.username, self.password)
+                return self.setDisplayPreferences(userId, preferences)
+            else:
+                raise self.AuthenticationRequiredError
+        else:
+            return resp
+    
 
 
 # template user's policies should be copied to each new account.
