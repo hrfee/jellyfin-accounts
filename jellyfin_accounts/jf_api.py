@@ -258,7 +258,3 @@ class Jellyfin:
                 raise self.AuthenticationRequiredError
         else:
             return resp
-    
-
-
-# template user's policies should be copied to each new account.
