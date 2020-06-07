@@ -21,10 +21,11 @@ parser.add_argument("--host",
                     help="address to host web ui on.")
 parser.add_argument("-p", "--port",
                     help="port to host web ui on.")
-parser.add_argument("-g", "--get_policy",
+parser.add_argument("-g", "--get_defaults",
                     help=("tool to grab a JF users " +
                     "policy (access, perms, etc.) and " +
-                    "output as json to be used as a user template."),
+                    "homescreen layout and " +
+                    "output it as json to be used as a user template."),
                     action='store_true')
 
 args, leftovers = parser.parse_known_args()
@@ -91,6 +92,11 @@ for key in config['files']:
             log.debug(f'Using default {key}')
             config['files'][key] = str(data_dir / (key + '.json'))
 
+for key in ['user_configuration', 'user_displayprefs']:
+    if key not in config['files']:
+        log.debug(f'Using default {key}')
+        config['files'][key] = str(data_dir / (key + '.json'))
+
 
 def default_css():
     css = {}
@@ -138,7 +144,7 @@ if ('public_server' not in config['jellyfin'] or
         config['jellyfin']['public_server'] == ''):
     config['jellyfin']['public_server'] = config['jellyfin']['server']
 
-if args.get_policy:
+if args.get_defaults:
     import json
     from jellyfin_accounts.jf_api import Jellyfin
     jf = Jellyfin(config['jellyfin']['server'],
@@ -147,14 +153,37 @@ if args.get_policy:
               config['jellyfin']['device'],
               config['jellyfin']['device_id'])
     # No auth needed.
-    print("Make sure the user is publicly visible!")
-    users = jf.getUsers()
+    print(""" 
+    This tool lets you grab various settings from a user,
+    so that they can be applied every time a new account is
+    created. """)
+    print("Step 1: User Policy.")
+    print(""" 
+    A user policy stores a users permissions (e.g access rights and 
+    most of the other settings in the 'Profile' and 'Access' tabs
+    of a user). """)
+    success = False
+    msg = "Get public users only or all users? (requires auth) [public/all]: " 
+    public = False
+    while not success:
+        choice = input(msg)
+        if choice == 'public':
+            public = True
+            print("Make sure the user is publicly visible!")
+            success = True
+        elif choice == 'all':
+            jf.authenticate(config['jellyfin']['username'],
+                            config['jellyfin']['password'])
+            public = False
+            success = True
+    users = jf.getUsers(public=public)
     for index, user in enumerate(users):
         print(f'{index+1}) {user["Name"]}')
     success = False
     while not success:
         try:
-            policy = users[int(input(">: "))-1]['Policy']
+            user_index = int(input(">: "))-1
+            policy = users[user_index]['Policy']
             success = True
         except (ValueError, IndexError):
             pass
@@ -162,6 +191,28 @@ if args.get_policy:
         f.write(json.dumps(policy, indent=4))
     print(f'Policy written to "{config["files"]["user_template"]}".')
     print('In future, this policy will be copied to all new users.')
+    print('Step 2: Homescreen Layout')
+    print("""
+    You may want to customize the default layout of a new user's
+    home screen. These settings can be applied to an account through
+    the 'Home' section in a user's settings. """)
+    success = False
+    while not success:
+        choice = input("Grab the chosen user's homescreen layout? [y/n]: ")
+        if choice.lower() == 'y':
+            user_id = users[user_index]['Id']
+            configuration = users[user_index]['Configuration']
+            display_prefs = jf.getDisplayPreferences(user_id)
+            with open(config['files']['user_configuration'], 'w') as f:
+                f.write(json.dumps(configuration, indent=4))
+            print(f'Configuration written to "{config["files"]["user_configuration"]}".')
+            with open(config['files']['user_displayprefs'], 'w') as f:
+                f.write(json.dumps(display_prefs, indent=4))
+            print(f'Display Prefs written to "{config["files"]["user_displayprefs"]}".')
+            success = True
+        elif choice.lower() == 'n':
+            success = True
+
 else:
     def signal_handler(sig, frame):
         print('Quitting...')

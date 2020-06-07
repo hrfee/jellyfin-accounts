@@ -124,7 +124,7 @@ def newUser():
                 valid = False
         if valid:
             log.debug('User password valid')
-            try: 
+            try:
                 jf.authenticate(config['jellyfin']['username'],
                                 config['jellyfin']['password'])
                 user = jf.newUser(data['username'], data['password'])
@@ -142,7 +142,21 @@ def newUser():
                         default_policy = json.load(f)
                     jf.setPolicy(user.json()['Id'], default_policy)
                 except:
-                    log.debug('setPolicy failed')
+                    log.error('Failed to set new user policy. ' +
+                              'Ignore if you didn\'t create a template')
+                try:
+                    with open(config['files']['user_configuration'], 'r') as f:
+                        default_configuration = json.load(f)
+                    with open(config['files']['user_displayprefs'], 'r') as f:
+                        default_displayprefs = json.load(f)
+                    if jf.setConfiguration(user.json()['Id'],
+                                           default_configuration):
+                        jf.setDisplayPreferences(user.json()['Id'],
+                                                 default_displayprefs)
+                    log.debug('Set homescreen layout.')
+                except:
+                    log.error('Failed to set new user homescreen kayout.' +
+                              'Ignore if you didn\'t create a template')
                 if config.getboolean('password_resets', 'enabled'):
                     try:
                         with open(config['files']['emails'], 'r') as f:

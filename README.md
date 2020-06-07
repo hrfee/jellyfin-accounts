@@ -65,13 +65,14 @@ optional arguments:
                         ~/.jf-accounts.
   --host HOST           address to host web ui on.
   -p PORT, --port PORT  port to host web ui on.
-  -g, --get_policy      tool to grab a JF users policy (access, perms, etc.)
-                        and output as json to be used as a user template.
+  -g, --get_defaults    tool to grab a JF users policy (access, perms, etc.)
+                        and homescreen layout and output it as json to be used
+                        as a user template.
 ```
 ### Setup
-#### Policy template
-* You may want to restrict a user from accessing certain libraries (e.g 4K Movies), or display their account on the login screen by default. Jellyfin stores these settings as a user's policy.
-* Make a temporary account and change its settings, then run `jf-accounts --get_policy`. Choose your user, and the policy will be stored at the location you set in `user_template`, and used for all subsequent new accounts.
+#### New user template
+* You may want to restrict a user from accessing certain libraries (e.g 4K Movies), display their account on the login screen by default, or set a default homecrseen layout. Jellyfin stores these settings in the user's policy, configuration and displayPreferences.
+* Make a temporary account and change its settings, then run `jf-accounts --get_defaults`. Choose your user, and this data will be stored at the location you set in `user_template`, `user_configuration` and `user_displayprefs` (or their default locations), and used for all subsequent new accounts.
 #### Emails/Password Resets
 * When someone initiates forget password on Jellyfin, a file named `passwordreset*.json` is created in its configuration directory. This directory is monitored and when created, the program reads the username, expiry time and PIN, puts it into a template and sends it to whatever address is specified in `emails.json`.
 * **The default forget password popup references the `passwordreset*.json` file created. This is confusing for users, so a quick fix is to edit the `MessageForgotPasswordFileCreated` string in Jellyfin's language folder.**
@@ -196,10 +197,14 @@ password = smtp password
 invites = 
 ; Path to store emails addresses in JSON
 emails = 
-; Path to the user policy template. Can be acquired with get-template.
+; Path to the user policy template. Can be acquired with get-defaults (jf-accounts -g).
 user_template =
+; Path to the user configuration template (part of homescreen layout). Can be acquired with get-defaults (jf-accounts -g).
+user_configuration =
+; Path to the user display preferences template (part of homescreen layout). Can be acquired with get-defaults (jf-accounts -g).
+user_displayprefs =
 ; Path to custom bootstrap.css
-custom_css =
+custom_css = 
 ```
 
 
