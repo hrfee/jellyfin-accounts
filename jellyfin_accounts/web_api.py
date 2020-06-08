@@ -315,6 +315,42 @@ def modifyUsers():
             f.write(json.dumps(emails, indent=4))
         return resp()
     except:
+        log.error('Could not store email')
         return resp(success=False)
+
+
+@app.route('/setDefaults', methods=['POST'])
+@auth.login_required
+def setDefaults():
+    data = request.get_json()
+    username = data['username']
+    log.debug(f'storing default settings from user {username}')
+    jf.authenticate(config['jellyfin']['username'],
+                    config['jellyfin']['password'])
+    try:
+        user = jf.getUsers(username=username,
+                           public=False)
+    except Jellyfin.UserNotFoundError:
+        log.error(f'couldn\'t find user {username}')
+        return resp(success=False)
+    uid = user['Id']
+    policy = user['Policy']
+    try:
+        with open(config['files']['user_template'], 'w') as f:
+            f.write(json.dumps(policy, indent=4))
+    except:
+        log.error('Could not store user template')
+        return resp(success=False)
+    if data['homescreen']:
+        configuration = user['Configuration']
+        try:
+            display_prefs = jf.getDisplayPreferences(uid)
+            with open(config['files']['user_configuration'], 'w') as f:
+                f.write(json.dumps(configuration, indent=4))
+            with open(config['files']['user_displayprefs'], 'w') as f:
+                f.write(json.dumps(display_prefs, indent=4))
+        except:
+            log.error('Could not store homescreen layout')
+    return resp()
 
 import jellyfin_accounts.setup

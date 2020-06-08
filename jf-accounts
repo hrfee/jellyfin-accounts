@@ -152,7 +152,7 @@ if args.get_defaults:
               config['jellyfin']['version'],
               config['jellyfin']['device'],
               config['jellyfin']['device_id'])
-    # No auth needed.
+    print("NOTE: This can now be done through the web ui.")
     print(""" 
     This tool lets you grab various settings from a user,
     so that they can be applied every time a new account is

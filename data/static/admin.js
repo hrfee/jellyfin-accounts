@@ -241,6 +241,115 @@ $("form#loginForm").submit(function() {
     });
     return false;
 });
+document.getElementById('openSettings').onclick = function () {
+    $('#settingsMenu').modal('show');
+}
+document.getElementById('openDefaultsWizard').onclick = function () {
+    this.disabled = true;
+    this.innerHTML =
+        '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="margin-right: 0.5rem;"></span>' +
+        'Loading...';
+    $.ajax('getUsers', {
+        type : 'GET',
+        dataType : 'json',
+        contentType : 'json',
+        xhrFields : {
+            withCredentials: true
+        },
+        beforeSend : function (xhr) {
+            xhr.setRequestHeader("Authorization", "Basic " + btoa(window.token + ":"));
+        },
+        complete : function(data) {
+            if (data['status'] == 200) {
+                var radioList = document.getElementById('defaultUserRadios');
+                radioList.textContent = '';
+                if (document.getElementById('setDefaultUser')) {
+                    document.getElementById('setDefaultUser').remove();
+                };
+                var users = data['responseJSON']['users'];
+                for (var i = 0; i < users.length; i++) {
+                    var user = users[i]
+                    var radio = document.createElement('div');
+                    radio.classList.add('radio');
+                    if (i == 0) {
+                        var checked = 'checked';
+                    } else {
+                        var checked = '';
+                    };
+                    radio.innerHTML =
+                        '<label><input type="radio" name="defaultRadios" id="default_' +
+                        user['name'] + '" style="margin-right: 1rem;"' + checked + '>' +
+                        user['name'] + '</label>';
+                    radioList.appendChild(radio);
+                }
+                var button = document.getElementById('openDefaultsWizard');
+                button.disabled = false;
+                button.innerHTML = 'Set new account defaults';
+                var submitButton = document.getElementById('storeDefaults');
+                submitButton.disabled = false;
+                submitButton.textContent = 'Submit';
+                if (submitButton.classList.contains('btn-success')) {
+                    submitButton.classList.remove('btn-success');
+                    submitButton.classList.add('btn-primary');
+                } else if (submitButton.classList.contains('btn-danger')) {
+                    submitButton.classList.remove('btn-danger');
+                    submitButton.classList.add('btn-primary');
+                }
+                $('#userDefaults').modal('show');
+            }
+        }
+    });
+};
+document.getElementById('storeDefaults').onclick = function () {
+    this.disabled = true;
+    this.innerHTML =
+        '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="margin-right: 0.5rem;"></span>' +
+        'Loading...';
+    var button = document.getElementById('storeDefaults');
+    var radios = document.getElementsByName('defaultRadios');
+    for (var i = 0; i < radios.length; i++) {
+        if (radios[i].checked) {
+            var data = {'username':radios[i].id.slice(8), 'homescreen':false};
+            if (document.getElementById('storeDefaultHomescreen').checked) {
+                data['homescreen'] = true;
+            }
+            $.ajax('/setDefaults', {
+                data : JSON.stringify(data),
+                contentType : 'application/json',
+                type : 'POST',
+                xhrFields : {
+                    withCredentials: true
+                },
+                beforeSend : function (xhr) {
+                    xhr.setRequestHeader("Authorization", "Basic " + btoa(window.token + ":"));
+                },
+                success: function() {
+                    button.textContent = 'Success';
+                    if (button.classList.contains('btn-danger')) {
+                        button.classList.remove('btn-danger');
+                    } else if (button.classList.contains('btn-primary')) {
+                        button.classList.remove('btn-primary');
+                    };
+                    button.classList.add('btn-success');
+                    button.disabled = false;
+                    setTimeout(function(){$('#userDefaults').modal('hide');}, 1000);
+                },
+                error: function() {
+                    button.textContent = 'Failed';
+                    button.classList.remove('btn-primary');
+                    button.classList.add('btn-danger');
+                    setTimeout(function(){
+                        var button = document.getElementById('storeDefaults');
+                        button.textContent = 'Submit';
+                        button.classList.remove('btn-danger');
+                        button.classList.add('btn-primary');
+                        button.disabled = false;
+                    }, 1000);
+                }
+            });
+        }
+    }
+};
 document.getElementById('openUsers').onclick = function () {
     this.disabled = true;
     this.innerHTML =
@@ -262,7 +371,7 @@ document.getElementById('openUsers').onclick = function () {
                 var list = document.getElementById('userList');
                 list.textContent = '';
                 if (document.getElementById('saveUsers')) {
-                    document.getElementById('saveUsers').remove()
+                    document.getElementById('saveUsers').remove();
                 };
                 var users = data['responseJSON']['users'];
                 for (var i = 0; i < users.length; i++) {
