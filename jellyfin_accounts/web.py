@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 from flask import Flask, send_from_directory, render_template
-from __main__ import config, app, g, css
+from __main__ import config, app, g, css, data_store
 from __main__ import web_log as log
 from jellyfin_accounts.web_api import checkInvite, validator
 
@@ -43,16 +43,9 @@ def inviteProxy(path):
     if checkInvite(path):
         log.info(f'Invite {path} used to request form')
         try:
-            with open(config['files']['invites'], 'r') as f:
-                invites = json.load(f)
-        except (FileNotFoundError, json.decoder.JSONDecodeError):
-            invites = {'invites': []}
-        for invite in invites['invites']:
-            if invite['code'] == path:
-                try:
-                    email = invite['email']
-                except KeyError:
-                    email = ""
+            email = data_store.invites[path]['email']
+        except KeyError:
+            email = ''
         return render_template('form.html',
                                css_href=css['href'],
                                css_integrity=css['integrity'],

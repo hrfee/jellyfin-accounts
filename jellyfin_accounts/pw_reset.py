@@ -4,7 +4,7 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from jellyfin_accounts.email import Mailgun, Smtp
 from jellyfin_accounts.web_api import jf
-from __main__ import config
+from __main__ import config, data_store
 from __main__ import email_log as log
 
 
@@ -42,17 +42,18 @@ class Handler(FileSystemEventHandler):
                 reset = json.load(f)
                 log.info(f'New password reset for {reset["UserName"]}')
                 try:
-                    with open(config['files']['emails'], 'r') as f:
-                        emails = json.load(f)
-                        id = jf.getUsers(reset['UserName'], public=False)['Id']
-                        address = emails[id]
-                    method = config['email']['method']
-                    if method == 'mailgun':
-                        email = Mailgun(address)
-                    elif method == 'smtp':
-                        email = Smtp(address)
-                    if email.construct_reset(reset):
-                        email.send()
+                    id = jf.getUsers(reset['UserName'], public=False)['Id']
+                    address = data_store.emails[id]
+                    if address != '':
+                        method = config['email']['method']
+                        if method == 'mailgun':
+                            email = Mailgun(address)
+                        elif method == 'smtp':
+                            email = Smtp(address)
+                        if email.construct_reset(reset):
+                            email.send()
+                    else:
+                        raise IndexError
                 except (FileNotFoundError,
                         json.decoder.JSONDecodeError,
                         IndexError) as e:

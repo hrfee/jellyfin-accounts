@@ -7,8 +7,10 @@ import logging
 import threading
 import signal
 import sys
+import json
 from pathlib import Path
 from flask import Flask, g
+from jellyfin_accounts.data_store import JSONStorage
 
 parser = argparse.ArgumentParser(description="jellyfin-accounts")
 
@@ -97,6 +99,25 @@ for key in ['user_configuration', 'user_displayprefs']:
         log.debug(f'Using default {key}')
         config['files'][key] = str(data_dir / (key + '.json'))
 
+with open(config['files']['invites'], 'r') as f:
+    temp_invites = json.load(f)
+if 'invites' in temp_invites: 
+    new_invites = {}
+    log.info('Converting invites.json to new format, temporary.')
+    for el in temp_invites['invites']: 
+        i = {'valid_till': el['valid_till']} 
+        if 'email' in el: 
+            i['email'] = el['email'] 
+        new_invites[el['code']] = i
+    with open(config['files']['invites'], 'w') as f:
+        f.write(json.dumps(new_invites, indent=4, default=str))
+
+
+data_store = JSONStorage(config['files']['emails'],
+                         config['files']['invites'],
+                         config['files']['user_template'],
+                         config['files']['user_displayprefs'],
+                         config['files']['user_configuration'])
 
 def default_css():
     css = {}
@@ -148,10 +169,10 @@ if args.get_defaults:
     import json
     from jellyfin_accounts.jf_api import Jellyfin
     jf = Jellyfin(config['jellyfin']['server'],
-              config['jellyfin']['client'],
-              config['jellyfin']['version'],
-              config['jellyfin']['device'],
-              config['jellyfin']['device_id'])
+                  config['jellyfin']['client'],
+                  config['jellyfin']['version'],
+                  config['jellyfin']['device'],
+                  config['jellyfin']['device_id'])
     print("NOTE: This can now be done through the web ui.")
     print(""" 
     This tool lets you grab various settings from a user,
@@ -187,8 +208,7 @@ if args.get_defaults:
             success = True
         except (ValueError, IndexError):
             pass
-    with open(config['files']['user_template'], 'w') as f:
-        f.write(json.dumps(policy, indent=4))
+    data_store.user_template = policy
     print(f'Policy written to "{config["files"]["user_template"]}".')
     print('In future, this policy will be copied to all new users.')
     print('Step 2: Homescreen Layout')
@@ -203,11 +223,9 @@ if args.get_defaults:
             user_id = users[user_index]['Id']
             configuration = users[user_index]['Configuration']
             display_prefs = jf.getDisplayPreferences(user_id)
-            with open(config['files']['user_configuration'], 'w') as f:
-                f.write(json.dumps(configuration, indent=4))
+            data_store.user_configuration = configuration
             print(f'Configuration written to "{config["files"]["user_configuration"]}".')
-            with open(config['files']['user_displayprefs'], 'w') as f:
-                f.write(json.dumps(display_prefs, indent=4))
+            data_store.user_displayprefs = display_prefs
             print(f'Display Prefs written to "{config["files"]["user_displayprefs"]}".')
             success = True
         elif choice.lower() == 'n':
