@@ -31,7 +31,6 @@ A basic account management system for [Jellyfin](https://github.com/jellyfin/jel
 * requests
 * itsdangerous
 * passlib
-* secrets
 * configparser
 * pyOpenSSL
 * waitress
@@ -43,10 +42,7 @@ A basic account management system for [Jellyfin](https://github.com/jellyfin/jel
 
 Usually as simple as:
 ```
-git clone https://github.com/hrfee/jellyfin-accounts.git
-cd jellyfin-accounts
-pip3 install pyOpenSSL
-python3 setup.py install
+pip install jellyfin-accounts
 ```
 If not, or if you want to use docker, see [install](https://github.com/hrfee/jellyfin-accounts/wiki/Install).
 
