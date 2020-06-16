@@ -1,0 +1,42 @@
+[tool.poetry]
+name = "jellyfin-accounts"
+version = "0.2.0"
+readme = "README.md"
+description = "A simple account management system for Jellyfin"
+authors = ["Harvey Tindall <harveyltindall@gmail.com>"]
+license = "MIT"
+homepage = "https://github.com/hrfee/jellyfin-accounts"
+repository = "https://github.com/hrfee/jellyfin-accounts"
+keywords = ["jellyfin", "jf-accounts"]
+include = ["jellyfin_accounts/data/*"]
+exclude = ["images/*"]
+classifiers = [
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+]
+
+
+[tool.poetry.dependencies]
+python = "^3.6"
+pyopenssl = "^19.1.0"
+flask = "^1.1.2"
+flask-httpauth = "^3.3.0"
+requests = "^2.23.0"
+itsdangerous = "^1.1.0"
+passlib = "^1.7.2"
+pytz = "^2020.1"
+python-dateutil = "^2.8.1"
+watchdog = "^0.10.2"
+configparser = "^5.0.0"
+waitress = "^1.4.3"
+
+[tool.poetry.dev-dependencies]
+
+
+[tool.poetry.scripts]
+jf-accounts = 'jellyfin_accounts:main'
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"

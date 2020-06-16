@@ -6,8 +6,8 @@ from itsdangerous import (TimedJSONWebSignatureSerializer
                           as Serializer, BadSignature, SignatureExpired)
 from passlib.apps import custom_app_context as pwd_context
 import uuid
-from __main__ import config, app, g
-from __main__ import auth_log as log
+from jellyfin_accounts import config, app, g
+from jellyfin_accounts import auth_log as log
 from jellyfin_accounts.jf_api import Jellyfin
 from jellyfin_accounts.web_api import jf
 

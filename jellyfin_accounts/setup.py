@@ -1,8 +1,8 @@
 from flask import request, jsonify, render_template
 from configparser import RawConfigParser
 from jellyfin_accounts.jf_api import Jellyfin
-from __main__ import config, config_path, app, first_run
-from __main__ import web_log as log
+from jellyfin_accounts import config, config_path, app, first_run
+from jellyfin_accounts import web_log as log
 import os
 
 if first_run:

@@ -1,48 +1,40 @@
 from flask import request, jsonify
-from configparser import RawConfigParser
 from jellyfin_accounts.jf_api import Jellyfin
 import json
 import datetime
 import secrets
 import time
-from __main__ import config, config_path, app, g
-from __main__ import web_log as log
+from jellyfin_accounts import config, config_path, app, g, data_store
+from jellyfin_accounts import web_log as log
 from jellyfin_accounts.validate_password import PasswordValidator
 
 def resp(success=True, code=500):
     if success:
         r = jsonify({'success': True})
-        r.status_code = 200
+        if code == 500:
+            r.status_code = 200
+        else:
+            r.status_code = code
     else:
         r = jsonify({'success': False})
         r.status_code = code
     return r
 
-
 def checkInvite(code, delete=False):
     current_time = datetime.datetime.now()
-    try:
-        with open(config['files']['invites'], 'r') as f:
-            invites = json.load(f)
-    except (FileNotFoundError, json.decoder.JSONDecodeError):
-        invites = {'invites': []}
-    valid = False
-    for index, i in enumerate(invites['invites']):
-        expiry = datetime.datetime.strptime(i['valid_till'],
+    invites = dict(data_store.invites)
+    match = False
+    for invite in invites:
+        expiry = datetime.datetime.strptime(invites[invite]['valid_till'],
                                             '%Y-%m-%dT%H:%M:%S.%f')
         if current_time >= expiry:
-            log.debug(('Housekeeping: Deleting old invite ' +
-                       invites['invites'][index]['code']))
-            del invites['invites'][index]
-        else:
-            if i['code'] == code:
-                valid = True
-                if delete:
-                    del invites['invites'][index]
-    with open(config['files']['invites'], 'w') as f:
-        f.write(json.dumps(invites, indent=4, default=str))
-    return valid
-
+            log.debug(f'Housekeeping: Deleting old invite {invite}')
+            del data_store.invites[invite]
+        elif invite == code:
+            match = True
+            if delete:
+                del data_store.invites[code]
+    return match
 
 jf = Jellyfin(config['jellyfin']['server'],
               config['jellyfin']['client'],
@@ -52,26 +44,22 @@ jf = Jellyfin(config['jellyfin']['server'],
 
 from jellyfin_accounts.login import auth
 
-attempts = 0
+jf_address = config['jellyfin']['server']
 success = False
-while attempts != 3:
+for i in range(3):
     try:
         jf.authenticate(config['jellyfin']['username'],
                         config['jellyfin']['password'])
         success = True
-        log.info(('Successfully authenticated with ' +
-                 config['jellyfin']['server']))
+        log.info(f'Successfully authenticated with {jf_address}')
         break
     except Jellyfin.AuthenticationError:
-        attempts += 1
-        log.error(('Failed to authenticate with ' +
-                   config['jellyfin']['server'] +
-                   '. Retrying...'))
+        log.error(f'Failed to authenticate with {jf_address}, Retrying...')
         time.sleep(5)
 
 if not success:
     log.error('Could not authenticate after 3 tries.')
-
+    exit()
 
 def switchToIds():
     try:
@@ -112,7 +100,7 @@ else:
     validator = PasswordValidator(0, 0, 0, 0, 0)
 
 
-@app.route('/newUser', methods=['GET', 'POST'])
+@app.route('/newUser', methods=['POST'])
 def newUser():
     data = request.get_json()
     log.debug('Attempted newUser')
@@ -125,12 +113,10 @@ def newUser():
         if valid:
             log.debug('User password valid')
             try:
-                jf.authenticate(config['jellyfin']['username'],
-                                config['jellyfin']['password'])
-                user = jf.newUser(data['username'], data['password'])
+                user = jf.newUser(data['username'],
+                                  data['password'])
             except Jellyfin.UserExistsError:
-                error = 'User already exists with name '
-                error += data['username']
+                error = f'User already exists named {data["username"]}'
                 log.debug(error)
                 return jsonify({'error': error})
             except:
@@ -138,36 +124,31 @@ def newUser():
             checkInvite(data['code'], delete=True)
             if user.status_code == 200:
                 try:
-                    with open(config['files']['user_template'], 'r') as f:
-                        default_policy = json.load(f)
-                    jf.setPolicy(user.json()['Id'], default_policy)
+                    policy = data_store.user_template
+                    if policy != {}:
+                        jf.setPolicy(user.json()['Id'], policy)
+                    else:
+                        log.debug('user policy was blank')
                 except:
-                    log.error('Failed to set new user policy. ' +
-                              'Ignore if you didn\'t create a template')
+                    log.error('Failed to set new user policy')
                 try:
-                    with open(config['files']['user_configuration'], 'r') as f:
-                        default_configuration = json.load(f)
-                    with open(config['files']['user_displayprefs'], 'r') as f:
-                        default_displayprefs = json.load(f)
-                    if jf.setConfiguration(user.json()['Id'],
-                                           default_configuration):
-                        jf.setDisplayPreferences(user.json()['Id'],
-                                                 default_displayprefs)
-                    log.debug('Set homescreen layout.')
+                    configuration = data_store.user_configuration
+                    displayprefs = data_store.user_displayprefs
+                    if configuration != {} and displayprefs != {}:
+                        if jf.setConfiguration(user.json()['Id'],
+                                               configuration):
+                            jf.setDisplayPreferences(user.json()['Id'],
+                                                     displayprefs)
+                            log.debug('Set homescreen layout.')
+                    else:
+                        log.debug('user configuration and/or ' +
+                                  'displayprefs were blank')
                 except:
-                    log.error('Failed to set new user homescreen kayout.' +
-                              'Ignore if you didn\'t create a template')
+                    log.error('Failed to set new user homescreen layout')
                 if config.getboolean('password_resets', 'enabled'):
-                    try:
-                        with open(config['files']['emails'], 'r') as f:
-                            emails = json.load(f)
-                    except (FileNotFoundError, json.decoder.JSONDecodeError):
-                        emails = {}
-                    emails[user.json()['Id']] = data['email']
-                    with open(config['files']['emails'], 'w') as f:
-                        f.write(json.dumps(emails, indent=4))
+                    data_store.emails[user.json()['Id']] = data['email']
                     log.debug('Email address stored')
-                log.info('New User created.')
+                log.info('New user created')
             else:
                 log.error(f'New user creation failed: {user.status_code}')
                 return resp(False)
@@ -179,15 +160,16 @@ def newUser():
         return resp(False, code=401)
 
 
-@app.route('/generateInvite', methods=['GET', 'POST'])
+@app.route('/generateInvite', methods=['POST'])
 @auth.login_required
 def generateInvite():
     current_time = datetime.datetime.now()
     data = request.get_json()
     delta = datetime.timedelta(hours=int(data['hours']),
                                minutes=int(data['minutes']))
-    invite = {'code': secrets.token_urlsafe(16)}
-    log.debug(f'Creating new invite: {invite["code"]}')
+    invite_code = secrets.token_urlsafe(16)
+    invite = {}
+    log.debug(f'Creating new invite: {invite_code}')
     valid_till = current_time + delta
     invite['valid_till'] = valid_till.strftime('%Y-%m-%dT%H:%M:%S.%f')
     if 'email' in data and config.getboolean('invite_emails', 'enabled'):
@@ -202,19 +184,12 @@ def generateInvite():
             from jellyfin_accounts.email import Smtp
             email = Smtp(address)
         email.construct_invite({'expiry': valid_till,
-                                'code': invite['code']})
+                                'code': invite_code})
         response = email.send()
         if response is False or type(response) != bool:
             invite['email'] = f'Failed to send to {address}'
-    try:
-        with open(config['files']['invites'], 'r') as f:
-            invites = json.load(f)
-    except (FileNotFoundError, json.decoder.JSONDecodeError):
-        invites = {'invites': []}
-    invites['invites'].append(invite)
-    with open(config['files']['invites'], 'w') as f:
-        f.write(json.dumps(invites, indent=4, default=str))
-    log.info(f'New invite created: {invite["code"]}')
+    data_store.invites[invite_code] = invite
+    log.info(f'New invite created: {invite_code}')
     return resp()
 
 
@@ -223,46 +198,30 @@ def generateInvite():
 def getInvites():
     log.debug('Invites requested')
     current_time = datetime.datetime.now()
-    try:
-        with open(config['files']['invites'], 'r') as f:
-            invites = json.load(f)
-    except (FileNotFoundError, json.decoder.JSONDecodeError):
-        invites = {'invites': []}
+    invites = dict(data_store.invites)
+    for code in invites:
+        checkInvite(code)
+    invites = dict(data_store.invites)
     response = {'invites': []}
-    for index, i in enumerate(invites['invites']):
-        expiry = datetime.datetime.strptime(i['valid_till'],
+    for code in invites:
+        expiry = datetime.datetime.strptime(invites[code]['valid_till'],
                                             '%Y-%m-%dT%H:%M:%S.%f')
-        if current_time >= expiry:
-            log.debug(('Housekeeping: Deleting old invite ' +
-                       invites['invites'][index]['code']))
-            del invites['invites'][index]
-        else:
-            valid_for = expiry - current_time
-            invite = {'code': i['code'],
-                      'hours': valid_for.seconds//3600,
-                      'minutes': (valid_for.seconds//60) % 60}
-            if 'email' in i:
-                invite['email'] = i['email']
-            response['invites'].append(invite)
-    with open(config['files']['invites'], 'w') as f:
-        f.write(json.dumps(invites, indent=4, default=str))
+        valid_for = expiry - current_time
+        invite = {'code': code,
+                  'hours': valid_for.seconds//3600,
+                  'minutes': (valid_for.seconds//60) % 60}
+        if 'email' in invites[code]:
+            invite['email'] = invites[code]['email']
+        response['invites'].append(invite)
     return jsonify(response)
-
 
 @app.route('/deleteInvite', methods=['POST'])
 @auth.login_required
 def deleteInvite():
     code = request.get_json()['code']
-    try:
-        with open(config['files']['invites'], 'r') as f:
-            invites = json.load(f)
-    except (FileNotFoundError, json.decoder.JSONDecodeError):
-        invites = {'invites': []}
-    for index, i in enumerate(invites['invites']):
-        if i['code'] == code:
-            del invites['invites'][index]
-            with open(config['files']['invites'], 'w') as f:
-                f.write(json.dumps(invites, indent=4, default=str))
+    invites = dict(data_store.invites)
+    if code in invites:
+        del data_store.invites[code]
     log.info(f'Invite deleted: {code}')
     return resp()
 
@@ -274,19 +233,13 @@ def get_token():
     return jsonify({'token': token.decode('ascii')})
 
 
-@app.route('/getUsers', methods=['GET', 'POST'])
+@app.route('/getUsers', methods=['GET'])
 @auth.login_required
 def getUsers():
     log.debug('User and email list requested')
-    try:
-        with open(config['files']['emails'], 'r') as f:
-            emails = json.load(f)
-    except (FileNotFoundError, json.decoder.JSONDecodeError):
-        emails = {}
     response = {'users': []}
-    jf.authenticate(config['jellyfin']['username'],
-                    config['jellyfin']['password'])
     users = jf.getUsers(public=False)
+    emails = data_store.emails
     for user in users:
         entry = {'name': user['Name']}
         if user['Id'] in emails:
@@ -294,29 +247,17 @@ def getUsers():
         response['users'].append(entry)
     return jsonify(response)
 
+
 @app.route('/modifyUsers', methods=['POST'])
 @auth.login_required
 def modifyUsers():
     data = request.get_json()
-    log.debug('User and email list modification requested')
-    try:
-        with open(config['files']['emails'], 'r') as f:
-            emails = json.load(f)
-    except (FileNotFoundError, json.decoder.JSONDecodeError):
-        emails = {}
-    jf.authenticate(config['jellyfin']['username'],
-                    config['jellyfin']['password'])
+    log.debug('Email list modification requested')
     for key in data:
         uid = jf.getUsers(key, public=False)['Id']
+        data_store.emails[uid] = data[key]
         log.debug(f'Email for user "{key}" modified')
-        emails[uid] = data[key]
-    try:
-        with open(config['files']['emails'], 'w') as f:
-            f.write(json.dumps(emails, indent=4))
-        return resp()
-    except:
-        log.error('Could not store email')
-        return resp(success=False)
+    return resp()
 
 
 @app.route('/setDefaults', methods=['POST'])
@@ -324,33 +265,27 @@ def modifyUsers():
 def setDefaults():
     data = request.get_json()
     username = data['username']
-    log.debug(f'storing default settings from user {username}')
-    jf.authenticate(config['jellyfin']['username'],
-                    config['jellyfin']['password'])
+    log.debug(f'Storing default settings from user {username}')
     try:
         user = jf.getUsers(username=username,
                            public=False)
     except Jellyfin.UserNotFoundError:
-        log.error(f'couldn\'t find user {username}')
-        return resp(success=False)
+        log.error(f'Storing defaults failed: Couldn\'t find user {username}')
+        return resp(False)
     uid = user['Id']
     policy = user['Policy']
-    try:
-        with open(config['files']['user_template'], 'w') as f:
-            f.write(json.dumps(policy, indent=4))
-    except:
-        log.error('Could not store user template')
-        return resp(success=False)
+    data_store.user_template = policy
     if data['homescreen']:
         configuration = user['Configuration']
         try:
-            display_prefs = jf.getDisplayPreferences(uid)
-            with open(config['files']['user_configuration'], 'w') as f:
-                f.write(json.dumps(configuration, indent=4))
-            with open(config['files']['user_displayprefs'], 'w') as f:
-                f.write(json.dumps(display_prefs, indent=4))
+            displayprefs = jf.getDisplayPreferences(uid)
+            data_store.user_configuration = configuration
+            data_store.user_displayprefs = displayprefs
         except:
-            log.error('Could not store homescreen layout')
+            log.error('Storing defaults failed: ' +
+                      'couldn\'t store homescreen layout')
+            return resp(False)
     return resp()
-
+    
 import jellyfin_accounts.setup
+
