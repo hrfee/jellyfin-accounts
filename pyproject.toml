@@ -21,7 +21,7 @@ classifiers = [
 python = "^3.6"
 pyopenssl = "^19.1.0"
 flask = "^1.1.2"
-flask-httpauth = "^3.3.0"
+flask-httpauth = ">= 3.3.0"
 requests = "^2.23.0"
 itsdangerous = "^1.1.0"
 passlib = "^1.7.2"

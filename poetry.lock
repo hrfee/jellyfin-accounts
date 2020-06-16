@@ -89,7 +89,7 @@ description = "Basic and Digest HTTP authentication for Flask routes"
 name = "flask-httpauth"
 optional = false
 python-versions = "*"
-version = "4.1.0"
+version = "3.3.0"
 
 [package.dependencies]
 Flask = "*"
@@ -275,7 +275,7 @@ dev = ["pytest", "pytest-timeout", "coverage", "tox", "sphinx", "pallets-sphinx-
 watchdog = ["watchdog"]
 
 [metadata]
-content-hash = "721be13a1e348d7e424529ba8466b9e2408df2cd97ab45e7e0d2f665b3213879"
+content-hash = "fd63698aba27900fe4068b86c7042725a7210e647429dad462966febcf2047b9"
 python-versions = "^3.6"
 
 [metadata.files]
@@ -351,8 +351,8 @@ flask = [
     {file = "Flask-1.1.2.tar.gz", hash = "sha256:4efa1ae2d7c9865af48986de8aeb8504bf32c7f3d6fdc9353d34b21f4b127060"},
 ]
 flask-httpauth = [
-    {file = "Flask-HTTPAuth-4.1.0.tar.gz", hash = "sha256:9e028e4375039a49031eb9ecc40be4761f0540476040f6eff329a31dabd4d000"},
-    {file = "Flask_HTTPAuth-4.1.0-py2.py3-none-any.whl", hash = "sha256:29e0288869a213c7387f0323b6bf2c7191584fb1da8aa024d9af118e5cd70de7"},
+    {file = "Flask-HTTPAuth-3.3.0.tar.gz", hash = "sha256:6ef8b761332e780f9ff74d5f9056c2616f52babc1998b01d9f361a1e439e61b9"},
+    {file = "Flask_HTTPAuth-3.3.0-py2.py3-none-any.whl", hash = "sha256:0149953720489407e51ec24bc2f86273597b7973d71cd51f9443bd0e2a89bd72"},
 ]
 idna = [
     {file = "idna-2.9-py2.py3-none-any.whl", hash = "sha256:a068a21ceac8a4d63dbfd964670474107f541babbd2250d61922f029858365fa"},
