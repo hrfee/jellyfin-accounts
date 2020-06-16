@@ -1,8 +1,8 @@
 import json
 from pathlib import Path
 from flask import Flask, send_from_directory, render_template
-from __main__ import config, app, g, css, data_store
-from __main__ import web_log as log
+from jellyfin_accounts import config, app, g, css, data_store
+from jellyfin_accounts import web_log as log
 from jellyfin_accounts.web_api import checkInvite, validator
 
 

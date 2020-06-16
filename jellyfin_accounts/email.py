@@ -8,8 +8,8 @@ from email.mime.multipart import MIMEMultipart
 from pathlib import Path
 from dateutil import parser as date_parser
 from jinja2 import Environment, FileSystemLoader
-from __main__ import config
-from __main__ import email_log as log
+from jellyfin_accounts import config
+from jellyfin_accounts import email_log as log
 
 
 class Email():

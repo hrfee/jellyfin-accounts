@@ -4,8 +4,8 @@ import json
 import datetime
 import secrets
 import time
-from __main__ import config, config_path, app, g, data_store
-from __main__ import web_log as log
+from jellyfin_accounts import config, config_path, app, g, data_store
+from jellyfin_accounts import web_log as log
 from jellyfin_accounts.validate_password import PasswordValidator
 
 def resp(success=True, code=500):

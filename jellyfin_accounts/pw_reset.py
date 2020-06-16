@@ -4,8 +4,8 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from jellyfin_accounts.email import Mailgun, Smtp
 from jellyfin_accounts.web_api import jf
-from __main__ import config, data_store
-from __main__ import email_log as log
+from jellyfin_accounts import config, data_store
+from jellyfin_accounts import email_log as log
 
 
 
