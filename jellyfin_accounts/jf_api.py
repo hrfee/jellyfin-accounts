@@ -2,35 +2,48 @@
 import requests
 import time
 
+
 class Error(Exception):
     pass
+
 
 class Jellyfin:
     """
     Basic Jellyfin API client, providing account related function only.
     """
+
     class UserExistsError(Error):
         """
         Thrown if a user already exists with the same name
         when creating an account.
         """
+
         pass
+
     class UserNotFoundError(Error):
         """Thrown if account with specified user ID/name does not exist."""
+
         pass
+
     class AuthenticationError(Error):
         """Thrown if authentication with Jellyfin fails."""
+
         pass
+
     class AuthenticationRequiredError(Error):
         """
         Thrown if privileged action is attempted without authentication.
         """
+
         pass
+
     class UnknownError(Error):
         """
         Thrown if i've been too lazy to figure out an error's meaning.
         """
+
         pass
+
     def __init__(self, server, client, version, device, deviceId):
         """
         Initializes the Jellyfin object. All parameters except server
@@ -58,17 +71,16 @@ class Jellyfin:
         self.auth += f"DeviceId={self.deviceId}, "
         self.auth += f"Version={self.version}"
         self.header = {
-           "Accept": "application/json",
-           "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-           "X-Application": f"{self.client}/{self.version}",
-           "Accept-Charset": "UTF-8,*",
-           "Accept-encoding": "gzip",
-           "User-Agent": self.useragent,
-           "X-Emby-Authorization": self.auth
+            "Accept": "application/json",
+            "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "X-Application": f"{self.client}/{self.version}",
+            "Accept-Charset": "UTF-8,*",
+            "Accept-encoding": "gzip",
+            "User-Agent": self.useragent,
+            "X-Emby-Authorization": self.auth,
         }
-    def getUsers(self, username: str = "all",
-                 userId: str = "all",
-                 public: bool = True):
+
+    def getUsers(self, username: str = "all", userId: str = "all", public: bool = True):
         """
         Returns details on user(s), such as ID, Name, Policy.
 
@@ -81,19 +93,20 @@ class Jellyfin:
         """
         if public is True:
             if (time.time() - self.userCachePublicAge) >= self.timeout:
-                response = requests.get(self.server+"/emby/Users/Public").json()
+                response = requests.get(self.server + "/emby/Users/Public").json()
                 self.userCachePublic = response
                 self.userCachePublicAge = time.time()
             else:
                 response = self.userCachePublic
-        elif (public is False and
-              hasattr(self, 'username') and
-              hasattr(self, 'password')):
+        elif (
+            public is False and hasattr(self, "username") and hasattr(self, "password")
+        ):
             if (time.time() - self.userCacheAge) >= self.timeout:
-                response = requests.get(self.server+"/emby/Users",
-                                        headers=self.header,
-                                        params={'Username': self.username,
-                                                'Pw': self.password})
+                response = requests.get(
+                    self.server + "/emby/Users",
+                    headers=self.header,
+                    params={"Username": self.username, "Pw": self.password},
+                )
                 if response.status_code == 200:
                     response = response.json()
                     self.userCache = response
@@ -113,7 +126,7 @@ class Jellyfin:
         elif id == "all":
             match = False
             for user in response:
-                if user['Name'] == username:
+                if user["Name"] == username:
                     match = True
                     return user
             if not match:
@@ -121,7 +134,7 @@ class Jellyfin:
         else:
             match = False
             for user in response:
-                if user['Id'] == id:
+                if user["Id"] == id:
                     match = True
                     return user
             if not match:
@@ -136,24 +149,26 @@ class Jellyfin:
         """
         self.username = username
         self.password = password
-        response = requests.post(self.server+"/emby/Users/AuthenticateByName",
-                                 headers=self.header,
-                                 params={'Username': self.username,
-                                         'Pw': self.password})
+        response = requests.post(
+            self.server + "/emby/Users/AuthenticateByName",
+            headers=self.header,
+            params={"Username": self.username, "Pw": self.password},
+        )
         if response.status_code == 200:
             json = response.json()
-            self.userId = json['User']['Id']
-            self.accessToken = json['AccessToken']
+            self.userId = json["User"]["Id"]
+            self.accessToken = json["AccessToken"]
             self.auth = "MediaBrowser "
             self.auth += f"Client={self.client}, "
             self.auth += f"Device={self.device}, "
             self.auth += f"DeviceId={self.deviceId}, "
             self.auth += f"Version={self.version}"
             self.auth += f", Token={self.accessToken}"
-            self.header['X-Emby-Authorization'] = self.auth
+            self.header["X-Emby-Authorization"] = self.auth
             return True
         else:
             raise self.AuthenticationError
+
     def setPolicy(self, userId: str, policy: dict):
         """
         Sets a user's policy (Admin rights, Library Access, etc.) by user ID.
@@ -161,55 +176,64 @@ class Jellyfin:
         :param userId: ID of the user to modify.
         :param policy: User policy in dictionary form.
         """
-        return requests.post(self.server+"/Users/"+userId+"/Policy",
-                             headers=self.header,
-                             params=policy)
+        return requests.post(
+            self.server + "/Users/" + userId + "/Policy",
+            headers=self.header,
+            params=policy,
+        )
+
     def newUser(self, username: str, password: str):
         for user in self.getUsers():
-            if user['Name'] == username:
+            if user["Name"] == username:
                 raise self.UserExistsError
-        response = requests.post(self.server+"/emby/Users/New",
-                                 headers=self.header,
-                                 params={'Name': username,
-                                         'Password': password})
+        response = requests.post(
+            self.server + "/emby/Users/New",
+            headers=self.header,
+            params={"Name": username, "Password": password},
+        )
         if response.status_code == 401:
-            if hasattr(self, 'username') and hasattr(self, 'password'):
+            if hasattr(self, "username") and hasattr(self, "password"):
                 self.authenticate(self.username, self.password)
                 return self.newUser(username, password)
             else:
                 raise self.AuthenticationRequiredError
         return response
+
     def getViewOrder(self, userId: str, public: bool = True):
         if not public:
-            param = '?IncludeHidden=true'
+            param = "?IncludeHidden=true"
         else:
-            param = ''
-        views = requests.get(self.server+"/Users/"+userId+"/Views"+param,
-                             headers=self.header).json()['Items']
+            param = ""
+        views = requests.get(
+            self.server + "/Users/" + userId + "/Views" + param, headers=self.header
+        ).json()["Items"]
         orderedViews = []
         for library in views:
-            orderedViews.append(library['Id'])
+            orderedViews.append(library["Id"])
         return orderedViews
+
     def setConfiguration(self, userId: str, configuration: dict):
         """
         Sets a user's configuration (Settings the user can change themselves).
         :param userId: ID of the user to modify.
         :param configuration: Configuration to write in dictionary form.
         """
-        resp = requests.post(self.server+"/Users/"+userId+"/Configuration",
-                               headers=self.header,
-                               params=configuration)
-        if (resp.status_code == 200 or
-                resp.status_code == 204):
+        resp = requests.post(
+            self.server + "/Users/" + userId + "/Configuration",
+            headers=self.header,
+            params=configuration,
+        )
+        if resp.status_code == 200 or resp.status_code == 204:
             return True
         elif resp.status_code == 401:
-            if hasattr(self, 'username') and hasattr(self, 'password'):
+            if hasattr(self, "username") and hasattr(self, "password"):
                 self.authenticate(self.username, self.password)
                 return self.setConfiguration(userId, configuration)
             else:
                 raise self.AuthenticationRequiredError
         else:
             raise self.UnknownError
+
     def getConfiguration(self, username: str = "all", userId: str = "all"):
         """
         Gets a user's Configuration. This can also be found in getUsers if
@@ -217,27 +241,36 @@ class Jellyfin:
         :param username: The user's username.
         :param userId: The user's ID.
         """
-        return self.getUsers(username=username,
-                             userId=userId,
-                             public=False)['Configuration']
+        return self.getUsers(username=username, userId=userId, public=False)[
+            "Configuration"
+        ]
+
     def getDisplayPreferences(self, userId: str):
         """
         Gets a user's Display Preferences (Home layout).
         :param userId: The user's ID.
         """
-        resp = requests.get((self.server+"/DisplayPreferences/usersettings" +
-                            "?userId="+userId+"&client=emby"),
-                            headers=self.header)
+        resp = requests.get(
+            (
+                self.server
+                + "/DisplayPreferences/usersettings"
+                + "?userId="
+                + userId
+                + "&client=emby"
+            ),
+            headers=self.header,
+        )
         if resp.status_code == 200:
             return resp.json()
         elif resp.status_code == 401:
-            if hasattr(self, 'username') and hasattr(self, 'password'):
+            if hasattr(self, "username") and hasattr(self, "password"):
                 self.authenticate(self.username, self.password)
                 return self.getDisplayPreferences(userId)
             else:
                 raise self.AuthenticationRequiredError
         else:
             raise self.UnknownError
+
     def setDisplayPreferences(self, userId: str, preferences: dict):
         """
         Sets a user's Display Preferences (Home layout).
@@ -245,16 +278,22 @@ class Jellyfin:
         :param preferences: The preferences to set.
         """
         tempheader = self.header
-        tempheader['Content-type'] = 'application/json'
-        resp = requests.post((self.server+"/DisplayPreferences/usersettings" +
-                              "?userId="+userId+"&client=emby"),
-                             headers=tempheader,
-                             json=preferences)
-        if (resp.status_code == 200 or
-                resp.status_code == 204):
+        tempheader["Content-type"] = "application/json"
+        resp = requests.post(
+            (
+                self.server
+                + "/DisplayPreferences/usersettings"
+                + "?userId="
+                + userId
+                + "&client=emby"
+            ),
+            headers=tempheader,
+            json=preferences,
+        )
+        if resp.status_code == 200 or resp.status_code == 204:
             return True
         elif resp.status_code == 401:
-            if hasattr(self, 'username') and hasattr(self, 'password'):
+            if hasattr(self, "username") and hasattr(self, "password"):
                 self.authenticate(self.username, self.password)
                 return self.setDisplayPreferences(userId, preferences)
             else:
