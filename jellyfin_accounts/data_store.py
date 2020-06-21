@@ -2,6 +2,10 @@ import json
 import datetime
 
 class JSONFile(dict):
+    """
+    Behaves like a dictionary, but automatically
+    reads and writes to a JSON file (most of the time).
+    """
     @staticmethod
     def readJSON(path):
         try:

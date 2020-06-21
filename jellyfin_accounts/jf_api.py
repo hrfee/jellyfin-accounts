@@ -66,13 +66,15 @@ class Jellyfin:
            "User-Agent": self.useragent,
            "X-Emby-Authorization": self.auth
         }
-    def getUsers(self, username="all", id="all", public=True):
+    def getUsers(self, username: str = "all",
+                 userId: str = "all",
+                 public: bool = True):
         """
         Returns details on user(s), such as ID, Name, Policy.
 
         :param username: (optional) Username to get info about.
                          Leave blank to get all users.
-        :param id: (optional) User ID to get info about.
+        :param userId: (optional) User ID to get info about.
                    Leave blank to get all users.
         :param public: True = Get publicly visible users only (no auth required),
                         False = Get all users (auth required).
@@ -124,7 +126,8 @@ class Jellyfin:
                     return user
             if not match:
                 raise self.UserNotFoundError
-    def authenticate(self, username, password):
+
+    def authenticate(self, username: str, password: str):
         """
         Authenticates by name with Jellyfin.
 
@@ -151,7 +154,7 @@ class Jellyfin:
             return True
         else:
             raise self.AuthenticationError
-    def setPolicy(self, userId, policy):
+    def setPolicy(self, userId: str, policy: dict):
         """
         Sets a user's policy (Admin rights, Library Access, etc.) by user ID.
 
@@ -161,7 +164,7 @@ class Jellyfin:
         return requests.post(self.server+"/Users/"+userId+"/Policy",
                              headers=self.header,
                              params=policy)
-    def newUser(self, username, password):
+    def newUser(self, username: str, password: str):
         for user in self.getUsers():
             if user['Name'] == username:
                 raise self.UserExistsError
@@ -176,7 +179,7 @@ class Jellyfin:
             else:
                 raise self.AuthenticationRequiredError
         return response
-    def getViewOrder(self, userId, public=True):
+    def getViewOrder(self, userId: str, public: bool = True):
         if not public:
             param = '?IncludeHidden=true'
         else:
@@ -187,7 +190,7 @@ class Jellyfin:
         for library in views:
             orderedViews.append(library['Id'])
         return orderedViews
-    def setConfiguration(self, userId, configuration):
+    def setConfiguration(self, userId: str, configuration: dict):
         """
         Sets a user's configuration (Settings the user can change themselves).
         :param userId: ID of the user to modify.
@@ -207,17 +210,17 @@ class Jellyfin:
                 raise self.AuthenticationRequiredError
         else:
             raise self.UnknownError
-    def getConfiguration(self, username="all", id="all"):
+    def getConfiguration(self, username: str = "all", userId: str = "all"):
         """
         Gets a user's Configuration. This can also be found in getUsers if
         public is set to False.
         :param username: The user's username.
-        :param id: The user's ID.
+        :param userId: The user's ID.
         """
         return self.getUsers(username=username,
-                             id=id,
+                             userId=userId,
                              public=False)['Configuration']
-    def getDisplayPreferences(self, userId):
+    def getDisplayPreferences(self, userId: str):
         """
         Gets a user's Display Preferences (Home layout).
         :param userId: The user's ID.
@@ -235,7 +238,7 @@ class Jellyfin:
                 raise self.AuthenticationRequiredError
         else:
             raise self.UnknownError
-    def setDisplayPreferences(self, userId, preferences):
+    def setDisplayPreferences(self, userId: str, preferences: dict):
         """
         Sets a user's Display Preferences (Home layout).
         :param userId: The user's ID.

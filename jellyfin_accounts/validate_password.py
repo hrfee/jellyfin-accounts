@@ -42,8 +42,3 @@ class PasswordValidator:
                     text += criterion
                 lines[criterion] = text
         return lines
-
-            
-
-
-

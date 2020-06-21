@@ -3,18 +3,10 @@ from configparser import RawConfigParser
 from jellyfin_accounts.jf_api import Jellyfin
 from jellyfin_accounts import config, config_path, app, first_run
 from jellyfin_accounts import web_log as log
+from jellyfin_accounts.web_api import resp
 import os
 
 if first_run:
-    def resp(success=True, code=500):
-        if success:
-            r = jsonify({'success': True})
-            r.status_code = 200
-        else:
-            r = jsonify({'success': False})
-            r.status_code = code
-        return r
-
     def tempJF(server):
         return Jellyfin(server,
                         config['jellyfin']['client'],
@@ -30,14 +22,12 @@ if first_run:
     def setup():
         return render_template('setup.html')
 
-
     @app.route('/<path:path>')
     def static_proxy(path):
         if 'html' not in path:
             return app.send_static_file(path)
         else:
             return render_template('404.html'), 404
-
 
     @app.route('/modifyConfig', methods=['POST'])
     def modifyConfig():
@@ -59,9 +49,9 @@ if first_run:
         with open(config_path, 'w') as config_file:
             temp_config.write(config_file)
         log.debug('Config written')
+        # ugly exit, sorry
         os._exit(1)
         return resp()
-
 
     @app.route('/testJF', methods=['GET', 'POST'])
     def testJF():

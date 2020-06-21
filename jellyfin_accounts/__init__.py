@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-__version__ = "0.2"
+__version__ = "0.2.1"
 
 import secrets
 import configparser
@@ -102,13 +102,13 @@ for key in ['user_configuration', 'user_displayprefs']:
 
 with open(config['files']['invites'], 'r') as f:
     temp_invites = json.load(f)
-if 'invites' in temp_invites: 
+if 'invites' in temp_invites:
     new_invites = {}
     log.info('Converting invites.json to new format, temporary.')
-    for el in temp_invites['invites']: 
-        i = {'valid_till': el['valid_till']} 
-        if 'email' in el: 
-            i['email'] = el['email'] 
+    for el in temp_invites['invites']:
+        i = {'valid_till': el['valid_till']}
+        if 'email' in el:
+            i['email'] = el['email']
         new_invites[el['code']] = i
     with open(config['files']['invites'], 'w') as f:
         f.write(json.dumps(new_invites, indent=4, default=str))
@@ -178,17 +178,17 @@ def main():
                       config['jellyfin']['device'],
                       config['jellyfin']['device_id'])
         print("NOTE: This can now be done through the web ui.")
-        print(""" 
+        print("""
         This tool lets you grab various settings from a user,
         so that they can be applied every time a new account is
         created. """)
         print("Step 1: User Policy.")
-        print(""" 
-        A user policy stores a users permissions (e.g access rights and 
+        print("""
+        A user policy stores a users permissions (e.g access rights and
         most of the other settings in the 'Profile' and 'Access' tabs
         of a user). """)
         success = False
-        msg = "Get public users only or all users? (requires auth) [public/all]: " 
+        msg = "Get public users only or all users? (requires auth) [public/all]: "
         public = False
         while not success:
             choice = input(msg)
