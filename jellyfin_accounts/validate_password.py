@@ -1,35 +1,42 @@
 specials = ['[', '@', '_', '!', '#', '$', '%', '^', '&', '*', '(', ')',
             '<', '>', '?', '/', '\\', '|', '}', '{', '~', ':', ']']
 
+
 class PasswordValidator:
     def __init__(self, min_length, upper, lower, number, special):
-        self.criteria = {'characters': int(min_length),
-                         'uppercase characters': int(upper),
-                         'lowercase characters': int(lower),
-                         'numbers': int(number),
-                         'special characters': int(special)}
+        self.criteria = {
+            "characters": int(min_length),
+            "uppercase characters": int(upper),
+            "lowercase characters": int(lower),
+            "numbers": int(number),
+            "special characters": int(special),
+        }
+
     def validate(self, password):
-        count = {'characters': 0,
-                 'uppercase characters': 0,
-                 'lowercase characters': 0,
-                 'numbers': 0,
-                 'special characters': 0}
+        count = {
+            "characters": 0,
+            "uppercase characters": 0,
+            "lowercase characters": 0,
+            "numbers": 0,
+            "special characters": 0,
+        }
         for c in password:
-            count['characters'] += 1
+            count["characters"] += 1
             if c.isupper():
-                count['uppercase characters'] += 1
+                count["uppercase characters"] += 1
             elif c.islower():
-                count['lowercase characters'] += 1
+                count["lowercase characters"] += 1
             elif c.isnumeric():
-                count['numbers'] += 1
+                count["numbers"] += 1
             elif c in specials:
-                count['special characters'] += 1
+                count["special characters"] += 1
         for criterion in count:
             if count[criterion] < self.criteria[criterion]:
                 count[criterion] = False
             else:
                 count[criterion] = True
         return count
+
     def getCriteria(self):
         lines = {}
         for criterion in self.criteria:
@@ -42,8 +49,3 @@ class PasswordValidator:
                     text += criterion
                 lines[criterion] = text
         return lines
-
-            
-
-
-

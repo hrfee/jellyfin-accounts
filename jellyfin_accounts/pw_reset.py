@@ -8,7 +8,6 @@ from jellyfin_accounts import config, data_store
 from jellyfin_accounts import email_log as log
 
 
-
 class Watcher:
     def __init__(self, dir):
         self.observer = Observer()
@@ -20,13 +19,13 @@ class Watcher:
         try:
             self.observer.start()
         except NotADirectoryError:
-            log.error(f'Directory {self.dir} does not exist')
+            log.error(f"Directory {self.dir} does not exist")
         try:
             while True:
                 time.sleep(5)
         except:
             self.observer.stop()
-            log.info('Watchdog stopped')
+            log.info("Watchdog stopped")
 
 
 class Handler(FileSystemEventHandler):
@@ -34,33 +33,35 @@ class Handler(FileSystemEventHandler):
     def on_any_event(event):
         if event.is_directory:
             return None
-        elif (event.event_type == 'modified' and
-              'passwordreset' in event.src_path):
-            log.debug(f'Password reset file: {event.src_path}')
+        elif event.event_type == "modified" and "passwordreset" in event.src_path:
+            log.debug(f"Password reset file: {event.src_path}")
             time.sleep(1)
-            with open(event.src_path, 'r') as f:
+            with open(event.src_path, "r") as f:
                 reset = json.load(f)
                 log.info(f'New password reset for {reset["UserName"]}')
                 try:
-                    id = jf.getUsers(reset['UserName'], public=False)['Id']
+                    id = jf.getUsers(reset["UserName"], public=False)["Id"]
                     address = data_store.emails[id]
-                    if address != '':
-                        method = config['email']['method']
-                        if method == 'mailgun':
+                    if address != "":
+                        method = config["email"]["method"]
+                        if method == "mailgun":
                             email = Mailgun(address)
-                        elif method == 'smtp':
+                        elif method == "smtp":
                             email = Smtp(address)
                         if email.construct_reset(reset):
                             email.send()
                     else:
                         raise IndexError
-                except (FileNotFoundError,
-                        json.decoder.JSONDecodeError,
-                        IndexError) as e:
-                    err = f'{address}: Failed: ' + type(e).__name__
+                except (
+                    FileNotFoundError,
+                    json.decoder.JSONDecodeError,
+                    IndexError,
+                ) as e:
+                    err = f"{address}: Failed: " + type(e).__name__
                     log.error(err)
+
 
 def start():
     log.info(f'Monitoring {config["password_resets"]["watch_directory"]}')
-    w = Watcher(config['password_resets']['watch_directory'])
+    w = Watcher(config["password_resets"]["watch_directory"])
     w.run()
