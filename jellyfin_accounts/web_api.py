@@ -111,12 +111,20 @@ if (
     and bool(data_store.user_template) is not False
 ):
     log.info("Updating user_template for Jellyfin >= 10.6.0")
-    data_store.user_template[
-        "AuthenticationProviderId"
-    ] = "Jellyfin.Server.Implementations.Users.DefaultAuthenticationProvider"
-    data_store.user_template[
-        "PasswordResetProviderId"
-    ] = "Jellyfin.Server.Implementations.Users.DefaultPasswordResetProvider"
+    if (
+        data_store.user_template["AuthenticationProviderId"]
+        == "Emby.Server.Implementations.Library.DefaultAuthenticationProvider"
+    ):
+        data_store.user_template[
+            "AuthenticationProviderId"
+        ] = "Jellyfin.Server.Implementations.Users.DefaultAuthenticationProvider"
+    if (
+        data_store.user_template["PasswordResetProviderId"]
+        == "Emby.Server.Implementations.Library.DefaultPasswordResetProvider"
+    ):
+        data_store.user_template[
+            "PasswordResetProviderId"
+        ] = "Jellyfin.Server.Implementations.Users.DefaultPasswordResetProvider"
 
 
 if config.getboolean("password_validation", "enabled"):
