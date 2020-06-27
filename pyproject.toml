@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "jellyfin-accounts"
-version = "0.2.1"
+version = "0.2.2"
 readme = "README.md"
 description = "A simple account management system for Jellyfin"
 authors = ["Harvey Tindall <harveyltindall@gmail.com>"]
