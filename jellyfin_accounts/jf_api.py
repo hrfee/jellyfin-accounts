@@ -79,6 +79,7 @@ class Jellyfin:
             "User-Agent": self.useragent,
             "X-Emby-Authorization": self.auth,
         }
+        self.info = requests.get(self.server + "/System/Info/Public").json()
 
     def getUsers(self, username: str = "all", userId: str = "all", public: bool = True):
         """
@@ -114,16 +115,16 @@ class Jellyfin:
                 else:
                     try:
                         self.authenticate(self.username, self.password)
-                        return self.getUsers(username, id, public)
+                        return self.getUsers(username, userId, public)
                     except self.AuthenticationError:
                         raise self.AuthenticationRequiredError
             else:
                 response = self.userCache
         else:
             raise self.AuthenticationRequiredError
-        if username == "all" and id == "all":
+        if username == "all" and userId == "all":
             return response
-        elif id == "all":
+        elif userId == "all":
             match = False
             for user in response:
                 if user["Name"] == username:
@@ -134,7 +135,7 @@ class Jellyfin:
         else:
             match = False
             for user in response:
-                if user["Id"] == id:
+                if user["Id"] == userId:
                     match = True
                     return user
             if not match:
@@ -165,6 +166,9 @@ class Jellyfin:
             self.auth += f"Version={self.version}"
             self.auth += f", Token={self.accessToken}"
             self.header["X-Emby-Authorization"] = self.auth
+            self.info = requests.get(
+                self.server + "/System/Info", headers=self.header
+            ).json()
             return True
         else:
             raise self.AuthenticationError

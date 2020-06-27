@@ -1,6 +1,7 @@
 specials = ['[', '@', '_', '!', '#', '$', '%', '^', '&', '*', '(', ')',
             '<', '>', '?', '/', '\\', '|', '}', '{', '~', ':', ']']
 
+
 class PasswordValidator:
     def __init__(self, min_length, upper, lower, number, special):
         self.criteria = {

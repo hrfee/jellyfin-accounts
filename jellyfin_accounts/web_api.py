@@ -66,6 +66,8 @@ if not success:
     log.error("Could not authenticate after 3 tries.")
     exit()
 
+# Temporary fixes below.
+
 
 def switchToIds():
     try:
@@ -100,6 +102,22 @@ def switchToIds():
 
 # Temporary, switches emails.json over from using Usernames to User IDs.
 switchToIds()
+
+
+from packaging import version
+
+if (
+    version.parse(jf.info["Version"]) >= version.parse("10.6.0")
+    and bool(data_store.user_template) is not False
+):
+    log.info("Updating user_template for Jellyfin >= 10.6.0")
+    data_store.user_template[
+        "AuthenticationProviderId"
+    ] = "Jellyfin.Server.Implementations.Users.DefaultAuthenticationProvider"
+    data_store.user_template[
+        "PasswordResetProviderId"
+    ] = "Jellyfin.Server.Implementations.Users.DefaultPasswordResetProvider"
+
 
 if config.getboolean("password_validation", "enabled"):
     validator = PasswordValidator(
