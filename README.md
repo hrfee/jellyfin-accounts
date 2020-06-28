@@ -121,8 +121,6 @@ contact_message = Need help? contact me.
 help_message =  Enter your details to create an account.
 ; Displayed when an account is created.
 success_message = Your account has been created. Click below to continue to Jellyfin.
-; When true, disables username input on invite form and sets the Jellyfin username to the email address
-no_username = false
 
 [password_validation]
 ; Enables password validation.
@@ -139,7 +137,9 @@ number = 1
 special = 0
 
 [email]
-; Leave this whole section if you aren't using any email-related features.
+; When true, disables username input on invite form and sets the Jellyfin username to the email address
+no_username = false
+; Leave the rest of this section if you aren't using any email-related features.
 use_24h = true
 ; Date format follows datetime's strftime.
 date_format = %d/%m/%y
