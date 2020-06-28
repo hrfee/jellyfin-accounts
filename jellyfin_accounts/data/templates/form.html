@@ -68,12 +68,14 @@
                                 <form action="#" method="POST">
                                     <div class="form-group">
                                         <label for="inputEmail">Email</label>
-                                        <input type="email" class="form-control" id="inputEmail" name="email" placeholder="Email" value="{{ email }}" required>
+                                        <input type="email" class="form-control" id="{% if username %}inputEmail{% else %}inputUsername{% endif %}" name="{% if username %}email{% else %}username{% endif %}" placeholder="Email" value="{{ email }}" required>
                                     </div>
+                                    {% if username %}
                                     <div class="form-group">
                                         <label for="inputUsername">Username</label>
                                         <input type="username" class="form-control" id="inputUsername" name="username" placeholder="Username" required>
                                     </div>
+                                    {% endif %}
                                     <div class="form-group">
                                         <label for="inputPassword">Password</label>
                                         <input type="password" class="form-control" id="inputPassword" name="password" placeholder="Password" required>
@@ -133,6 +135,9 @@
                 toggleSpinner();
                 var send = $("form").serializeObject();
                 send['code'] = code;
+                {% if not username %}
+                send['email'] = send['username'];
+                {% endif %}
                 send = JSON.stringify(send);
                 $.ajax('/newUser', {
                     data : send,

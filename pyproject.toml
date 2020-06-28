@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "jellyfin-accounts"
-version = "0.2.2"
+version = "0.2.3"
 readme = "README.md"
 description = "A simple account management system for Jellyfin"
 authors = ["Harvey Tindall <harveyltindall@gmail.com>"]
@@ -29,6 +29,7 @@ pytz = "^2020.1"
 python-dateutil = "^2.8.1"
 watchdog = "^0.10.2"
 waitress = "^1.4.3"
+packaging = "^20.4"
 
 [tool.poetry.dev-dependencies]
 neovim = "^0.3.1"

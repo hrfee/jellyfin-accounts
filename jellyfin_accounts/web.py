@@ -1,4 +1,3 @@
-import json
 from pathlib import Path
 from flask import Flask, send_from_directory, render_template
 from jellyfin_accounts import config, app, g, css, data_store
@@ -69,6 +68,7 @@ def inviteProxy(path):
             validate=config.getboolean("password_validation", "enabled"),
             requirements=validator.getCriteria(),
             email=email,
+            username=(not config.getboolean("email", "no_username")),
         )
     elif "admin.html" not in path and "admin.html" not in path:
         return app.send_static_file(path)

@@ -36,6 +36,7 @@ A basic account management system for [Jellyfin](https://github.com/jellyfin/jel
 * pytz
 * python-dateutil
 * watchdog
+* packaging
 ```
 ### Install
 
@@ -120,6 +121,8 @@ contact_message = Need help? contact me.
 help_message =  Enter your details to create an account.
 ; Displayed when an account is created.
 success_message = Your account has been created. Click below to continue to Jellyfin.
+; When true, disables username input on invite form and sets the Jellyfin username to the email address
+no_username = false
 
 [password_validation]
 ; Enables password validation.
@@ -182,7 +185,7 @@ api_key = your api key
 encryption = starttls
 server = smtp.jellyf.in
 ; Uses SMTP_SSL, so make sure the port is for this, not starttls.
-port = 587
+port = 465
 password = smtp password
 
 [files]

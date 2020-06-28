@@ -106,6 +106,10 @@ for key in ["user_configuration", "user_displayprefs"]:
         log.debug(f"Using default {key}")
         config["files"][key] = str(data_dir / (key + ".json"))
 
+if "no_username" not in config["email"]:
+    config["email"]["no_username"] = "false"
+    log.debug("Set no_username to false")
+
 with open(config["files"]["invites"], "r") as f:
     temp_invites = json.load(f)
 if "invites" in temp_invites:
