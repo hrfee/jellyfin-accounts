@@ -44,6 +44,7 @@ else:
     data_dir = Path.home() / ".jf-accounts"
 
 local_dir = (Path(__file__).parent / "data").resolve()
+config_base_path = local_dir / "config-base.json"
 
 first_run = False
 if data_dir.exists() is False or (data_dir / "config.ini").exists() is False:
@@ -53,8 +54,9 @@ if data_dir.exists() is False or (data_dir / "config.ini").exists() is False:
     if args.config is None:
         config_path = data_dir / "config.ini"
         from jellyfin_accounts.generate_ini import generate_ini
+
         default_path = local_dir / "config-default.ini"
-        generate_ini(local_dir / "config-base.json", default_path)
+        generate_ini(config_base_path, default_path)
         shutil.copy(str(default_path), str(config_path))
         print("Setup through the web UI, or quit and edit the configuration manually.")
         first_run = True
@@ -213,6 +215,7 @@ def resp(success=True, code=500):
         r.status_code = code
     return r
 
+
 def main():
     if args.get_defaults:
         import json
@@ -306,6 +309,7 @@ def main():
         app = Flask(__name__, root_path=str(local_dir))
         app.config["DEBUG"] = config.getboolean("ui", "debug")
         app.config["SECRET_KEY"] = secrets.token_urlsafe(16)
+        app.config["JSON_SORT_KEYS"] = False
 
         from waitress import serve
 

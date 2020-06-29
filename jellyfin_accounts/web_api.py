@@ -4,7 +4,16 @@ import json
 import datetime
 import secrets
 import time
-from jellyfin_accounts import config, config_path, app, g, data_store, resp, configparser
+from jellyfin_accounts import (
+    config,
+    config_path,
+    app,
+    g,
+    data_store,
+    resp,
+    configparser,
+    config_base_path,
+)
 from jellyfin_accounts import web_log as log
 from jellyfin_accounts.validate_password import PasswordValidator
 
@@ -314,13 +323,14 @@ def setDefaults():
     return resp()
 
 
-
 @app.route("/modifyConfig", methods=["POST"])
 @auth.login_required
 def modifyConfig():
     log.info("Config modification requested")
     data = request.get_json()
-    temp_config = configparser.RawConfigParser(comment_prefixes="/", allow_no_value=True)
+    temp_config = configparser.RawConfigParser(
+        comment_prefixes="/", allow_no_value=True
+    )
     temp_config.read(config_path)
     for section in data:
         if section in temp_config:
@@ -340,8 +350,22 @@ def modifyConfig():
     return resp()
 
 
-@app.route('/getConfig', methods=["GET"])
-@auth.login_required
+# @app.route('/getConfig', methods=["GET"])
+# @auth.login_required
+# def getConfig():
+#     log.debug('Config requested')
+#     return jsonify(config._sections), 200
+
+
+@app.route("/getConfig", methods=["GET"])
+# @auth.login_required
 def getConfig():
     log.debug('Config requested')
-    return jsonify(config._sections), 200
+    with open(config_base_path, "r") as f:
+        config_base = json.load(f)
+    response_config = config_base
+    for section in config_base:
+        for entry in config_base[section]:
+            if entry in config[section]:
+                response_config[section][entry]["value"] = config[section][entry]
+    return jsonify(response_config), 200
