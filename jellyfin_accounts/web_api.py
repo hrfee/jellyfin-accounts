@@ -358,7 +358,7 @@ def modifyConfig():
 
 
 @app.route("/getConfig", methods=["GET"])
-# @auth.login_required
+@auth.login_required
 def getConfig():
     log.debug('Config requested')
     with open(config_base_path, "r") as f:
