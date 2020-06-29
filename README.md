@@ -46,7 +46,7 @@ pip install jellyfin-accounts
 ```
 If not, or if you want to use docker, see [install](https://github.com/hrfee/jellyfin-accounts/wiki/Install).
 
-### Usage
+## Usage
 * Passing no arguments will run the server
 ```
 usage: jf-accounts [-h] [-c CONFIG] [-d DATA] [--host HOST] [-p PORT] [-g]
@@ -65,7 +65,7 @@ optional arguments:
                         and homescreen layout and output it as json to be used
                         as a user template.
 ```
-### Setup
+## Setup
 #### New user template
 * You may want to restrict a user from accessing certain libraries (e.g 4K Movies), display their account on the login screen by default, or set a default homecrseen layout. Jellyfin stores these settings in the user's policy, configuration and displayPreferences.
 * Make a temporary account and change its settings, then run `jf-accounts --get_defaults`. Choose your user, and this data will be stored at the location you set in `user_template`, `user_configuration` and `user_displayprefs` (or their default locations), and used for all subsequent new accounts.
@@ -75,7 +75,12 @@ optional arguments:
 * Currently, jellyfin-accounts supports generic SSL/TLS or STARTTLS secured SMTP, and the [mailgun](https://mailgun.com) REST API. 
 * Email html is created using [mjml](https://mjml.io), and [jinja](https://github.com/pallets/jinja) templating is used. If you wish to create your own, ensure you use the same jinja expressions (`{{ pin }}`, etc.) as used in `data/email.mjml` or `invite-email.mjml`, and also create plain text versions for legacy email clients.
 
-#### Configuration
+### Donations
+I strongly suggest you send your money to [Jellyfin](https://opencollective.com/jellyfin) or a good charity, but for those who want to help me out, a Paypal link is below.
+
+[Donate](https://www.paypal.me/hrfee)
+
+### Configuration
 * Note: Make sure to put this behind a reverse proxy with HTTPS.
 
 On first run, access the setup wizard at `0.0.0.0:8056`. When finished, restart the program.
