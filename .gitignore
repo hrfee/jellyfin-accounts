@@ -4,13 +4,13 @@ MANIFEST.in
 dist/
 build/
 test.txt
-data/node_modules/
+jellyfin_accounts/data/node_modules/
+jellyfin_accounts/data/config-default.ini
 *.egg-info/
 pw-reset/
 jfa/
 colors.txt
 theme.css
-data/static/bootstrap-jf.css
+jellyfin_accounts/data/static/bootstrap-jf.css
 old/
 .jf-accounts/
-tools/__pycache__/

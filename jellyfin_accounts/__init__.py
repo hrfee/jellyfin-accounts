@@ -49,10 +49,13 @@ first_run = False
 if data_dir.exists() is False or (data_dir / "config.ini").exists() is False:
     if not data_dir.exists():
         Path.mkdir(data_dir)
-        print(f"Config dir not found, so created at {str(data_dir)}")
+        print(f"Config dir not found, so generating at {str(data_dir)}")
     if args.config is None:
         config_path = data_dir / "config.ini"
-        shutil.copy(str(local_dir / "config-default.ini"), str(config_path))
+        from jellyfin_accounts.generate_ini import generate_ini
+        default_path = local_dir / "config-default.ini"
+        generate_ini(local_dir / "config-base.json", default_path)
+        shutil.copy(str(default_path), str(config_path))
         print("Setup through the web UI, or quit and edit the configuration manually.")
         first_run = True
     else:
