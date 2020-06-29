@@ -12,3 +12,5 @@ colors.txt
 theme.css
 data/static/bootstrap-jf.css
 old/
+.jf-accounts/
+tools/__pycache__/

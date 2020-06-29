@@ -11,7 +11,7 @@ import signal
 import sys
 import json
 from pathlib import Path
-from flask import Flask, g
+from flask import Flask, jsonify, g
 from jellyfin_accounts.data_store import JSONStorage
 
 parser = argparse.ArgumentParser(description="jellyfin-accounts")
@@ -110,18 +110,21 @@ if "no_username" not in config["email"]:
     config["email"]["no_username"] = "false"
     log.debug("Set no_username to false")
 
-with open(config["files"]["invites"], "r") as f:
-    temp_invites = json.load(f)
-if "invites" in temp_invites:
-    new_invites = {}
-    log.info("Converting invites.json to new format, temporary.")
-    for el in temp_invites["invites"]:
-        i = {"valid_till": el["valid_till"]}
-        if "email" in el:
-            i["email"] = el["email"]
-        new_invites[el["code"]] = i
-    with open(config["files"]["invites"], "w") as f:
-        f.write(json.dumps(new_invites, indent=4, default=str))
+try:
+    with open(config["files"]["invites"], "r") as f:
+        temp_invites = json.load(f)
+    if "invites" in temp_invites:
+        new_invites = {}
+        log.info("Converting invites.json to new format, temporary.")
+        for el in temp_invites["invites"]:
+            i = {"valid_till": el["valid_till"]}
+            if "email" in el:
+                i["email"] = el["email"]
+            new_invites[el["code"]] = i
+        with open(config["files"]["invites"], "w") as f:
+            f.write(json.dumps(new_invites, indent=4, default=str))
+except FileNotFoundError:
+    pass
 
 
 data_store = JSONStorage(
@@ -194,6 +197,18 @@ if (
 ):
     config["jellyfin"]["public_server"] = config["jellyfin"]["server"]
 
+
+def resp(success=True, code=500):
+    if success:
+        r = jsonify({"success": True})
+        if code == 500:
+            r.status_code = 200
+        else:
+            r.status_code = code
+    else:
+        r = jsonify({"success": False})
+        r.status_code = code
+    return r
 
 def main():
     if args.get_defaults:
