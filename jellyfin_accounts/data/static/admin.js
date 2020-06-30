@@ -291,7 +291,8 @@ document.getElementById('openDefaultsWizard').onclick = function () {
                 } else if (submitButton.classList.contains('btn-danger')) {
                     submitButton.classList.remove('btn-danger');
                     submitButton.classList.add('btn-primary');
-                }
+                };
+                $('#settingsMenu').modal('hide');
                 $('#userDefaults').modal('show');
             }
         }
@@ -440,6 +441,7 @@ document.getElementById('openUsers').onclick = function () {
                 var button = document.getElementById('openUsers');
                 button.disabled = false;
                 button.innerHTML = 'Users <i class="fa fa-user"></i>';
+                $('#settingsMenu').modal('hide');
                 $('#users').modal('show');
             };
         }
@@ -495,6 +497,13 @@ document.getElementById('openSettings').onclick = function () {
                             if (config[section][entry]['required']) {
                                 entryName += ' <sup class="text-danger">*</sup>';
                                 required = true;
+                            };
+                            if (config[section][entry].hasOwnProperty('description')) {
+                                var tooltip = `
+                                <a class="text-muted" href="#" data-toggle="tooltip" data-placement="right" title="${config[section][entry]['description']}"><i class="fa fa-question-circle-o"></i></a>
+                                `;
+                                entryName += ' ';
+                                entryName += tooltip;
                             };
                             // if (config[section][entry]['requires_restart']) {
                             //     entryName += ' <sup class="text-danger">R</sup>';
@@ -575,6 +584,12 @@ document.getElementById('openSettings').onclick = function () {
     $('#settingsMenu').modal('show');
 };
 
+$('#settingsMenu').on('shown.bs.modal', function() {
+    $("a[data-toggle='tooltip']").each(function (i, obj) {
+        $(obj).tooltip();
+    });
+});
+
 function sendConfig(modalId) {
     var modal = document.getElementById(modalId);
     var send = JSON.stringify(modifiedConfig);
@@ -648,9 +663,4 @@ document.getElementById('settingsSave').onclick = function() {
         $('#settingsMenu').modal('hide');
     };
 };
-
-
-
-
-
 
