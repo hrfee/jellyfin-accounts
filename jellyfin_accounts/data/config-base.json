@@ -82,7 +82,7 @@
             "name": "Port",
             "required": true,
             "requires_restart": true,
-            "type": "int",
+            "type": "number",
             "value": 8056
         },
         "jellyfin_login": {
@@ -261,7 +261,7 @@
             "description": "Address to send emails from"
         },
         "from": {
-            "Name": "Sent from (name)",
+            "name": "Sent from (name)",
             "required": false,
             "requires_restart": false,
             "depends_true": "method",
@@ -285,7 +285,7 @@
         },
         "watch_directory": {
             "name": "Jellyfin directory",
-            "required": true,
+            "required": false,
             "requires_restart": true,
             "depends_true": "enabled",
             "type": "text",
@@ -312,7 +312,7 @@
         },
         "subject": {
             "name": "Email subject",
-            "required": true,
+            "required": false,
             "requires_restart": false,
             "depends_true": "enabled",
             "type": "text",
@@ -418,7 +418,7 @@
             "name": "Port",
             "required": false,
             "requires_restart": false,
-            "type": "int",
+            "type": "number",
             "value": 465
         },
         "password": {

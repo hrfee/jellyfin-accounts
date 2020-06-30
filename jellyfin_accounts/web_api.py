@@ -344,9 +344,7 @@ def modifyConfig():
                     log.debug(f"{section}/{item} does not exist in config")
     with open(config_path, "w") as config_file:
         temp_config.write(config_file)
-    log.info("Config written, reloading")
-    config.read(config_path)
-    log.info("Config reloaded.")
+    log.info("Config written. Restart is needed to load settings.")
     return resp()
 
 
@@ -363,6 +361,7 @@ def getConfig():
     log.debug('Config requested')
     with open(config_base_path, "r") as f:
         config_base = json.load(f)
+    config.read(config_path)
     response_config = config_base
     for section in config_base:
         for entry in config_base[section]:
