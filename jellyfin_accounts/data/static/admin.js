@@ -241,9 +241,6 @@ $("form#loginForm").submit(function() {
     });
     return false;
 });
-document.getElementById('openSettings').onclick = function () {
-    $('#settingsMenu').modal('show');
-}
 document.getElementById('openDefaultsWizard').onclick = function () {
     this.disabled = true;
     this.innerHTML =
@@ -294,7 +291,8 @@ document.getElementById('openDefaultsWizard').onclick = function () {
                 } else if (submitButton.classList.contains('btn-danger')) {
                     submitButton.classList.remove('btn-danger');
                     submitButton.classList.add('btn-primary');
-                }
+                };
+                $('#settingsMenu').modal('hide');
                 $('#userDefaults').modal('show');
             }
         }
@@ -336,6 +334,7 @@ document.getElementById('storeDefaults').onclick = function () {
                 },
                 error: function() {
                     button.textContent = 'Failed';
+        config_base_path = local_dir / "config-base.json"
                     button.classList.remove('btn-primary');
                     button.classList.add('btn-danger');
                     setTimeout(function(){
@@ -442,6 +441,7 @@ document.getElementById('openUsers').onclick = function () {
                 var button = document.getElementById('openUsers');
                 button.disabled = false;
                 button.innerHTML = 'Users <i class="fa fa-user"></i>';
+                $('#settingsMenu').modal('hide');
                 $('#users').modal('show');
             };
         }
@@ -449,3 +449,218 @@ document.getElementById('openUsers').onclick = function () {
 };
 generateInvites(empty = true);
 $("#login").modal('show');
+
+var config = {};
+var modifiedConfig = {};
+
+document.getElementById('openSettings').onclick = function () {
+    restart_setting_changed = false;
+    $.ajax('getConfig', {
+        type : 'GET',
+        dataType : 'json',
+        contentType : 'json',
+        xhrFields : {
+            withCredentials: true
+        },
+        beforeSend : function (xhr) {
+            xhr.setRequestHeader("Authorization", "Basic " + btoa(window.token + ":"));
+        },
+        complete : function(data) {
+            if (data['status'] == 200) {
+                var settingsList = document.getElementById('settingsList');
+                settingsList.textContent = '';
+                config = data['responseJSON'];
+                for (var section of Object.keys(config)) {
+                    var sectionCollapse = document.createElement('div');
+                    sectionCollapse.classList.add('collapse');
+                    sectionCollapse.id = section;
+                    
+                    var sectionTitle = config[section]['meta']['name'];
+                    var sectionDescription = config[section]['meta']['description'];
+                    var entryListID = section + '_entryList';
+                    var sectionFooter = section + '_footer';
+
+                    var innerCollapse = `
+                    <div class="card card-body">
+                        <small class="text-muted">${sectionDescription}</small>
+                        <div class="${entryListID}">
+                        </div>
+                    </div>
+                    `;
+
+                    sectionCollapse.innerHTML = innerCollapse;
+                    
+                    for (var entry of Object.keys(config[section])) {
+                        if (entry != 'meta') {
+                            var entryName = config[section][entry]['name'];
+                            var required = false;
+                            if (config[section][entry]['required']) {
+                                entryName += ' <sup class="text-danger">*</sup>';
+                                required = true;
+                            };
+                            if (config[section][entry].hasOwnProperty('description')) {
+                                var tooltip = `
+                                <a class="text-muted" href="#" data-toggle="tooltip" data-placement="right" title="${config[section][entry]['description']}"><i class="fa fa-question-circle-o"></i></a>
+                                `;
+                                entryName += ' ';
+                                entryName += tooltip;
+                            };
+                            // if (config[section][entry]['requires_restart']) {
+                            //     entryName += ' <sup class="text-danger">R</sup>';
+                            // };
+                            var entryValue = config[section][entry]['value'];
+                            var entryType = config[section][entry]['type'];
+                            var entryGroup = document.createElement('div');
+                            if (entryType == 'bool') {
+                                entryGroup.classList.add('form-check');
+                                if (entryValue) {
+                                    var checked = true;
+                                } else {
+                                    var checked = false;
+                                };
+                                entryGroup.innerHTML = `
+                                <input class="form-check-input" type="checkbox" value="" id="${section}_${entry}">
+                                <label class="form-check-label" for="${section}_${entry}">${entryName}</label>
+                                `;
+                                entryGroup.getElementsByClassName('form-check-input')[0].required = required;
+                                entryGroup.getElementsByClassName('form-check-input')[0].checked = checked;
+                                entryGroup.getElementsByClassName('form-check-input')[0].onclick = function() {
+                                    var state = this.checked;
+                                    for (var sect of Object.keys(config)) {
+                                        for (var ent of Object.keys(config[sect])) {
+                                            if ((sect + '_' + config[sect][ent]['depends_true']) == this.id) {
+                                                document.getElementById(sect + '_' + ent).disabled = !state;
+                                            } else if ((sect + '_' + config[sect][ent]['depends_false']) == this.id) {
+                                                document.getElementById(sect + '_' + ent).disabled = state;
+                                            };
+                                        };
+                                    };
+                                };
+                            } else if ((entryType == 'text') || (entryType == 'email') || (entryType == 'password') || (entryType == 'number')) {
+                                entryGroup.classList.add('form-group');
+                                entryGroup.innerHTML = `
+                                <label for="${section}_${entry}">${entryName}</label>
+                                <input type="${entryType}" class="form-control" id="${section}_${entry}" aria-describedby="${entry}" value="${entryValue}">
+                                `;
+                                entryGroup.getElementsByClassName('form-control')[0].required = required;
+                            } else if (entryType == 'select') {
+                                entryGroup.classList.add('form-group');
+                                var entryOptions = config[section][entry]['options'];
+                                var innerGroup = `
+                                <label for="${section}_${entry}">${entryName}</label>
+                                <select class="form-control" id="${section}_${entry}">
+                                `;
+                                for (var i = 0; i < entryOptions.length; i++) {
+                                    if (entryOptions[i] == entryValue) {
+                                        var selected = 'selected';
+                                    } else {
+                                        var selected = '';
+                                    }
+                                    innerGroup += `
+                                    <option value="${entryOptions[i]}" ${selected}>${entryOptions[i]}</option>
+                                    `;
+                                };
+                                innerGroup += '</select>';
+                                entryGroup.innerHTML = innerGroup;
+                                entryGroup.getElementsByClassName('form-control')[0].required = required;
+                                
+                            };
+                            sectionCollapse.getElementsByClassName(entryListID)[0].appendChild(entryGroup);
+                        };
+                    };
+                    var sectionButton = document.createElement('button');
+                    sectionButton.setAttribute('type', 'button');
+                    sectionButton.classList.add('list-group-item', 'list-group-item-action');
+                    sectionButton.appendChild(document.createTextNode(sectionTitle));
+                    sectionButton.id = section + '_button';
+                    sectionButton.setAttribute('data-toggle', 'collapse');
+                    sectionButton.setAttribute('data-target', '#' + section);
+                    settingsList.appendChild(sectionButton);
+                    settingsList.appendChild(sectionCollapse);
+                };
+            };
+        },
+    });
+    $('#settingsMenu').modal('show');
+};
+
+$('#settingsMenu').on('shown.bs.modal', function() {
+    $("a[data-toggle='tooltip']").each(function (i, obj) {
+        $(obj).tooltip();
+    });
+});
+
+function sendConfig(modalId) {
+    var modal = document.getElementById(modalId);
+    var send = JSON.stringify(modifiedConfig);
+    $.ajax('/modifyConfig', {
+        data : send,
+        contentType : 'application/json',
+        type : 'POST',
+        xhrFields : {
+            withCredentials: true
+        },
+        beforeSend : function (xhr) {
+            xhr.setRequestHeader("Authorization", "Basic " + btoa(window.token + ":"));
+        },
+        success: function() {
+            if (modalId != 'settingsMenu') {
+                $('#' + modalId).modal('hide');
+                $('#settingsMenu').modal('hide');
+            };
+        },
+        fail: function(xhr, textStatus, errorThrown) {
+            var footer = modal.getElementsByClassName('modal-dialog')[0].getElementsByClassName('modal-content')[0].getElementsByClassName('modal-footer')[0]; 
+            var alert = document.createElement('div');
+            alert.classList.add('alert', 'alert-danger');
+            alert.setAttribute('role', 'alert');
+            alert.appendChild(document.createTextNode('Error: ' + errorThrown));
+            footer.appendChild(alert);
+        },
+    });
+    // placeholder
+};
+
+document.getElementById('settingsSave').onclick = function() {
+    modifiedConfig = {};
+    // Live config changes have not yet been implemented, so restart always required.
+    // var restart_setting_changed = false;
+    var settings_changed = false;
+    
+    for (var section of Object.keys(config)) {
+        for (var entry of Object.keys(config[section])) {
+            if (entry != 'meta') {
+                var entryID = section + '_' + entry;
+                var el = document.getElementById(entryID);
+                if (el.type == 'checkbox') {
+                    var value = el.checked.toString();
+                } else {
+                    var value = el.value.toString();
+                };
+                if (value != config[section][entry]['value'].toString()) {
+                    if (!modifiedConfig.hasOwnProperty(section)) {
+                        modifiedConfig[section] = {};
+                    };
+                    modifiedConfig[section][entry] = value;
+                    settings_changed = true;
+                    // if (config[section][entry]['requires_restart']) {
+                    //     restart_setting_changed = true;
+                    // };
+                };
+            };
+        };
+    };
+    // if (restart_setting_changed) {
+    if (settings_changed) {
+        document.getElementById('applyRestarts').onclick = function(){sendConfig('restartModal');};
+        $('#settingsMenu').modal('hide');
+        $('#restartModal').modal({
+            backdrop: 'static',
+            show: true
+        });
+    } else {
+    //    sendConfig('settingsMenu');
+        $('#settingsMenu').modal('hide');
+    };
+};
+

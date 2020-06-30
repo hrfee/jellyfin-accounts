@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-__version__ = "0.2.2"
+__version__ = "0.2.5"
 
 import secrets
 import configparser
@@ -11,7 +11,7 @@ import signal
 import sys
 import json
 from pathlib import Path
-from flask import Flask, g
+from flask import Flask, jsonify, g
 from jellyfin_accounts.data_store import JSONStorage
 
 parser = argparse.ArgumentParser(description="jellyfin-accounts")
@@ -44,15 +44,20 @@ else:
     data_dir = Path.home() / ".jf-accounts"
 
 local_dir = (Path(__file__).parent / "data").resolve()
+config_base_path = local_dir / "config-base.json"
 
 first_run = False
 if data_dir.exists() is False or (data_dir / "config.ini").exists() is False:
     if not data_dir.exists():
         Path.mkdir(data_dir)
-        print(f"Config dir not found, so created at {str(data_dir)}")
+        print(f"Config dir not found, so generating at {str(data_dir)}")
     if args.config is None:
         config_path = data_dir / "config.ini"
-        shutil.copy(str(local_dir / "config-default.ini"), str(config_path))
+        from jellyfin_accounts.generate_ini import generate_ini
+
+        default_path = local_dir / "config-default.ini"
+        generate_ini(config_base_path, default_path, __version__)
+        shutil.copy(str(default_path), str(config_path))
         print("Setup through the web UI, or quit and edit the configuration manually.")
         first_run = True
     else:
@@ -110,18 +115,21 @@ if "no_username" not in config["email"]:
     config["email"]["no_username"] = "false"
     log.debug("Set no_username to false")
 
-with open(config["files"]["invites"], "r") as f:
-    temp_invites = json.load(f)
-if "invites" in temp_invites:
-    new_invites = {}
-    log.info("Converting invites.json to new format, temporary.")
-    for el in temp_invites["invites"]:
-        i = {"valid_till": el["valid_till"]}
-        if "email" in el:
-            i["email"] = el["email"]
-        new_invites[el["code"]] = i
-    with open(config["files"]["invites"], "w") as f:
-        f.write(json.dumps(new_invites, indent=4, default=str))
+try:
+    with open(config["files"]["invites"], "r") as f:
+        temp_invites = json.load(f)
+    if "invites" in temp_invites:
+        new_invites = {}
+        log.info("Converting invites.json to new format, temporary.")
+        for el in temp_invites["invites"]:
+            i = {"valid_till": el["valid_till"]}
+            if "email" in el:
+                i["email"] = el["email"]
+            new_invites[el["code"]] = i
+        with open(config["files"]["invites"], "w") as f:
+            f.write(json.dumps(new_invites, indent=4, default=str))
+except FileNotFoundError:
+    pass
 
 
 data_store = JSONStorage(
@@ -193,6 +201,19 @@ if (
     or config["jellyfin"]["public_server"] == ""
 ):
     config["jellyfin"]["public_server"] = config["jellyfin"]["server"]
+
+
+def resp(success=True, code=500):
+    if success:
+        r = jsonify({"success": True})
+        if code == 500:
+            r.status_code = 200
+        else:
+            r.status_code = code
+    else:
+        r = jsonify({"success": False})
+        r.status_code = code
+    return r
 
 
 def main():
@@ -288,6 +309,7 @@ def main():
         app = Flask(__name__, root_path=str(local_dir))
         app.config["DEBUG"] = config.getboolean("ui", "debug")
         app.config["SECRET_KEY"] = secrets.token_urlsafe(16)
+        app.config["JSON_SORT_KEYS"] = False
 
         from waitress import serve
 

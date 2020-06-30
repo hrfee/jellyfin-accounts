@@ -93,20 +93,20 @@
                     </div>
                     <div class="modal-body">
                         <ul class="list-group list-group-flush">
-                            <li class="list-group-item">
-                                <button type="button" class="btn btn-secondary" id="openUsers">
-                                Users <i class="fa fa-user"></i>
-                                </button>
-                            </li>
-                            <li class="list-group-item">
-                                <button type="button" class="btn btn-secondary" id="openDefaultsWizard">
-                                New account defaults
-                                </button>
-                            </li>
+                            <p>Note: <sup class="text-danger">*</sup> Indicates required field.</p>
+                            <button type="button" class="list-group-item list-group-item-action" id="openUsers">
+                            Users <i class="fa fa-user"></i>
+                            </button>
+                            <button type="button" class="list-group-item list-group-item-action" id="openDefaultsWizard">
+                            New account defaults
+                            </button>
                         </ul>
+                        <div class="list-group list-group-flush" id="settingsList">
+                        </div>
                     </div>
                     <div class="modal-footer" id="settingsFooter">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" id="settingsSave">Save</button>
                     </div>
                 </div>
             </div>
@@ -149,6 +149,22 @@
                     <div class="modal-footer" id="defaultsFooter">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                         <button type="button" class="btn btn-primary" id="storeDefaults">Submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="restartModal" tabindex="-1" role="dialog" aria-labelledby"Restart Warning" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Warning</h5>
+                    </div>
+                    <div class="modal-body">
+                        <p>A restart is needed to apply settings. This must be done manually. Apply now?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="applyRestarts" data-dismiss="alert">Apply</button>
                     </div>
                 </div>
             </div>

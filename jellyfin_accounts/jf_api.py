@@ -79,7 +79,10 @@ class Jellyfin:
             "User-Agent": self.useragent,
             "X-Emby-Authorization": self.auth,
         }
-        self.info = requests.get(self.server + "/System/Info/Public").json()
+        try:
+            self.info = requests.get(self.server + "/System/Info/Public").json()
+        except:
+            pass
 
     def getUsers(self, username: str = "all", userId: str = "all", public: bool = True):
         """

@@ -4,22 +4,18 @@ import json
 import datetime
 import secrets
 import time
-from jellyfin_accounts import config, config_path, app, g, data_store
+from jellyfin_accounts import (
+    config,
+    config_path,
+    app,
+    g,
+    data_store,
+    resp,
+    configparser,
+    config_base_path,
+)
 from jellyfin_accounts import web_log as log
 from jellyfin_accounts.validate_password import PasswordValidator
-
-
-def resp(success=True, code=500):
-    if success:
-        r = jsonify({"success": True})
-        if code == 500:
-            r.status_code = 200
-        else:
-            r.status_code = code
-    else:
-        r = jsonify({"success": False})
-        r.status_code = code
-    return r
 
 
 def checkInvite(code, delete=False):
@@ -327,4 +323,48 @@ def setDefaults():
     return resp()
 
 
-import jellyfin_accounts.setup
+@app.route("/modifyConfig", methods=["POST"])
+@auth.login_required
+def modifyConfig():
+    log.info("Config modification requested")
+    data = request.get_json()
+    temp_config = configparser.RawConfigParser(
+        comment_prefixes="/", allow_no_value=True
+    )
+    temp_config.read(config_path)
+    for section in data:
+        if section in temp_config:
+            for item in data[section]:
+                if item in temp_config[section]:
+                    temp_config[section][item] = data[section][item]
+                    data[section][item] = True
+                    log.debug(f"{section}/{item} modified")
+                else:
+                    data[section][item] = False
+                    log.debug(f"{section}/{item} does not exist in config")
+    with open(config_path, "w") as config_file:
+        temp_config.write(config_file)
+    log.info("Config written. Restart is needed to load settings.")
+    return resp()
+
+
+# @app.route('/getConfig', methods=["GET"])
+# @auth.login_required
+# def getConfig():
+#     log.debug('Config requested')
+#     return jsonify(config._sections), 200
+
+
+@app.route("/getConfig", methods=["GET"])
+@auth.login_required
+def getConfig():
+    log.debug("Config requested")
+    with open(config_base_path, "r") as f:
+        config_base = json.load(f)
+    config.read(config_path)
+    response_config = config_base
+    for section in config_base:
+        for entry in config_base[section]:
+            if entry in config[section]:
+                response_config[section][entry]["value"] = config[section][entry]
+    return jsonify(response_config), 200

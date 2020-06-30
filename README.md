@@ -68,146 +68,23 @@ optional arguments:
 ## Setup
 #### New user template
 * You may want to restrict a user from accessing certain libraries (e.g 4K Movies), display their account on the login screen by default, or set a default homecrseen layout. Jellyfin stores these settings in the user's policy, configuration and displayPreferences.
-* Make a temporary account and change its settings, then run `jf-accounts --get_defaults`. Choose your user, and this data will be stored at the location you set in `user_template`, `user_configuration` and `user_displayprefs` (or their default locations), and used for all subsequent new accounts.
+* Make a temporary account and configure it, then in the web UI, go into "Settings => Set new account defaults". Choose the account, and its configuration will be stored for future use.
 #### Emails/Password Resets
 * When someone initiates forget password on Jellyfin, a file named `passwordreset*.json` is created in its configuration directory. This directory is monitored and when created, the program reads the username, expiry time and PIN, puts it into a template and sends it to whatever address is specified in `emails.json`.
 * **The default forget password popup references the `passwordreset*.json` file created. This is confusing for users, so a quick fix is to edit the `MessageForgotPasswordFileCreated` string in Jellyfin's language folder.**
 * Currently, jellyfin-accounts supports generic SSL/TLS or STARTTLS secured SMTP, and the [mailgun](https://mailgun.com) REST API. 
 * Email html is created using [mjml](https://mjml.io), and [jinja](https://github.com/pallets/jinja) templating is used. If you wish to create your own, ensure you use the same jinja expressions (`{{ pin }}`, etc.) as used in `data/email.mjml` or `invite-email.mjml`, and also create plain text versions for legacy email clients.
 
-### Donations
-I strongly suggest you send your money to [Jellyfin](https://opencollective.com/jellyfin) or a good charity, but for those who want to help me out, a Paypal link is below.
-
-[Donate](https://www.paypal.me/hrfee)
-
 ### Configuration
 * Note: Make sure to put this behind a reverse proxy with HTTPS.
 
 On first run, access the setup wizard at `0.0.0.0:8056`. When finished, restart the program.
 
-The configuration is stored at `~/.jf-accounts/config.ini`.
+The configuration is stored at `~/.jf-accounts/config.ini`. Settings can be changed through the web UI, or by manually editing the file.
 
 For detailed descriptions of each setting, see [setup](https://github.com/hrfee/jellyfin-accounts/wiki/Setup).
 
+### Donations
+I strongly suggest you send your money to [Jellyfin](https://opencollective.com/jellyfin) or a good charity, but for those who want to help me out, a Paypal link is below.
 
-```
-[jellyfin]
-; It is reccommended to create a limited admin account for this program.
-username = username
-password = password
-; Jellyfin server address. Can be public, or local for security purposes.
-server = http://jellyfin.local:8096
-; Publicly accessible Jellyfin address, used on invite form.
-; Leave blank to use the same address as above.
-public_server = https://jellyf.in:443
-client = jf-accounts
-version = 0.1
-device = jf-accounts
-device_id = jf-accounts-0.1
-
-[ui]
-; Set 0.0.0.0 to run localhost
-host = 0.0.0.0
-port = 8056
-; Enable this to use Jellyfin users instead of the below username and pw.
-jellyfin_login = true
-; Allows only admin users on Jellyfin to access admin page.
-admin_only = true
-; Username to use on admin page... (leave blank if using jellyfin_login)
-username = your username
-; ..and its corresponding password (leave blank if using jellyfin_login)
-password = your password
-
-debug = false
-
-; Displayed at the bottom of all pages except admin
-contact_message = Need help? contact me.
-; Displayed at top of form page.
-help_message =  Enter your details to create an account.
-; Displayed when an account is created.
-success_message = Your account has been created. Click below to continue to Jellyfin.
-
-[password_validation]
-; Enables password validation.
-enabled = true 
-; Min. password length
-min_length = 8
-; Min. number of uppercase characters
-upper = 1
-; Min. number of lowercase characters
-lower = 0
-; Min. number of numbers
-number = 1
-; Min. number of special characters
-special = 0
-
-[email]
-; When true, disables username input on invite form and sets the Jellyfin username to the email address
-no_username = false
-; Leave the rest of this section if you aren't using any email-related features.
-use_24h = true
-; Date format follows datetime's strftime.
-date_format = %d/%m/%y
-; Displayed at bottom of emails
-message = Need help? contact me.
-; Mail methods: mailgun, smtp
-method = smtp
-; Address to send from
-address = jellyfin@jellyf.in
-; The name of the sender
-from = Jellyfin
-
-[password_resets]
-; Enable to store provided email addresses, monitor jellyfin directory for pw-resets, and send pin
-enabled = true
-; Directory to monitor for passwordReset*.json files. Usually the jellyfin config directory
-watch_directory = /path/to/jellyfin
-; Path to custom email html. If blank, uses the internal template.
-email_html =
-; Path to alternate plaintext email. If blank, uses the internal template.
-email_text = 
-; Subject of emails
-subject = Password Reset - Jellyfin
-
-[invite_emails]
-; If enabled, allows one to send an invite directly to an email address.
-enabled = true
-; Path to custom email html. If blank, uses the internal template.
-email_html =
-; Path to alternate plaintext email. If blank, uses the internal template.
-email_text = 
-subject = Invite - Jellyfin
-; Base url for jf-accounts. This necessary because most will use a reverse proxy, so the program has no other way of knowing what URL to send.
-url_base = http://accounts.jellyf.in:8056/invite
-
-[mailgun]
-
-api_url = https://api.mailgun.net...
-api_key = your api key
-
-[smtp]
-; Choose between ssl_tls and starttls. Your provider should tell you which to use, but generally SSL/TLS is 465, STARTTLS 587
-encryption = starttls
-server = smtp.jellyf.in
-; Uses SMTP_SSL, so make sure the port is for this, not starttls.
-port = 465
-password = smtp password
-
-[files]
-; When the below paths are left blank, files are stored in ~/.jf-accounts/.
-
-; Path to store valid invites.
-invites = 
-; Path to store emails addresses in JSON
-emails = 
-; Path to the user policy template. Can be acquired with get-defaults (jf-accounts -g).
-user_template =
-; Path to the user configuration template (part of homescreen layout). Can be acquired with get-defaults (jf-accounts -g).
-user_configuration =
-; Path to the user display preferences template (part of homescreen layout). Can be acquired with get-defaults (jf-accounts -g).
-user_displayprefs =
-; Path to custom bootstrap.css
-custom_css = 
-```
-
-
+[Donate](https://www.paypal.me/hrfee)
