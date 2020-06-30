@@ -7,6 +7,8 @@ import time
 from jellyfin_accounts import (
     config,
     config_path,
+    load_config,
+    data_dir,
     app,
     g,
     data_store,
@@ -326,6 +328,7 @@ def setDefaults():
 @app.route("/modifyConfig", methods=["POST"])
 @auth.login_required
 def modifyConfig():
+    global config
     log.info("Config modification requested")
     data = request.get_json()
     temp_config = configparser.RawConfigParser(
@@ -344,7 +347,8 @@ def modifyConfig():
                     log.debug(f"{section}/{item} does not exist in config")
     with open(config_path, "w") as config_file:
         temp_config.write(config_file)
-    log.info("Config written. Restart is needed to load settings.")
+    config = load_config(config_path, data_dir)
+    log.info("Config written. Restart may be needed to load settings.")
     return resp()
 
 
@@ -361,7 +365,7 @@ def getConfig():
     log.debug("Config requested")
     with open(config_base_path, "r") as f:
         config_base = json.load(f)
-    config.read(config_path)
+    # config.read(config_path)
     response_config = config_base
     for section in config_base:
         for entry in config_base[section]:

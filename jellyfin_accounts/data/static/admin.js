@@ -498,6 +498,9 @@ document.getElementById('openSettings').onclick = function () {
                                 entryName += ' <sup class="text-danger">*</sup>';
                                 required = true;
                             };
+                            if (config[section][entry]['requires_restart']) {
+                                entryName += ' <sup class="text-danger">R</sup>';
+                            };
                             if (config[section][entry].hasOwnProperty('description')) {
                                 var tooltip = `
                                 <a class="text-muted" href="#" data-toggle="tooltip" data-placement="right" title="${config[section][entry]['description']}"><i class="fa fa-question-circle-o"></i></a>
@@ -505,15 +508,12 @@ document.getElementById('openSettings').onclick = function () {
                                 entryName += ' ';
                                 entryName += tooltip;
                             };
-                            // if (config[section][entry]['requires_restart']) {
-                            //     entryName += ' <sup class="text-danger">R</sup>';
-                            // };
                             var entryValue = config[section][entry]['value'];
                             var entryType = config[section][entry]['type'];
                             var entryGroup = document.createElement('div');
                             if (entryType == 'bool') {
                                 entryGroup.classList.add('form-check');
-                                if (entryValue) {
+                                if (entryValue.toString() == 'true') {
                                     var checked = true;
                                 } else {
                                     var checked = false;
@@ -604,8 +604,8 @@ function sendConfig(modalId) {
             xhr.setRequestHeader("Authorization", "Basic " + btoa(window.token + ":"));
         },
         success: function() {
+            $('#' + modalId).modal('hide');
             if (modalId != 'settingsMenu') {
-                $('#' + modalId).modal('hide');
                 $('#settingsMenu').modal('hide');
             };
         },
@@ -618,13 +618,11 @@ function sendConfig(modalId) {
             footer.appendChild(alert);
         },
     });
-    // placeholder
 };
 
 document.getElementById('settingsSave').onclick = function() {
     modifiedConfig = {};
-    // Live config changes have not yet been implemented, so restart always required.
-    // var restart_setting_changed = false;
+    var restart_setting_changed = false;
     var settings_changed = false;
     
     for (var section of Object.keys(config)) {
@@ -643,23 +641,24 @@ document.getElementById('settingsSave').onclick = function() {
                     };
                     modifiedConfig[section][entry] = value;
                     settings_changed = true;
-                    // if (config[section][entry]['requires_restart']) {
-                    //     restart_setting_changed = true;
-                    // };
+                    if (config[section][entry]['requires_restart']) {
+                        restart_setting_changed = true;
+                    };
                 };
             };
         };
     };
     // if (restart_setting_changed) {
-    if (settings_changed) {
+    if (restart_setting_changed) {
         document.getElementById('applyRestarts').onclick = function(){sendConfig('restartModal');};
         $('#settingsMenu').modal('hide');
         $('#restartModal').modal({
             backdrop: 'static',
             show: true
         });
+    } else if (settings_changed) {
+        sendConfig('settingsMenu');
     } else {
-    //    sendConfig('settingsMenu');
         $('#settingsMenu').modal('hide');
     };
 };

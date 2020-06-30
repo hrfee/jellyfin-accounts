@@ -87,7 +87,7 @@
         },
         "jellyfin_login": {
             "name": "Use Jellyfin for authentication",
-            "required": true,
+            "required": false,
             "requires_restart": true,
             "type": "bool",
             "value": true,
@@ -122,7 +122,7 @@
         },
         "debug": {
             "name": "Debug logging",
-            "required": true,
+            "required": false,
             "requires_restart": true,
             "type": "bool",
             "value": false
@@ -130,7 +130,7 @@
         "contact_message": {
             "name": "Contact message",
             "required": false,
-            "requires_restart": false,
+            "requires_restart": true,
             "type": "text",
             "value": "Need help? contact me.",
             "description": "Displayed at bottom of all pages except admin"
@@ -138,7 +138,7 @@
         "help_message": {
             "name": "Help message",
             "required": false,
-            "requires_restart": false,
+            "requires_restart": true,
             "type": "text",
             "value": "Enter your details to create an account.",
             "description": "Display at top of invite form."
@@ -146,7 +146,7 @@
         "success_message": {
             "name": "Success message",
             "required": false,
-            "requires_restart": false,
+            "requires_restart": true,
             "type": "text",
             "value": "Your account has been created. Click below to continue to Jellyfin.",
             "description": "Displayed when a user creates an account"
@@ -159,7 +159,7 @@
         },
         "enabled": {
             "name": "Enabled",
-            "required": true,
+            "required": false,
             "requires_restart": true,
             "type": "bool",
             "value": true
@@ -195,6 +195,7 @@
         "special": {
             "name": "Minimum number of special characters",
             "requires_restart": true,
+            "depends_true": "enabled",
             "type": "text",
             "value": "0"
         }
@@ -277,7 +278,7 @@
         },
         "enabled": {
             "name": "Enabled",
-            "required": true,
+            "required": false,
             "requires_restart": true,
             "type": "bool",
             "value": true,
@@ -327,7 +328,7 @@
         },
         "enabled": {
             "name": "Enabled",
-            "required": true,
+            "required": false,
             "requires_restart": true,
             "type": "bool",
             "value": true
