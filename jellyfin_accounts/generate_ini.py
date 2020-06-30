@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 
 
-def generate_ini(base_file, ini_file):
+def generate_ini(base_file, ini_file, version):
     """
     Generates .ini file from config-base file.
     """
@@ -24,6 +24,11 @@ def generate_ini(base_file, ini_file):
                 else:
                     value = str(value)
                 ini.set(section, entry, value)
+
+    ini["jellyfin"]["version"] = version
+    ini["jellyfin"]["device_id"] = ini["jellyfin"]["device_id"].replace(
+        "{version}", version
+    )
 
     with open(Path(ini_file), "w") as config_file:
         ini.write(config_file)

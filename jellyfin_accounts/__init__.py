@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-__version__ = "0.2.2"
+__version__ = "0.2.5"
 
 import secrets
 import configparser
@@ -56,7 +56,7 @@ if data_dir.exists() is False or (data_dir / "config.ini").exists() is False:
         from jellyfin_accounts.generate_ini import generate_ini
 
         default_path = local_dir / "config-default.ini"
-        generate_ini(config_base_path, default_path)
+        generate_ini(config_base_path, default_path, __version__)
         shutil.copy(str(default_path), str(config_path))
         print("Setup through the web UI, or quit and edit the configuration manually.")
         first_run = True

@@ -48,7 +48,7 @@
             "required": true,
             "requires_restart": true,
             "type": "text",
-            "value": "0.2.4"
+            "value": "{version}"
         },
         "device": {
             "name": "Device Name",
@@ -62,7 +62,7 @@
             "required": true,
             "requires_restart": true,
             "type": "text",
-            "value": "jf-accounts-0.2.4"
+            "value": "jf-accounts-{version}"
         }
     },
     "ui": {
