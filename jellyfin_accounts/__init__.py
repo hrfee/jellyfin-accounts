@@ -35,6 +35,9 @@ parser.add_argument(
     ),
     action="store_true",
 )
+parser.add_argument(
+    "-i", "--install", help="attempt to install a system service.", action="store_true"
+)
 
 args, leftovers = parser.parse_known_args()
 
@@ -70,10 +73,11 @@ else:
 temp_config = configparser.RawConfigParser()
 temp_config.read(config_path)
 
+
 def create_log(name):
     log = logging.getLogger(name)
     handler = logging.StreamHandler(sys.stdout)
-    if temp_config.getboolean('ui', 'debug'):
+    if temp_config.getboolean("ui", "debug"):
         log.setLevel(logging.DEBUG)
         handler.setLevel(logging.DEBUG)
     else:
@@ -88,6 +92,7 @@ def create_log(name):
 
 
 log = create_log("main")
+
 
 def load_config(config_path, data_dir):
     config = configparser.RawConfigParser()
@@ -138,6 +143,7 @@ def load_config(config_path, data_dir):
     ):
         config["jellyfin"]["public_server"] = config["jellyfin"]["server"]
     return config
+
 
 config = load_config(config_path, data_dir)
 
@@ -210,8 +216,6 @@ if "custom_css" in config["files"]:
             )
 
 
-
-
 def resp(success=True, code=500):
     if success:
         r = jsonify({"success": True})
@@ -226,7 +230,29 @@ def resp(success=True, code=500):
 
 
 def main():
-    if args.get_defaults:
+    if args.install:
+        executable = sys.argv[0]
+        print(f'Assuming executable path "{executable}".')
+        options = ["systemd"]
+        for i, opt in enumerate(options):
+            print(f"{i+1}: {opt}")
+        success = False
+        while not success:
+            try:
+                method = options[int(input(">: ")) - 1]
+                success = True
+            except IndexError:
+                pass
+        if method == "systemd":
+            with open(local_dir / "services" / "jf-accounts.service", "r") as f:
+                data = f.read()
+                data = data.replace("{executable}", executable)
+            service_path = str(Path("jf-accounts.service").resolve())
+            with open(service_path, "w") as f:
+                f.write(data)
+            print(f"service written to the current directory\n({service_path}).")
+            print("Place this in the appropriate directory, and reload daemons.")
+    elif args.get_defaults:
         import json
         from jellyfin_accounts.jf_api import Jellyfin
 
