@@ -14,3 +14,4 @@ theme.css
 jellyfin_accounts/data/static/bootstrap-jf.css
 old/
 .jf-accounts/
+requirements.txt

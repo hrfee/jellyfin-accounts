@@ -162,8 +162,7 @@ function toClipboard(str) {
         document.getSelection().addRange(selected);
     }
 };
-
-$("form#inviteForm").submit(function() {
+document.getElementById('inviteForm').onsubmit = function() {
     var button = document.getElementById('generateSubmit');
     button.disabled = true;
     button.innerHTML =
@@ -194,7 +193,7 @@ $("form#inviteForm").submit(function() {
 
     });
     return false;
-});
+};
 $("form#loginForm").submit(function() {
     window.token = "";
     var details = $("form#loginForm").serializeObject();
