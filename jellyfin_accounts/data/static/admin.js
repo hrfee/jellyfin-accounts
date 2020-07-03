@@ -27,9 +27,9 @@ function addItem(invite) {
     listItem.id = invite[0]
     listItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'd-inline-block');
     var listCode = document.createElement('div');
-    listCode.classList.add('d-flex', 'align-items-center', 'text-monospace');
+    listCode.classList.add('d-flex', 'align-items-center', 'font-monospace');
     var codeLink = document.createElement('a');
-    codeLink.setAttribute('style', 'margin-right: 2%;');
+    codeLink.setAttribute('style', 'margin-right: 0.5rem;');
     codeLink.appendChild(document.createTextNode(invite[0].replace(/-/g, '‑')));
     listCode.appendChild(codeLink);
     listItem.appendChild(listCode);
@@ -39,7 +39,7 @@ function addItem(invite) {
     listText.appendChild(document.createTextNode(invite[1]));
     listRight.appendChild(listText);
     if (invite[2] == 0) {
-        var inviteCode = window.location.href + 'invite/' + invite[0];
+        var inviteCode = window.location.href.replace('#', '') + 'invite/' + invite[0];
         codeLink.href = inviteCode;
         // listCode.appendChild(document.createTextNode(" "));
         var codeCopy = document.createElement('i');
@@ -162,31 +162,6 @@ function toClipboard(str) {
     }
 };
 
-function serializeForm(id) {
-    var form = document.getElementById(id);
-    var formData = {};
-    for (var i = 0; i < form.elements.length; i++) {
-        var el = form.elements[i];
-        if (el.type != 'submit') {
-            var name = el.name;
-            if (name == '') {
-                name = el.id;
-            };
-            switch (el.type) {
-                case 'checkbox':
-                    formData[name] = el.checked;
-                    break;
-                case 'text':
-                case 'password':
-                case 'select-one':
-                case 'email':
-                    formData[name] = el.value;
-                    break;
-            };
-        };
-    };
-    return formData;
-};
 document.getElementById('inviteForm').onsubmit = function() {
     var button = document.getElementById('generateSubmit');
     button.disabled = true;
@@ -623,6 +598,13 @@ document.getElementById('openSettings').onclick = function () {
 };
 
 document.getElementById('settingsMenu').addEventListener('shown.bs.modal', function() {
+    // Hack to ensure anything dependent on checkboxes are disabled if necessary
+    var checkboxes = document.getElementById('settingsMenu').querySelectorAll('input[type="checkbox"]');
+    for (var i = 0; i < checkboxes.length; i++) {
+        checkboxes[i].click();
+        checkboxes[i].click();
+    };
+    // Initialize tooltips
     var to_trigger = [].slice.call(document.querySelectorAll('a[data-toggle="tooltip"]'));
     var tooltips = to_trigger.map(function(el) {
         return new bootstrap.Tooltip(el);

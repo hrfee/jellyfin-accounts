@@ -208,7 +208,7 @@
         "no_username": {
             "name": "Use email addresses as username",
             "required": false,
-            "requires_restart": false,
+            "requires_restart": true,
             "depends_true": "method",
             "type": "bool",
             "value": false,

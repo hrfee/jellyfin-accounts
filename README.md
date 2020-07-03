@@ -1,11 +1,13 @@
 # ![jellyfin-accounts](https://raw.githubusercontent.com/hrfee/jellyfin-accounts/master/images/jellyfin-accounts-banner-wide.svg)
 
+**This branch uses the bootstrap 5 alpha, which works well enough for the most part, but can sometimes be a bit glitchy. Also no more jquery.** 
+
 A basic account management system for [Jellyfin](https://github.com/jellyfin/jellyfin).
 * Provides a web interface for creating invite codes, and a simple account creation form
 * Sends out emails when a user requests a password reset
 * Uses a basic python jellyfin API client for communication with the server. 
 * Uses [Flask](https://github.com/pallets/flask), [HTTPAuth](https://github.com/miguelgrinberg/Flask-HTTPAuth), [itsdangerous](https://github.com/pallets/itsdangerous), and [Waitress](https://github.com/Pylons/waitress)
-* Frontend uses [Bootstrap](https://getbootstrap.com), [jQuery](https://jquery.com) and [jQuery-serialize-object](https://github.com/macek/jquery-serialize-object)
+* Frontend uses [Bootstrap 5](https://v5.getbootstrap.com)
 * Password resets are handled using smtplib, requests, and [jinja](https://github.com/pallets/jinja)
 ## Interface
 <p align="center">

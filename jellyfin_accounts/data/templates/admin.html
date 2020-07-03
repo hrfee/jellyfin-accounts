@@ -197,16 +197,14 @@
                                 <div class="form-group">
                                     <label for="send_to_address">Send invite to address</label>
                                     <div class="input-group">
-                                        <div class="input-group-prepend">
-                                            <div class="input-group-text">
-                                                <input type="checkbox" onchange="document.getElementById('send_to_address').disabled = !this.checked;" aria-label="Checkbox to allow input of email address" id="send_to_address_enabled">
-                                            </div>
+                                        <div class="input-group-text">
+                                            <input class="form-check-input" type="checkbox" onchange="document.getElementById('send_to_address').disabled = !this.checked;" aria-label="Checkbox to allow input of email address" id="send_to_address_enabled">
                                         </div>
                                         <input type="email" class="form-control" placeholder="example@example.com" id="send_to_address" disabled>
                                     </div>
                                 </div>
                                 {% endif %}
-                                <button type="submit" id="generateSubmit" class="btn btn-primary">Generate</button>
+                                <button type="submit" id="generateSubmit" class="btn btn-primary" style="margin-top: 1rem;">Generate</button>
                         </form>
                     </div>
                 </div>
@@ -215,6 +213,7 @@
                 <p>{{ contactMessage }}</p>
             </div>
         </div>
+        <script src="serialize.js"></script>
         <script src="admin.js"></script>
     </body>
 </html>
