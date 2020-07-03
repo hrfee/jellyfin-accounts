@@ -1,3 +1,9 @@
+var loginModal = new bootstrap.Modal(document.getElementById('login'));
+var settingsModal = new bootstrap.Modal(document.getElementById('settingsMenu'));
+var userDefaultsModal = new bootstrap.Modal(document.getElementById('userDefaults'));
+var usersModal = new bootstrap.Modal(document.getElementById('users'));
+var restartModal = new bootstrap.Modal(document.getElementById('restartModal'));
+
 function parseInvite(invite, empty = false) {
     if (empty === true) {
         return ["None", "", "1"]
@@ -70,19 +76,13 @@ function removeInvite(code) {
 function generateInvites(empty = false) {
     // document.getElementById('invites').textContent = '';
     if (empty === false) {
-        $.ajax('/getInvites', {
-            type : 'GET',
-            dataType : 'json',
-            contentType: 'json',
-            xhrFields : {
-                withCredentials: true
-            },
-            beforeSend : function (xhr) {
-                xhr.setRequestHeader("Authorization", "Basic " + btoa(window.token + ":"));
-            },
-            data: { get_param: 'value' },
-            complete: function(response) {
-                var data = JSON.parse(response['responseText']);
+        var req = new XMLHttpRequest();
+        req.open("GET", "/getInvites", true);
+        req.setRequestHeader("Authorization", "Basic " + btoa(window.token + ":"));
+        req.responseType = 'json';
+        req.onreadystatechange = function() {
+            if (this.readyState == 4) {
+                var data = this.response;
                 if (data['invites'].length == 0) {
                     document.getElementById('invites').textContent = '';
                     addItem(parseInvite([], true));
@@ -113,8 +113,9 @@ function generateInvites(empty = false) {
                         }
                     };
                 };
-            }
-        });
+            };
+        };
+        req.send();
     } else if (empty === true) {
         document.getElementById('invites').textContent = '';
         addItem(parseInvite([], true));
@@ -122,25 +123,23 @@ function generateInvites(empty = false) {
 };
 function deleteInvite(code) {
     var send = JSON.stringify({ "code": code });
-    $.ajax('/deleteInvite', {
-        data : send,
-        contentType : 'application/json',
-        type : 'POST',
-        xhrFields : {
-            withCredentials: true
-        },
-        beforeSend : function (xhr) {
-            xhr.setRequestHeader("Authorization", "Basic " + btoa(window.token + ":"));
-        },
-        success: function() { generateInvites(); },
-    });
+    var req = new XMLHttpRequest();
+    req.open("POST", "/deleteInvite", true);
+    req.setRequestHeader("Authorization", "Basic " + btoa(window.token + ":"));
+    req.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+    req.onreadystatechange = function() {
+        if (this.readyState == 4) {
+            generateInvites();
+        };
+    };
+    req.send(send);
 };
 function addOptions(le, sel) {
     for (v = 0; v <= le; v++) {
         var opt = document.createElement('option');
-        opt.appendChild(document.createTextNode(v))
-        opt.value = v
-        sel.appendChild(opt)
+        opt.appendChild(document.createTextNode(v));
+        opt.value = v;
+        sel.appendChild(opt);
     }
 };
 function toClipboard(str) {
@@ -162,41 +161,65 @@ function toClipboard(str) {
         document.getSelection().addRange(selected);
     }
 };
+
+function serializeForm(id) {
+    var form = document.getElementById(id);
+    var formData = {};
+    for (var i = 0; i < form.elements.length; i++) {
+        var el = form.elements[i];
+        if (el.type != 'submit') {
+            var name = el.name;
+            if (name == '') {
+                name = el.id;
+            };
+            switch (el.type) {
+                case 'checkbox':
+                    formData[name] = el.checked;
+                    break;
+                case 'text':
+                case 'password':
+                case 'select-one':
+                case 'email':
+                    formData[name] = el.value;
+                    break;
+            };
+        };
+    };
+    return formData;
+};
 document.getElementById('inviteForm').onsubmit = function() {
     var button = document.getElementById('generateSubmit');
     button.disabled = true;
     button.innerHTML =
         '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="margin-right: 0.5rem;"></span>' +
         'Loading...';
-    var send_object = $("form#inviteForm").serializeObject();
+    send_object = serializeForm('inviteForm');
+    console.log(send_object);
     if (document.getElementById('send_to_address') != null) {
-        if (document.getElementById('send_to_address_enabled').checked) {
-            send_object['email'] = document.getElementById('send_to_address').value;
+        if (send_object['send_to_address_enabled']) {
+            send_object['email'] = send_object['send_to_address'];
+            delete send_object['send_to_address'];
+            delete send_object['send_to_address_enabled'];
         }
     }
     var send = JSON.stringify(send_object);
-    $.ajax('/generateInvite', {
-        data : send,
-        contentType : 'application/json',
-        type : 'POST',
-        xhrFields : {
-            withCredentials: true
-        },
-        beforeSend : function (xhr) {
-            xhr.setRequestHeader("Authorization", "Basic " + btoa(window.token + ":"));
-        },
-        success: function() {
+    var req = new XMLHttpRequest();
+    req.open("POST", "/generateInvite", true);
+    req.setRequestHeader("Authorization", "Basic " + btoa(window.token + ":"));
+    req.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+    req.onreadystatechange = function() {
+        if (this.readyState == 4) {
             button.textContent = 'Generate';
             button.disabled = false;
-            generateInvites(); 
-        },
-
-    });
+            generateInvites();
+        };
+    };
+    req.send(send);
     return false;
 };
-$("form#loginForm").submit(function() {
+document.getElementById('loginForm').onsubmit = function() {
     window.token = "";
-    var details = $("form#loginForm").serializeObject();
+    var details = serializeForm('loginForm');
     var errorArea = document.getElementById('loginErrorArea');
     errorArea.textContent = '';
     var button = document.getElementById('loginSubmit');
@@ -204,19 +227,11 @@ $("form#loginForm").submit(function() {
     button.innerHTML =
         '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="margin-right: 0.5rem;"></span>' +
         'Loading...';
-    $.ajax('/getToken', {
-        type : 'GET',
-        dataType : 'json',
-        contentType: 'json',
-        xhrFields : {
-            withCredentials: true
-        },
-        beforeSend : function (xhr) {
-            xhr.setRequestHeader("Authorization", "Basic " + btoa(details['username'] + ":" + details['password']));
-        },
-        data: { get_param: 'value' },
-        complete: function(data) {
-            if (data['status'] == 401) {
+    var req = new XMLHttpRequest();
+    req.responseType = 'json';
+    req.onreadystatechange = function() {
+        if (this.readyState == 4) {
+            if (this.status == 401) {
                 button.disabled = false;
                 button.textContent = 'Login';
                 var wrongPassword = document.createElement('div');
@@ -225,7 +240,8 @@ $("form#loginForm").submit(function() {
                 wrongPassword.appendChild(document.createTextNode('Incorrect username or password.'));
                 errorArea.appendChild(wrongPassword);
             } else {
-                window.token = JSON.parse(data['responseText'])['token'];
+                var data = this.response;
+                window.token = data['token'];
                 generateInvites();
                 var interval = setInterval(function() { generateInvites(); }, 60 * 1000);
                 var hour = document.getElementById('hours');
@@ -234,35 +250,33 @@ $("form#loginForm").submit(function() {
                 var minutes = document.getElementById('minutes');
                 addOptions(59, minutes);
                 minutes.selected = "30";
-                $('#login').modal('hide');
-            }
-        }
-    });
+                loginModal.hide();
+            };
+        };
+    };
+    req.open("GET", "/getToken", true);
+    req.setRequestHeader("Authorization", "Basic " + btoa(details['username'] + ":" + details['password']));
+    req.send();
     return false;
-});
-document.getElementById('openDefaultsWizard').onclick = function () {
-    this.disabled = true;
+};
+document.getElementById('openDefaultsWizard').onclick = function() {
+    this.disabled = true
     this.innerHTML =
         '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="margin-right: 0.5rem;"></span>' +
         'Loading...';
-    $.ajax('getUsers', {
-        type : 'GET',
-        dataType : 'json',
-        contentType : 'json',
-        xhrFields : {
-            withCredentials: true
-        },
-        beforeSend : function (xhr) {
-            xhr.setRequestHeader("Authorization", "Basic " + btoa(window.token + ":"));
-        },
-        complete : function(data) {
-            if (data['status'] == 200) {
+    var req = new XMLHttpRequest();
+    req.responseType = 'json';
+    req.open("GET", "/getUsers", true);
+    req.setRequestHeader("Authorization", "Basic " + btoa(window.token + ":"));
+    req.onreadystatechange = function() {
+        if (this.readyState == 4) {
+            if (this.status == 200) {
+                var users = req.response['users'];
                 var radioList = document.getElementById('defaultUserRadios');
                 radioList.textContent = '';
                 if (document.getElementById('setDefaultUser')) {
                     document.getElementById('setDefaultUser').remove();
                 };
-                var users = data['responseJSON']['users'];
                 for (var i = 0; i < users.length; i++) {
                     var user = users[i]
                     var radio = document.createElement('div');
@@ -291,11 +305,12 @@ document.getElementById('openDefaultsWizard').onclick = function () {
                     submitButton.classList.remove('btn-danger');
                     submitButton.classList.add('btn-primary');
                 };
-                $('#settingsMenu').modal('hide');
-                $('#userDefaults').modal('show');
-            }
-        }
-    });
+                settingsModal.hide();
+                userDefaultsModal.show();
+            };
+        };
+    };
+    req.send();
 };
 document.getElementById('storeDefaults').onclick = function () {
     this.disabled = true;
@@ -310,68 +325,96 @@ document.getElementById('storeDefaults').onclick = function () {
             if (document.getElementById('storeDefaultHomescreen').checked) {
                 data['homescreen'] = true;
             }
-            $.ajax('/setDefaults', {
-                data : JSON.stringify(data),
-                contentType : 'application/json',
-                type : 'POST',
-                xhrFields : {
-                    withCredentials: true
-                },
-                beforeSend : function (xhr) {
-                    xhr.setRequestHeader("Authorization", "Basic " + btoa(window.token + ":"));
-                },
-                success: function() {
-                    button.textContent = 'Success';
-                    if (button.classList.contains('btn-danger')) {
-                        button.classList.remove('btn-danger');
-                    } else if (button.classList.contains('btn-primary')) {
-                        button.classList.remove('btn-primary');
-                    };
-                    button.classList.add('btn-success');
-                    button.disabled = false;
-                    setTimeout(function(){$('#userDefaults').modal('hide');}, 1000);
-                },
-                error: function() {
-                    button.textContent = 'Failed';
-        config_base_path = local_dir / "config-base.json"
-                    button.classList.remove('btn-primary');
-                    button.classList.add('btn-danger');
-                    setTimeout(function(){
-                        var button = document.getElementById('storeDefaults');
-                        button.textContent = 'Submit';
-                        button.classList.remove('btn-danger');
-                        button.classList.add('btn-primary');
+            var req = new XMLHttpRequest();
+            req.open("POST", "/setDefaults", true);
+            req.setRequestHeader("Authorization", "Basic " + btoa(window.token + ":"));
+            req.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+            req.onreadystatechange = function() {
+                if (this.readyState == 4) {
+                    if (this.status == 200 || this.status == 204) {
+                        button.textContent = 'Success';
+                        if (button.classList.contains('btn-danger')) {
+                            button.classList.remove('btn-danger');
+                        } else if (button.classList.contains('btn-primary')) {
+                            button.classList.remove('btn-primary');
+                        };
+                        button.classList.add('btn-success');
                         button.disabled = false;
-                    }, 1000);
-                }
-            });
-        }
-    }
+                        setTimeout(function(){$('#userDefaults').modal('hide');}, 1000);
+                    } else {
+                        button.textContent = 'Failed';
+                        button.classList.remove('btn-primary');
+                        button.classList.add('btn-danger');
+                        setTimeout(function(){
+                            var button = document.getElementById('storeDefaults');
+                            button.textContent = 'Submit';
+                            button.classList.remove('btn-danger');
+                            button.classList.add('btn-primary');
+                            button.disabled = false;
+                        }, 1000);
+                    };
+                };
+            };
+            req.send(JSON.stringify(data));
+        };
+    };
 };
+
+//             $.ajax('/setDefaults', {
+//                 data : JSON.stringify(data),
+//                 contentType : 'application/json',
+//                 type : 'POST',
+//                 xhrFields : {
+//                     withCredentials: true
+//                 },
+//                 beforeSend : function (xhr) {
+//                     xhr.setRequestHeader("Authorization", "Basic " + btoa(window.token + ":"));
+//                 },
+//                 success: function() {
+//                     button.textContent = 'Success';
+//                     if (button.classList.contains('btn-danger')) {
+//                         button.classList.remove('btn-danger');
+//                     } else if (button.classList.contains('btn-primary')) {
+//                         button.classList.remove('btn-primary');
+//                     };
+//                     button.classList.add('btn-success');
+//                     button.disabled = false;
+//                     setTimeout(function(){$('#userDefaults').modal('hide');}, 1000);
+//                 },
+//                 error: function() {
+//                     button.textContent = 'Failed';
+//                     button.classList.remove('btn-primary');
+//                     button.classList.add('btn-danger');
+//                     setTimeout(function(){
+//                         var button = document.getElementById('storeDefaults');
+//                         button.textContent = 'Submit';
+//                         button.classList.remove('btn-danger');
+//                         button.classList.add('btn-primary');
+//                         button.disabled = false;
+//                     }, 1000);
+//                 }
+//             });
+//         }
+//     }
+// };
 document.getElementById('openUsers').onclick = function () {
     this.disabled = true;
     this.innerHTML =
         '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="margin-right: 0.5rem;"></span>' +
         'Loading...';
-    $.ajax('/getUsers', {
-        type : 'GET',
-        dataType : 'json',
-        contentType: 'json',
-        xhrFields : {
-            withCredentials: true
-        },
-        beforeSend : function (xhr) {
-            xhr.setRequestHeader("Authorization", "Basic " + btoa(window.token + ":"));
-        },
-        data: { get_param: 'value' },
-        complete : function(data) {
-            if (data['status'] == 200) {
+    var req = new XMLHttpRequest();
+    req.open("GET", "/getUsers", true);
+    req.responseType = 'json';
+    req.setRequestHeader("Authorization", "Basic " + btoa(window.token + ":"));
+    req.onreadystatechange = function() {
+        if (this.readyState == 4) {
+            if (this.status == 200) {
                 var list = document.getElementById('userList');
                 list.textContent = '';
                 if (document.getElementById('saveUsers')) {
                     document.getElementById('saveUsers').remove();
                 };
-                var users = data['responseJSON']['users'];
+                var users = req.response['users'];
                 for (var i = 0; i < users.length; i++) {
                     var user = users[i]
                     var entry = document.createElement('p');
@@ -417,18 +460,18 @@ document.getElementById('openUsers').onclick = function () {
                                     };
                                 };
                                 send = JSON.stringify(send);
-                                $.ajax('/modifyUsers', {
-                                    data : send,
-                                    contentType : 'application/json',
-                                    type : 'POST',
-                                    xhrFields : {
-                                        withCredentials: true
-                                    },
-                                    beforeSend : function (xhr) {
-                                        xhr.setRequestHeader("Authorization", "Basic " + btoa(window.token + ":"));
-                                    },
-                                    success: function() { $('#users').modal('hide'); },
-                                });
+                                var req = new XMLHttpRequest();
+                                req.open("POST", "/modifyUsers", true);
+                                req.setRequestHeader("Authorization", "Basic " + btoa(window.token + ":"));
+                                req.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+                                req.onreadystatechange = function() {
+                                    if (this.readyState == 4) {
+                                        if (this.status == 200 || this.status == 204) {
+                                            usersModal.hide();
+                                        };
+                                    };
+                                };
+                                req.send(send);
                             };
                             footer.appendChild(saveUsers);
                         };
@@ -440,183 +483,184 @@ document.getElementById('openUsers').onclick = function () {
                 var button = document.getElementById('openUsers');
                 button.disabled = false;
                 button.innerHTML = 'Users <i class="fa fa-user"></i>';
-                $('#settingsMenu').modal('hide');
-                $('#users').modal('show');
+                settingsModal.hide();
+                usersModal.show();
             };
         }
-    });
+    };
+    req.send();
 };
+
 generateInvites(empty = true);
-$("#login").modal('show');
+loginModal.show()
 
 var config = {};
 var modifiedConfig = {};
 
 document.getElementById('openSettings').onclick = function () {
     restart_setting_changed = false;
-    $.ajax('getConfig', {
-        type : 'GET',
-        dataType : 'json',
-        contentType : 'json',
-        xhrFields : {
-            withCredentials: true
-        },
-        beforeSend : function (xhr) {
-            xhr.setRequestHeader("Authorization", "Basic " + btoa(window.token + ":"));
-        },
-        complete : function(data) {
-            if (data['status'] == 200) {
-                var settingsList = document.getElementById('settingsList');
-                settingsList.textContent = '';
-                config = data['responseJSON'];
-                for (var section of Object.keys(config)) {
-                    var sectionCollapse = document.createElement('div');
-                    sectionCollapse.classList.add('collapse');
-                    sectionCollapse.id = section;
-                    
-                    var sectionTitle = config[section]['meta']['name'];
-                    var sectionDescription = config[section]['meta']['description'];
-                    var entryListID = section + '_entryList';
-                    var sectionFooter = section + '_footer';
+    var req = new XMLHttpRequest();
+    req.open("GET", "/getConfig", true);
+    req.responseType = 'json';
+    req.setRequestHeader("Authorization", "Basic " + btoa(window.token + ":"));
+    req.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            var settingsList = document.getElementById('settingsList');
+            settingsList.textContent = '';
+            config = this.response;
+            for (var section of Object.keys(config)) {
+                var sectionCollapse = document.createElement('div');
+                sectionCollapse.classList.add('collapse');
+                sectionCollapse.id = section;
+                
+                var sectionTitle = config[section]['meta']['name'];
+                var sectionDescription = config[section]['meta']['description'];
+                var entryListID = section + '_entryList';
+                var sectionFooter = section + '_footer';
 
-                    var innerCollapse = `
-                    <div class="card card-body">
-                        <small class="text-muted">${sectionDescription}</small>
-                        <div class="${entryListID}">
-                        </div>
+                var innerCollapse = `
+                <div class="card card-body">
+                    <small class="text-muted">${sectionDescription}</small>
+                    <div class="${entryListID}">
                     </div>
-                    `;
+                </div>
+                `;
 
-                    sectionCollapse.innerHTML = innerCollapse;
-                    
-                    for (var entry of Object.keys(config[section])) {
-                        if (entry != 'meta') {
-                            var entryName = config[section][entry]['name'];
-                            var required = false;
-                            if (config[section][entry]['required']) {
-                                entryName += ' <sup class="text-danger">*</sup>';
-                                required = true;
+                sectionCollapse.innerHTML = innerCollapse;
+                
+                for (var entry of Object.keys(config[section])) {
+                    if (entry != 'meta') {
+                        var entryName = config[section][entry]['name'];
+                        var required = false;
+                        if (config[section][entry]['required']) {
+                            entryName += ' <sup class="text-danger">*</sup>';
+                            required = true;
+                        };
+                        if (config[section][entry]['requires_restart']) {
+                            entryName += ' <sup class="text-danger">R</sup>';
+                        };
+                        if (config[section][entry].hasOwnProperty('description')) {
+                            var tooltip = `
+                            <a class="text-muted" href="#" data-toggle="tooltip" data-placement="right" title="${config[section][entry]['description']}"><i class="fa fa-question-circle-o"></i></a>
+                            `;
+                            entryName += ' ';
+                            entryName += tooltip;
+                        };
+                        var entryValue = config[section][entry]['value'];
+                        var entryType = config[section][entry]['type'];
+                        var entryGroup = document.createElement('div');
+                        if (entryType == 'bool') {
+                            entryGroup.classList.add('form-check');
+                            if (entryValue.toString() == 'true') {
+                                var checked = true;
+                            } else {
+                                var checked = false;
                             };
-                            if (config[section][entry]['requires_restart']) {
-                                entryName += ' <sup class="text-danger">R</sup>';
-                            };
-                            if (config[section][entry].hasOwnProperty('description')) {
-                                var tooltip = `
-                                <a class="text-muted" href="#" data-toggle="tooltip" data-placement="right" title="${config[section][entry]['description']}"><i class="fa fa-question-circle-o"></i></a>
-                                `;
-                                entryName += ' ';
-                                entryName += tooltip;
-                            };
-                            var entryValue = config[section][entry]['value'];
-                            var entryType = config[section][entry]['type'];
-                            var entryGroup = document.createElement('div');
-                            if (entryType == 'bool') {
-                                entryGroup.classList.add('form-check');
-                                if (entryValue.toString() == 'true') {
-                                    var checked = true;
-                                } else {
-                                    var checked = false;
-                                };
-                                entryGroup.innerHTML = `
-                                <input class="form-check-input" type="checkbox" value="" id="${section}_${entry}">
-                                <label class="form-check-label" for="${section}_${entry}">${entryName}</label>
-                                `;
-                                entryGroup.getElementsByClassName('form-check-input')[0].required = required;
-                                entryGroup.getElementsByClassName('form-check-input')[0].checked = checked;
-                                entryGroup.getElementsByClassName('form-check-input')[0].onclick = function() {
-                                    var state = this.checked;
-                                    for (var sect of Object.keys(config)) {
-                                        for (var ent of Object.keys(config[sect])) {
-                                            if ((sect + '_' + config[sect][ent]['depends_true']) == this.id) {
-                                                document.getElementById(sect + '_' + ent).disabled = !state;
-                                            } else if ((sect + '_' + config[sect][ent]['depends_false']) == this.id) {
-                                                document.getElementById(sect + '_' + ent).disabled = state;
-                                            };
+                            entryGroup.innerHTML = `
+                            <input class="form-check-input" type="checkbox" value="" id="${section}_${entry}">
+                            <label class="form-check-label" for="${section}_${entry}">${entryName}</label>
+                            `;
+                            entryGroup.getElementsByClassName('form-check-input')[0].required = required;
+                            entryGroup.getElementsByClassName('form-check-input')[0].checked = checked;
+                            entryGroup.getElementsByClassName('form-check-input')[0].onclick = function() {
+                                var state = this.checked;
+                                for (var sect of Object.keys(config)) {
+                                    for (var ent of Object.keys(config[sect])) {
+                                        if ((sect + '_' + config[sect][ent]['depends_true']) == this.id) {
+                                            document.getElementById(sect + '_' + ent).disabled = !state;
+                                        } else if ((sect + '_' + config[sect][ent]['depends_false']) == this.id) {
+                                            document.getElementById(sect + '_' + ent).disabled = state;
                                         };
                                     };
                                 };
-                            } else if ((entryType == 'text') || (entryType == 'email') || (entryType == 'password') || (entryType == 'number')) {
-                                entryGroup.classList.add('form-group');
-                                entryGroup.innerHTML = `
-                                <label for="${section}_${entry}">${entryName}</label>
-                                <input type="${entryType}" class="form-control" id="${section}_${entry}" aria-describedby="${entry}" value="${entryValue}">
-                                `;
-                                entryGroup.getElementsByClassName('form-control')[0].required = required;
-                            } else if (entryType == 'select') {
-                                entryGroup.classList.add('form-group');
-                                var entryOptions = config[section][entry]['options'];
-                                var innerGroup = `
-                                <label for="${section}_${entry}">${entryName}</label>
-                                <select class="form-control" id="${section}_${entry}">
-                                `;
-                                for (var i = 0; i < entryOptions.length; i++) {
-                                    if (entryOptions[i] == entryValue) {
-                                        var selected = 'selected';
-                                    } else {
-                                        var selected = '';
-                                    }
-                                    innerGroup += `
-                                    <option value="${entryOptions[i]}" ${selected}>${entryOptions[i]}</option>
-                                    `;
-                                };
-                                innerGroup += '</select>';
-                                entryGroup.innerHTML = innerGroup;
-                                entryGroup.getElementsByClassName('form-control')[0].required = required;
-                                
                             };
-                            sectionCollapse.getElementsByClassName(entryListID)[0].appendChild(entryGroup);
+                        } else if ((entryType == 'text') || (entryType == 'email') || (entryType == 'password') || (entryType == 'number')) {
+                            entryGroup.classList.add('form-group');
+                            entryGroup.innerHTML = `
+                            <label for="${section}_${entry}">${entryName}</label>
+                            <input type="${entryType}" class="form-control" id="${section}_${entry}" aria-describedby="${entry}" value="${entryValue}">
+                            `;
+                            entryGroup.getElementsByClassName('form-control')[0].required = required;
+                        } else if (entryType == 'select') {
+                            entryGroup.classList.add('form-group');
+                            var entryOptions = config[section][entry]['options'];
+                            var innerGroup = `
+                            <label for="${section}_${entry}">${entryName}</label>
+                            <select class="form-control" id="${section}_${entry}">
+                            `;
+                            for (var i = 0; i < entryOptions.length; i++) {
+                                if (entryOptions[i] == entryValue) {
+                                    var selected = 'selected';
+                                } else {
+                                    var selected = '';
+                                }
+                                innerGroup += `
+                                <option value="${entryOptions[i]}" ${selected}>${entryOptions[i]}</option>
+                                `;
+                            };
+                            innerGroup += '</select>';
+                            entryGroup.innerHTML = innerGroup;
+                            entryGroup.getElementsByClassName('form-control')[0].required = required;
+                            
                         };
+                        sectionCollapse.getElementsByClassName(entryListID)[0].appendChild(entryGroup);
                     };
-                    var sectionButton = document.createElement('button');
-                    sectionButton.setAttribute('type', 'button');
-                    sectionButton.classList.add('list-group-item', 'list-group-item-action');
-                    sectionButton.appendChild(document.createTextNode(sectionTitle));
-                    sectionButton.id = section + '_button';
-                    sectionButton.setAttribute('data-toggle', 'collapse');
-                    sectionButton.setAttribute('data-target', '#' + section);
-                    settingsList.appendChild(sectionButton);
-                    settingsList.appendChild(sectionCollapse);
                 };
+                var sectionButton = document.createElement('button');
+                sectionButton.setAttribute('type', 'button');
+                sectionButton.classList.add('list-group-item', 'list-group-item-action');
+                sectionButton.appendChild(document.createTextNode(sectionTitle));
+                sectionButton.id = section + '_button';
+                sectionButton.setAttribute('data-toggle', 'collapse');
+                sectionButton.setAttribute('data-target', '#' + section);
+                settingsList.appendChild(sectionButton);
+                settingsList.appendChild(sectionCollapse);
             };
-        },
-    });
-    $('#settingsMenu').modal('show');
+        };
+    };
+    req.send();
+    settingsModal.show();
 };
 
-$('#settingsMenu').on('shown.bs.modal', function() {
-    $("a[data-toggle='tooltip']").each(function (i, obj) {
-        $(obj).tooltip();
+document.getElementById('settingsMenu').addEventListener('shown.bs.modal', function() {
+    var to_trigger = [].slice.call(document.querySelectorAll('a[data-toggle="tooltip"]'));
+    var tooltips = to_trigger.map(function(el) {
+        return new bootstrap.Tooltip(el);
     });
 });
-
+// 
+// $('#settingsMenu').on('shown.bs.modal', function() {
+//     $("a[data-toggle='tooltip']").each(function (i, obj) {
+//         $(obj).tooltip();
+//     });
+// });
+// 
 function sendConfig(modalId) {
     var modal = document.getElementById(modalId);
     var send = JSON.stringify(modifiedConfig);
-    $.ajax('/modifyConfig', {
-        data : send,
-        contentType : 'application/json',
-        type : 'POST',
-        xhrFields : {
-            withCredentials: true
-        },
-        beforeSend : function (xhr) {
-            xhr.setRequestHeader("Authorization", "Basic " + btoa(window.token + ":"));
-        },
-        success: function() {
-            $('#' + modalId).modal('hide');
-            if (modalId != 'settingsMenu') {
-                $('#settingsMenu').modal('hide');
+    var req = new XMLHttpRequest();
+    req.open("POST", "/modifyConfig", true);
+    req.setRequestHeader("Authorization", "Basic " + btoa(window.token + ":"));
+    req.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+    req.onreadystatechange = function() {
+        if (this.readyState == 4) {
+            if (this.status == 200 || this.status == 204) {
+                bootstrap.Modal.getInstance(document.getElementById(modalId)).hide();
+                if (modalId != 'settingsMenu') {
+                    settingsModal.hide();
+                };
             };
-        },
-        fail: function(xhr, textStatus, errorThrown) {
-            var footer = modal.getElementsByClassName('modal-dialog')[0].getElementsByClassName('modal-content')[0].getElementsByClassName('modal-footer')[0]; 
-            var alert = document.createElement('div');
-            alert.classList.add('alert', 'alert-danger');
-            alert.setAttribute('role', 'alert');
-            alert.appendChild(document.createTextNode('Error: ' + errorThrown));
-            footer.appendChild(alert);
-        },
-    });
+        };
+        // fail: function(xhr, textStatus, errorThrown) {
+        //     var footer = modal.getElementsByClassName('modal-dialog')[0].getElementsByClassName('modal-content')[0].getElementsByClassName('modal-footer')[0]; 
+        //     var alert = document.createElement('div');
+        //     alert.classList.add('alert', 'alert-danger');
+        //     alert.setAttribute('role', 'alert');
+        //     alert.appendChild(document.createTextNode('Error: ' + errorThrown));
+        //     footer.appendChild(alert);
+        // },
+    };
+    req.send(send);
 };
 
 document.getElementById('settingsSave').onclick = function() {
@@ -650,15 +694,12 @@ document.getElementById('settingsSave').onclick = function() {
     // if (restart_setting_changed) {
     if (restart_setting_changed) {
         document.getElementById('applyRestarts').onclick = function(){sendConfig('restartModal');};
-        $('#settingsMenu').modal('hide');
-        $('#restartModal').modal({
-            backdrop: 'static',
-            show: true
-        });
+        settingsModal.hide();
+        restartModal.show();
     } else if (settings_changed) {
         sendConfig('settingsMenu');
     } else {
-        $('#settingsMenu').modal('hide');
+        settingsModal.hide();
     };
 };
 
