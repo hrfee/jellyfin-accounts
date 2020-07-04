@@ -15,7 +15,7 @@ A basic account management system for [Jellyfin](https://github.com/jellyfin/jel
 </p>
 
 <p align="center">
-    <img src="https://raw.githubusercontent.com/hrfee/jellyfin-accounts/master/images/jfa.gif" width="48%" style="margin-right: 1.5%;" alt="Admin page"></img> 
+    <img src="https://raw.githubusercontent.com/hrfee/jellyfin-accounts/master/images/admin.png" width="48%" style="margin-right: 1.5%;" alt="Admin page"></img> 
     <img src="https://raw.githubusercontent.com/hrfee/jellyfin-accounts/master/images/create.png" width="48%" style="margin-left: 1.5%;" alt="Account creation page"></img>
 </p>
 

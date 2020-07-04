@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "jellyfin-accounts"
-version = "0.2.6"
+version = "0.3.0"
 readme = "README.md"
 description = "A simple account management system for Jellyfin"
 authors = ["Harvey Tindall <harveyltindall@gmail.com>"]
@@ -9,7 +9,7 @@ homepage = "https://github.com/hrfee/jellyfin-accounts"
 repository = "https://github.com/hrfee/jellyfin-accounts"
 keywords = ["jellyfin", "jf-accounts"]
 include = ["jellyfin_accounts/data/*"]
-exclude = ["images/*"]
+exclude = ["images/*", "scss/*"]
 classifiers = [
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",

@@ -44,7 +44,7 @@ function addItem(invite) {
         // listCode.appendChild(document.createTextNode(" "));
         var codeCopy = document.createElement('i');
         codeCopy.onclick = function(){toClipboard(inviteCode)};
-        codeCopy.classList.add('fa', 'fa-clipboard');
+        codeCopy.classList.add('fa', 'fa-clipboard', 'icon-button');
         listCode.appendChild(codeCopy);
         if (typeof(invite[3]) != 'undefined') {
             var sentTo = document.createElement('span');
@@ -145,7 +145,7 @@ function addOptions(le, sel) {
 function toClipboard(str) {
     const el = document.createElement('textarea');
     el.value = str;
-    el.setAttribute('readonly', '');
+    el.setAttribute('readOnly', '');
     el.style.position = 'absolute';
     el.style.left = '-9999px';
     document.body.appendChild(el);
@@ -392,30 +392,45 @@ document.getElementById('openUsers').onclick = function () {
                 var users = req.response['users'];
                 for (var i = 0; i < users.length; i++) {
                     var user = users[i]
-                    var entry = document.createElement('p');
+                    var entry = document.createElement('div');
+                    entry.classList.add('form-group', 'list-group-item', 'py-1');
                     entry.id = 'user_' + user['name'];
-                    entry.appendChild(document.createTextNode(user['name']));
-                    var address = document.createElement('span');
-                    address.setAttribute('style', 'margin-left: 2%; margin-right: 2%; color: grey;');
+                    var label = document.createElement('label');
+                    label.classList.add('d-inline-block');
+                    label.setAttribute('for', 'address_' + user['email']);
+                    label.appendChild(document.createTextNode(user['name']));
+                    entry.appendChild(label);
+                    var address = document.createElement('input');
+                    address.setAttribute('type', 'email');
+                    address.readOnly = true;
+                    address.classList.add('form-control-plaintext', 'text-muted', 'd-inline-block');
+                    //address.setAttribute('style', 'margin-left: 2%; margin-right: 2%; color: grey;');
                     address.classList.add('addressText');
                     address.id = 'address_' + user['email'];
                     if (typeof(user['email']) != 'undefined') {
-                        address.appendChild(document.createTextNode(user['email']));
+                        address.value = user['email'];
+                        address.setAttribute('style', 'width: auto; margin-left: 2%;');
                     };
                     var editButton = document.createElement('i');
-                    editButton.classList.add('fa', 'fa-edit');
+                    editButton.classList.add('fa', 'fa-edit', 'd-inline-block', 'icon-button');
+                    editButton.setAttribute('style', 'margin-left: 2%;');
                     editButton.onclick = function() {
                         this.classList.remove('fa', 'fa-edit');
-                        var input = document.createElement('input');
-                        input.setAttribute('type', 'email');
-                        input.setAttribute('style', 'margin-left: 2%; color: grey;');
-                        var addressElement = this.parentNode.getElementsByClassName('addressText')[0];
-                        if (addressElement.textContent != '') {
-                            input.value = addressElement.textContent;
-                        } else {
-                            input.placeholder = 'Email Address';
+                        // var input = document.createElement('input');
+                        // input.setAttribute('type', 'email');
+                        // input.classList.add('email-input');
+                        //var addressElement = this.parentNode.getElementsByClassName('addressText')[0];
+                        var addressElement = this.parentNode.getElementsByClassName('form-control-plaintext')[0];
+                        addressElement.classList.remove('form-control-plaintext', 'text-muted');
+                        addressElement.classList.add('form-control');
+                        addressElement.readOnly = false;
+                        if (addressElement.value == '') {
+                        //     input.value = addressElement.textContent;
+                        // } else {
+                            addressElement.placeholder = 'Email Address';
+                            address.setAttribute('style', 'width: auto; margin-left: 2%;');
                         };
-                        this.parentNode.replaceChild(input, addressElement);
+                        // this.parentNode.replaceChild(input, addressElement);
                         if (document.getElementById('saveUsers') == null) {
                             var footer = document.getElementById('userFooter')
                             var saveUsers = document.createElement('input');
@@ -451,8 +466,8 @@ document.getElementById('openUsers').onclick = function () {
                             footer.appendChild(saveUsers);
                         };
                     };
-                    entry.appendChild(address);
                     entry.appendChild(editButton);
+                    entry.appendChild(address);
                     list.appendChild(entry);
                 };
                 var button = document.getElementById('openUsers');

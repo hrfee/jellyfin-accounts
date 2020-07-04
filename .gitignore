@@ -11,7 +11,8 @@ pw-reset/
 jfa/
 colors.txt
 theme.css
-jellyfin_accounts/data/static/bootstrap-jf.css
+jellyfin_accounts/__pycache__/
 old/
 .jf-accounts/
 requirements.txt
+package-lock.json

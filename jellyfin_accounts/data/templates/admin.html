@@ -14,7 +14,7 @@
         <meta name="theme-color" content="#ffffff">
 
         <!-- Bootstrap CSS -->
-        <link rel="stylesheet" type="text/css" href="bs5-jf.css">
+        <link rel="stylesheet" type="text/css" href="{{ css_file }}">
         <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/js/bootstrap.min.js" integrity="sha384-oesi62hOLfzrys4LxRF63OJCXdXDipiYWBnvTl9Y9/TRlw5xlKIEHpNyvvDShgf/" crossorigin="anonymous"></script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -45,12 +45,6 @@
                 /*margin: 20%;*/
                 margin-top: 5%;
                 color: grey;
-            }
-            .fa-clipboard {
-                color: grey;
-            }
-            .fa-clipboard:hover {
-                color: black;
             }
         </style>
         <title>Admin</title>
@@ -173,13 +167,13 @@
             <button type="button" class="btn btn-secondary" id="openSettings">
                 Settings <i class="fa fa-cog"></i>
             </button>
-            <div class="card bg-light mb-3 linkGroup">
+            <div class="card mb-3 linkGroup">
                 <div class="card-header">Current Invites</div>
                 <ul class="list-group list-group-flush" id="invites">
                 </ul>
             </div>
             <div class="linkForm">
-                <div class="card bg-light mb-3">
+                <div class="card mb-3">
                     <div class="card-header">Generate Invite</div>
                     <div class="card-body">
                         <form action="#" method="POST" id="inviteForm">
