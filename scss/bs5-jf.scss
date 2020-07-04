@@ -1,0 +1,51 @@
+$jf-blue: rgb(0, 164, 220);
+$jf-blue-hover: rgba(0, 164, 220, 0.2);
+$jf-blue-focus: rgb(12, 176, 232);
+$jf-red: rgb(204, 0, 0);
+
+
+$jf-black: rgb(16, 16, 16);
+$jf-gray-90: rgb(32, 32, 32);
+$jf-gray-80: rgb(36, 36, 36); // jf-card
+$jf-gray-70: rgb(41, 41, 41); // jf-input
+$jf-gray-60: rgb(48, 48, 48); // jf-button
+$jf-gray-50: rgb(56, 56, 56); // jf-button-focus
+$jf-text-bold: rgba(255, 255, 255, 0.87);
+$jf-text-primary: rgba(255, 255, 255, 0.8);
+$jf-text-secondary: rgb(153, 153, 153);
+
+$theme-colors: (
+    "primary":  $jf-blue,
+    "secondary": $jf-gray-50,
+    "success": $jf-blue-focus,
+    "danger": $jf-red,
+    "light": $jf-text-primary,
+    "dark": $jf-gray-90
+);
+
+$enable-rounded: false;
+$body-bg: $jf-black;
+$body-color: $jf-text-primary;
+$border-color: $jf-gray-60;
+$component-active-color: $jf-text-bold;
+$component-active-bg: $jf-blue-focus;
+$text-muted: $jf-text-secondary;
+$link-color: $jf-blue-focus;
+$btn-link-disabled-color: $jf-text-secondary;
+$input-bg: $jf-gray-70;
+$input-color: $jf-text-primary;
+$input-focus-bg: $jf-gray-60;
+$input-focus-border-color: $jf-blue-focus;
+$input-disabled-bg: $jf-gray-90;
+$input-border-color: $jf-gray-60;
+$input-placeholder-color: $text-muted;
+
+$form-check-input-bg: $jf-gray-60;
+$form-check-input-border: $jf-gray-50;
+$form-check-input-checked-color: $jf-blue-focus;
+$form-check-input-checked-bg-color: $jf-blue-hover;
+
+
+// roughly @ line 696
+
+@import "../node_modules/bootstrap/scss/bootstrap";

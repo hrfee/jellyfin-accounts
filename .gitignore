@@ -4,7 +4,7 @@ MANIFEST.in
 dist/
 build/
 test.txt
-jellyfin_accounts/data/node_modules/
+node_modules/
 jellyfin_accounts/data/config-default.ini
 *.egg-info/
 pw-reset/
