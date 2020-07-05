@@ -142,6 +142,11 @@ def load_config(config_path, data_dir):
         or config["jellyfin"]["public_server"] == ""
     ):
         config["jellyfin"]["public_server"] = config["jellyfin"]["server"]
+    if (
+        "bs5" not in config["ui"]
+        or config["ui"]["bs5"] == ""
+    ):
+        config["ui"]["bs5"] = "false"
     return config
 
 
@@ -185,8 +190,12 @@ data_store = JSONStorage(
     config["files"]["user_configuration"],
 )
 
+if config.getboolean("ui", "bs5"):
+    css_file = "bs5-jf.css"
+    log.debug('Using Bootstrap 5')
+else:
+    css_file = "bs4-jf.css"
 
-css_file = "bs5-jf.css"
 if "custom_css" in config["files"]:
     if config["files"]["custom_css"] != "":
         try:

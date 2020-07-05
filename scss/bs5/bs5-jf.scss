@@ -98,7 +98,7 @@ $list-group-action-active-bg: $jf-blue-focus;
     background-color: $success;
 }
 
-@import "../node_modules/bootstrap/scss/bootstrap";
+@import "../../node_modules/bootstrap/scss/bootstrap";
 
 .btn-primary, .btn-outline-primary:hover, .btn-outline-primary:active {
     color: $jf-text-bold;

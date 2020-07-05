@@ -150,6 +150,14 @@
             "type": "text",
             "value": "Your account has been created. Click below to continue to Jellyfin.",
             "description": "Displayed when a user creates an account"
+        },
+        "bs5": {
+            "name": "Use Bootstrap 5",
+            "required": false,
+            "requires_restart": true,
+            "type": "bool",
+            "value": false,
+            "description": "Use Bootstrap 5 (currently in alpha). This also removes the need for jQuery, so the page should load faster."
         }
     },
     "password_validation": {

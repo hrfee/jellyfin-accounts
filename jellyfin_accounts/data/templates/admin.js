@@ -1,8 +1,64 @@
-var loginModal = new bootstrap.Modal(document.getElementById('login'));
-var settingsModal = new bootstrap.Modal(document.getElementById('settingsMenu'));
-var userDefaultsModal = new bootstrap.Modal(document.getElementById('userDefaults'));
-var usersModal = new bootstrap.Modal(document.getElementById('users'));
-var restartModal = new bootstrap.Modal(document.getElementById('restartModal'));
+var bsVersion = {{ bsVersion }};
+
+if (bsVersion == 5) {
+    function createModal(id, find = false) {
+        if (find) {
+            return bootstrap.Modal.getInstance(document.getElementById(modalId));
+        };
+        return new bootstrap.Modal(document.getElementById(id));
+    };
+    function triggerTooltips() {
+        document.getElementById('settingsMenu').addEventListener('shown.bs.modal', function() {
+            // Hack to ensure anything dependent on checkboxes are disabled if necessary
+            var checkboxes = document.getElementById('settingsMenu').querySelectorAll('input[type="checkbox"]');
+            for (var i = 0; i < checkboxes.length; i++) {
+                checkboxes[i].click();
+                checkboxes[i].click();
+            };
+            // Initialize tooltips
+            var to_trigger = [].slice.call(document.querySelectorAll('a[data-toggle="tooltip"]'));
+            var tooltips = to_trigger.map(function(el) {
+                return new bootstrap.Tooltip(el);
+            });
+        });
+    };
+
+
+//     var loginModal = new bootstrap.Modal(document.getElementById('login'));
+//     var settingsModal = new bootstrap.Modal(document.getElementById('settingsMenu'));
+//     var userDefaultsModal = new bootstrap.Modal(document.getElementById('userDefaults'));
+//     var usersModal = new bootstrap.Modal(document.getElementById('users'));
+//     var restartModal = new bootstrap.Modal(document.getElementById('restartModal'));
+} else if (bsVersion == 4) {
+    document.getElementById('send_to_address_enabled').classList.remove('form-check-input');
+    function createModal(id, find = false) {
+        return {
+            show : function() {
+                return $('#' + id).modal('show');
+            },
+            hide : function() {
+                return $('#' + id).modal('hide');
+            }
+        };
+    };
+    function triggerTooltips() {
+        $('#settingsMenu').on('shown.bs.modal', function() {
+            var checkboxes = document.getElementById('settingsMenu').querySelectorAll('input[type="checkbox"]');
+            for (var i = 0; i < checkboxes.length; i++) {
+                checkboxes[i].click();
+                checkboxes[i].click();
+            };
+            $("a[data-toggle='tooltip']").each(function (i, obj) {
+                $(obj).tooltip();
+            });
+        });
+    };
+};
+var loginModal = createModal('login');
+var settingsModal = createModal('settingsMenu');
+var userDefaultsModal = createModal('userDefaults');
+var usersModal = createModal('users');
+var restartModal = createModal('restartModal');
 
 function parseInvite(invite, empty = false) {
     if (empty === true) {
@@ -612,19 +668,7 @@ document.getElementById('openSettings').onclick = function () {
     settingsModal.show();
 };
 
-document.getElementById('settingsMenu').addEventListener('shown.bs.modal', function() {
-    // Hack to ensure anything dependent on checkboxes are disabled if necessary
-    var checkboxes = document.getElementById('settingsMenu').querySelectorAll('input[type="checkbox"]');
-    for (var i = 0; i < checkboxes.length; i++) {
-        checkboxes[i].click();
-        checkboxes[i].click();
-    };
-    // Initialize tooltips
-    var to_trigger = [].slice.call(document.querySelectorAll('a[data-toggle="tooltip"]'));
-    var tooltips = to_trigger.map(function(el) {
-        return new bootstrap.Tooltip(el);
-    });
-});
+triggerTooltips();
 // 
 // $('#settingsMenu').on('shown.bs.modal', function() {
 //     $("a[data-toggle='tooltip']").each(function (i, obj) {
@@ -642,7 +686,7 @@ function sendConfig(modalId) {
     req.onreadystatechange = function() {
         if (this.readyState == 4) {
             if (this.status == 200 || this.status == 204) {
-                bootstrap.Modal.getInstance(document.getElementById(modalId)).hide();
+                createModal(modalId, true).hide();
                 if (modalId != 'settingsMenu') {
                     settingsModal.hide();
                 };
@@ -699,4 +743,3 @@ document.getElementById('settingsSave').onclick = function() {
         settingsModal.hide();
     };
 };
-
