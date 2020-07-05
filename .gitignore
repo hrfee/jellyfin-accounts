@@ -16,3 +16,4 @@ old/
 .jf-accounts/
 requirements.txt
 package-lock.json
+video/

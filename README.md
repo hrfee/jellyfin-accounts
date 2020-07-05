@@ -1,7 +1,7 @@
-# ![jellyfin-accounts](https://raw.githubusercontent.com/hrfee/jellyfin-accounts/master/images/jellyfin-accounts-banner-wide.svg)
+# ![jellyfin-accounts](https://raw.githubusercontent.com/hrfee/jellyfin-accounts/bs5/images/jellyfin-accounts-banner-wide.svg)
 
 A basic account management system for [Jellyfin](https://github.com/jellyfin/jellyfin).
-* Provides a web interface for creating invite codes, and a simple account creation form
+* Provides a web interface for creating/sending invites
 * Sends out emails when a user requests a password reset
 * Uses a basic python jellyfin API client for communication with the server. 
 * Uses [Flask](https://github.com/pallets/flask), [HTTPAuth](https://github.com/miguelgrinberg/Flask-HTTPAuth), [itsdangerous](https://github.com/pallets/itsdangerous), and [Waitress](https://github.com/Pylons/waitress)
@@ -9,12 +9,12 @@ A basic account management system for [Jellyfin](https://github.com/jellyfin/jel
 * Password resets are handled using smtplib, requests, and [jinja](https://github.com/pallets/jinja)
 ## Interface
 <p align="center">
-    <img src="https://raw.githubusercontent.com/hrfee/jellyfin-accounts/master/images/jfa.gif" width="100%"></img>
+    <img src="https://raw.githubusercontent.com/hrfee/jellyfin-accounts/bs5/images/jfa.gif" width="100%"></img>
 </p>
 
 <p align="center">
-    <img src="https://raw.githubusercontent.com/hrfee/jellyfin-accounts/master/images/admin.png" width="48%" style="margin-right: 1.5%;" alt="Admin page"></img> 
-    <img src="https://raw.githubusercontent.com/hrfee/jellyfin-accounts/master/images/create.png" width="48%" style="margin-left: 1.5%;" alt="Account creation page"></img>
+    <img src="https://raw.githubusercontent.com/hrfee/jellyfin-accounts/bs5/images/admin.png" width="48%" style="margin-right: 1.5%;" alt="Admin page"></img> 
+    <img src="https://raw.githubusercontent.com/hrfee/jellyfin-accounts/bs5/images/create.png" width="48%" style="margin-left: 1.5%;" alt="Account creation page"></img>
 </p>
 
 
