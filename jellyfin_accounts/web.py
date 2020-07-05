@@ -39,7 +39,11 @@ def static_proxy(path):
                 bsVersion = 5
             else:
                 bsVersion = 4
-            return render_template("admin.js", bsVersion=bsVersion)
+            return (
+                render_template("admin.js", bsVersion=bsVersion),
+                200,
+                {"Content-Type": "text/javascript"},
+            )
         return app.send_static_file(path)
     return (
         render_template(
