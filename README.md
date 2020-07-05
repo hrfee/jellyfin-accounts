@@ -1,11 +1,11 @@
-# ![jellyfin-accounts](https://raw.githubusercontent.com/hrfee/jellyfin-accounts/master/images/jellyfin-accounts-banner-wide.svg)
+# ![jellyfin-accounts](https://raw.githubusercontent.com/hrfee/jellyfin-accounts/bs5/images/jellyfin-accounts-banner-wide.svg)
 
 A basic account management system for [Jellyfin](https://github.com/jellyfin/jellyfin).
-* Provides a web interface for creating invite codes, and a simple account creation form
+* Provides a web interface for creating/sending invites
 * Sends out emails when a user requests a password reset
 * Uses a basic python jellyfin API client for communication with the server. 
 * Uses [Flask](https://github.com/pallets/flask), [HTTPAuth](https://github.com/miguelgrinberg/Flask-HTTPAuth), [itsdangerous](https://github.com/pallets/itsdangerous), and [Waitress](https://github.com/Pylons/waitress)
-* Frontend uses [Bootstrap](https://getbootstrap.com), [jQuery](https://jquery.com) and [jQuery-serialize-object](https://github.com/macek/jquery-serialize-object)
+* Frontend uses [Bootstrap](https://v5.getbootstrap.com)
 * Password resets are handled using smtplib, requests, and [jinja](https://github.com/pallets/jinja)
 ## Interface
 <p align="center">

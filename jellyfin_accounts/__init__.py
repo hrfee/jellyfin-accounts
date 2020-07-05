@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-__version__ = "0.2.6"
+__version__ = "0.3.0"
 
 import secrets
 import configparser
@@ -142,6 +142,8 @@ def load_config(config_path, data_dir):
         or config["jellyfin"]["public_server"] == ""
     ):
         config["jellyfin"]["public_server"] = config["jellyfin"]["server"]
+    if "bs5" not in config["ui"] or config["ui"]["bs5"] == "":
+        config["ui"]["bs5"] = "false"
     return config
 
 
@@ -185,31 +187,39 @@ data_store = JSONStorage(
     config["files"]["user_configuration"],
 )
 
-
-def default_css():
-    css = {}
-    css[
-        "href"
-    ] = "https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-    css[
-        "integrity"
-    ] = "sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
-    css["crossorigin"] = "anonymous"
-    return css
+if config.getboolean("ui", "bs5"):
+    css_file = "bs5-jf.css"
+    log.debug("Using Bootstrap 5")
+else:
+    css_file = "bs4-jf.css"
 
 
-css = {}
-css = default_css()
-if "custom_css" in config["files"]:
+with open(config_base_path, "r") as f:
+    themes = json.load(f)["ui"]["theme"]
+
+theme_options = themes["options"]
+
+if "theme" not in config["ui"] or config["ui"]["theme"] not in theme_options:
+    config["ui"]["theme"] = themes["value"]
+
+if config.getboolean("ui", "bs5"):
+    num = 5
+else:
+    num = 4
+
+current_theme = config["ui"]["theme"]
+
+if "Bootstrap" in current_theme:
+    css_file = f"bs{num}.css"
+elif "Jellyfin" in current_theme:
+    css_file = f"bs{num}-jf.css"
+elif "Custom" in current_theme and "custom_css" in config["files"]:
     if config["files"]["custom_css"] != "":
         try:
-            shutil.copy(
-                config["files"]["custom_css"], (local_dir / "static" / "bootstrap.css")
-            )
-            log.debug("Loaded custom CSS")
-            css["href"] = "/bootstrap.css"
-            css["integrity"] = ""
-            css["crossorigin"] = ""
+            css_path = Path(config["files"]["custom_css"])
+            shutil.copy(css_path, (local_dir / "static" / css_path.name))
+            log.debug('Loaded custom CSS "{css_path.name}"')
+            css_file = css_path.name
         except FileNotFoundError:
             log.error(
                 f'Custom CSS {config["files"]["custom_css"]} not found, using default.'

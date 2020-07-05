@@ -338,13 +338,9 @@ def modifyConfig():
     for section in data:
         if section in temp_config:
             for item in data[section]:
-                if item in temp_config[section]:
-                    temp_config[section][item] = data[section][item]
-                    data[section][item] = True
-                    log.debug(f"{section}/{item} modified")
-                else:
-                    data[section][item] = False
-                    log.debug(f"{section}/{item} does not exist in config")
+                temp_config[section][item] = data[section][item]
+                data[section][item] = True
+                log.debug(f"{section}/{item} modified")
     with open(config_path, "w") as config_file:
         temp_config.write(config_file)
     config = load_config(config_path, data_dir)

@@ -12,12 +12,18 @@
         <meta name="msapplication-TileColor" content="#603cba">
         <meta name="theme-color" content="#ffffff">
 
-        <link rel="stylesheet" href="{{ css_href }}" integrity="{{ css_integrity }}" crossorigin="{{ css_crossorigin }}">
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-serialize-object/2.5.0/jquery.serialize-object.min.js" integrity="sha256-E8KRdFk/LTaaCBoQIV/rFNc0s3ICQQiOHFT4Cioifa8=" crossorigin="anonymous"></script>
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" type="text/css" href="{{ css_file }}">
+        {% if not bs5 %}
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+        {% endif %}
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+        {% if bs5 %}
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/js/bootstrap.min.js" integrity="sha384-oesi62hOLfzrys4LxRF63OJCXdXDipiYWBnvTl9Y9/TRlw5xlKIEHpNyvvDShgf/" crossorigin="anonymous"></script>
+        {% else %}
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+        {% endif %}
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
         <style>
             .pageContainer {
                 margin: 5% 20% 5% 20%;
@@ -61,11 +67,11 @@
             <p class="contactBox">{{ contactMessage }}</p>
             <div class="container" id="container">
                 <div class="row" id="cardContainer">
-                    <div class="col-sm" id="accountForm">
-                        <div class="card bg-light mb-3">
+                    <div class="col-sm">
+                        <div class="card mb-3">
                             <div class="card-header">Details</div>
                             <div class="card-body">
-                                <form action="#" method="POST">
+                                <form action="#" method="POST" id="accountForm">
                                     <div class="form-group">
                                         <label for="inputEmail">Email</label>
                                         <input type="email" class="form-control" id="{% if username %}inputEmail{% else %}inputUsername{% endif %}" name="{% if username %}email{% else %}username{% endif %}" placeholder="Email" value="{{ email }}" required>
@@ -80,7 +86,7 @@
                                         <label for="inputPassword">Password</label>
                                         <input type="password" class="form-control" id="inputPassword" name="password" placeholder="Password" required>
                                     </div>
-                                    <div class="btn-group" role="group" aria-label="Button & Error" id="errorBox">
+                                    <div class="btn-group" role="group" aria-label="Button & Error" id="errorBox" style="margin-top: 1rem;">
                                         <button type="submit" class="btn btn-outline-primary" id="submitButton">
                                             <span id="createAccount">Create Account</span>
                                         </button>
@@ -91,7 +97,7 @@
                     </div>
                     {% if validate %}
                     <div class="col-sm" id="requirementBox">
-                        <div class="card bg-light mb-3 requirementBox">
+                        <div class="card mb-3 requirementBox">
                             <div class="card-header">Password Requirements</div>
                             <div class="card-body">
                                 <ul class="list-group">
@@ -108,7 +114,25 @@
                 </div>
             </div>
         </div>
+        <script src="serialize.js"></script>
         <script>
+            {% if bs5 %}
+            var bsVersion = 5;
+            {% else %}
+            var bsVersion = 4;
+            {% endif %}
+            if (bsVersion == 5) {
+                var successBox = new bootstrap.Modal(document.getElementById('successBox'));
+            } else if (bsVersion == 4) {
+                var successBox = {
+                    show : function() {
+                        return $('#successBox').modal('show');
+                    },
+                    hide : function() {
+                        return $('#successBox').modal('hide');
+                    }
+                };
+            };
             var code = window.location.href.split('/').pop();
             function toggleSpinner () {
                 var submitButton = document.getElementById('submitButton');
@@ -131,25 +155,24 @@
                 }
                 submitButton.replaceChild(newSpan, oldSpan);
             };
-            $("form").submit(function() {
+            document.getElementById('accountForm').onsubmit = function() {
                 toggleSpinner();
-                var send = $("form").serializeObject();
+                var send = serializeForm('accountForm');
                 send['code'] = code;
                 {% if not username %}
                 send['email'] = send['username'];
                 {% endif %}
                 send = JSON.stringify(send);
-                $.ajax('/newUser', {
-                    data : send,
-                    contentType : 'application/json',
-                    type : 'POST',
-                    crossDomain : true,
-                    complete : function(response){
+                var req = new XMLHttpRequest();
+                req.open("POST", "/newUser", true);
+                req.responseType = 'json';
+                req.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+                req.onreadystatechange = function() {
+                    if (this.readyState == 4) {
                         toggleSpinner();
-                        var data = response['responseJSON'];
+                        var data = this.response;
                         if ('error' in data) {
                             var text = document.createTextNode(data['error']);
-                                    // <div class="alert alert-danger" id="errorBox"></div>
                             var error = document.createElement('button');
                             error.classList.add('btn', 'btn-outline-danger');
                             error.setAttribute('disabled', '');
@@ -177,13 +200,14 @@
                                 };
                             };
                             if (valid == true) {
-                                $('#successBox').modal('show');
+                                successBox.show();
                             };
-                        }
-                    }
-                });
+                        };
+                    };
+                };
+                req.send(send);
                 return false;
-            });
+            };
         </script>
     </body>
 </html>                            

@@ -12,14 +12,18 @@
         <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
         <meta name="msapplication-TileColor" content="#603cba">
         <meta name="theme-color" content="#ffffff">
-
         <!-- Bootstrap CSS -->
-        <link rel="stylesheet" href="{{ css_href }}" integrity="{{ css_integrity }}" crossorigin="{{ css_crossorigin }}">
-        <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+        
+        <link rel="stylesheet" type="text/css" href="{{ css_file }}">
+        {% if not bs5 %}
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+        {% endif %}
         <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-serialize-object/2.5.0/jquery.serialize-object.min.js" integrity="sha256-E8KRdFk/LTaaCBoQIV/rFNc0s3ICQQiOHFT4Cioifa8=" crossorigin="anonymous"></script>
+        {% if bs5 %}
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/js/bootstrap.min.js" integrity="sha384-oesi62hOLfzrys4LxRF63OJCXdXDipiYWBnvTl9Y9/TRlw5xlKIEHpNyvvDShgf/" crossorigin="anonymous"></script>
+        {% else %}
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+        {% endif %}
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
         <style>
             .pageContainer {
@@ -49,17 +53,11 @@
                 margin-top: 5%;
                 color: grey;
             }
-            .fa-clipboard {
-                color: grey;
-            }
-            .fa-clipboard:hover {
-                color: black;
-            }
         </style>
         <title>Admin</title>
     </head>
     <body>
-        <div class="modal fade" id="login" tabindex="-1" role="dialog" aria-labelledby="login" aria-hidden="true" data-backdrop="static">
+        <div class="modal fade" id="login" role="dialog" aria-labelledby="login" aria-hidden="true" data-backdrop="static">
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -82,7 +80,7 @@
                 </div>
             </div>
         </div>
-        <div class="modal fade" id="settingsMenu" tabindex="-1" role="dialog" aria-labelledby="settings menu" aria-hidden="true">
+        <div class="modal fade" id="settingsMenu" role="dialog" aria-labelledby="settings menu" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -111,7 +109,7 @@
                 </div>
             </div>
         </div>
-        <div class="modal fade" id="users" tabindex="-1" role="dialog" aria-labelledby="users" aria-hidden="true">
+        <div class="modal fade" id="users" role="dialog" aria-labelledby="users" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -130,7 +128,7 @@
                 </div>
             </div>
         </div>
-        <div class="modal fade" id="userDefaults" tabindex="-1" role="dialog" aria-labelledby="users" aria-hidden="true">
+        <div class="modal fade" id="userDefaults" role="dialog" aria-labelledby="users" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -153,7 +151,7 @@
                 </div>
             </div>
         </div>
-        <div class="modal fade" id="restartModal" tabindex="-1" role="dialog" aria-labelledby"Restart Warning" aria-hidden="true">
+        <div class="modal fade" id="restartModal" role="dialog" aria-labelledby"Restart Warning" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -176,13 +174,13 @@
             <button type="button" class="btn btn-secondary" id="openSettings">
                 Settings <i class="fa fa-cog"></i>
             </button>
-            <div class="card bg-light mb-3 linkGroup">
+            <div class="card mb-3 linkGroup">
                 <div class="card-header">Current Invites</div>
                 <ul class="list-group list-group-flush" id="invites">
                 </ul>
             </div>
             <div class="linkForm">
-                <div class="card bg-light mb-3">
+                <div class="card mb-3">
                     <div class="card-header">Generate Invite</div>
                     <div class="card-body">
                         <form action="#" method="POST" id="inviteForm">
@@ -200,16 +198,14 @@
                                 <div class="form-group">
                                     <label for="send_to_address">Send invite to address</label>
                                     <div class="input-group">
-                                        <div class="input-group-prepend">
-                                            <div class="input-group-text">
-                                                <input type="checkbox" onchange="document.getElementById('send_to_address').disabled = !this.checked;" aria-label="Checkbox to allow input of email address" id="send_to_address_enabled">
-                                            </div>
+                                        <div class="input-group-text">
+                                            <input class="form-check-input" type="checkbox" onchange="document.getElementById('send_to_address').disabled = !this.checked;" aria-label="Checkbox to allow input of email address" id="send_to_address_enabled">
                                         </div>
                                         <input type="email" class="form-control" placeholder="example@example.com" id="send_to_address" disabled>
                                     </div>
                                 </div>
                                 {% endif %}
-                                <button type="submit" id="generateSubmit" class="btn btn-primary">Generate</button>
+                                <button type="submit" id="generateSubmit" class="btn btn-primary" style="margin-top: 1rem;">Generate</button>
                         </form>
                     </div>
                 </div>
@@ -218,6 +214,7 @@
                 <p>{{ contactMessage }}</p>
             </div>
         </div>
+        <script src="serialize.js"></script>
         <script src="admin.js"></script>
     </body>
 </html>

@@ -1,0 +1,8 @@
+[Unit]
+Description=A basic account management system for Jellyfin.
+
+[Service]
+ExecStart=/home/hrfee/.cache/pypoetry/virtualenvs/jellyfin-accounts-r2jcKHws-py3.8/bin/jf-accounts
+
+[Install]
+WantedBy=default.target

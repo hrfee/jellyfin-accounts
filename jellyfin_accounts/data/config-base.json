@@ -70,6 +70,19 @@
             "name": "General",
             "description": "Settings related to the UI and program functionality."
         },
+        "theme": {
+            "name": "Look",
+            "required": false,
+            "requires_restart": true,
+            "type": "select",
+            "options": [
+                "Bootstrap (Light)",
+                "Jellyfin (Dark)",
+                "Custom CSS"
+            ],
+            "value": "Jellyfin (Dark)",
+            "description": "Choose the look of jellyfin-accounts."
+        },
         "host": {
             "name": "Address",
             "required": true,
@@ -150,6 +163,14 @@
             "type": "text",
             "value": "Your account has been created. Click below to continue to Jellyfin.",
             "description": "Displayed when a user creates an account"
+        },
+        "bs5": {
+            "name": "Use Bootstrap 5",
+            "required": false,
+            "requires_restart": true,
+            "type": "bool",
+            "value": false,
+            "description": "Use Bootstrap 5 (currently in alpha). This also removes the need for jQuery, so the page should load faster."
         }
     },
     "password_validation": {
@@ -208,7 +229,7 @@
         "no_username": {
             "name": "Use email addresses as username",
             "required": false,
-            "requires_restart": false,
+            "requires_restart": true,
             "depends_true": "method",
             "type": "bool",
             "value": false,

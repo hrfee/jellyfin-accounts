@@ -1,7 +1,7 @@
 from pathlib import Path
 from flask import Flask, send_from_directory, render_template
 
-from jellyfin_accounts import app, g, css, data_store
+from jellyfin_accounts import app, g, css_file, data_store
 from jellyfin_accounts import web_log as log
 from jellyfin_accounts.web_api import config, checkInvite, validator
 
@@ -11,9 +11,8 @@ def page_not_found(e):
     return (
         render_template(
             "404.html",
-            css_href=css["href"],
-            css_integrity=css["integrity"],
-            css_crossorigin=css["crossorigin"],
+            bs5=config.getboolean("ui", "bs5"),
+            css_file=css_file,
             contactMessage=config["ui"]["contact_message"],
         ),
         404,
@@ -25,9 +24,8 @@ def admin():
     # return app.send_static_file('admin.html')
     return render_template(
         "admin.html",
-        css_href=css["href"],
-        css_integrity=css["integrity"],
-        css_crossorigin=css["crossorigin"],
+        bs5=config.getboolean("ui", "bs5"),
+        css_file=css_file,
         contactMessage="",
         email_enabled=config.getboolean("invite_emails", "enabled"),
     )
@@ -36,13 +34,18 @@ def admin():
 @app.route("/<path:path>")
 def static_proxy(path):
     if "html" not in path:
+        if "admin.js" in path:
+            if config.getboolean("ui", "bs5"):
+                bsVersion = 5
+            else:
+                bsVersion = 4
+            return render_template("admin.js", bsVersion=bsVersion)
         return app.send_static_file(path)
     return (
         render_template(
             "404.html",
-            css_href=css["href"],
-            css_integrity=css["integrity"],
-            css_crossorigin=css["crossorigin"],
+            bs5=config.getboolean("ui", "bs5"),
+            css_file=css_file,
             contactMessage=config["ui"]["contact_message"],
         ),
         404,
@@ -59,9 +62,8 @@ def inviteProxy(path):
             email = ""
         return render_template(
             "form.html",
-            css_href=css["href"],
-            css_integrity=css["integrity"],
-            css_crossorigin=css["crossorigin"],
+            bs5=config.getboolean("ui", "bs5"),
+            css_file=css_file,
             contactMessage=config["ui"]["contact_message"],
             helpMessage=config["ui"]["help_message"],
             successMessage=config["ui"]["success_message"],
@@ -77,8 +79,7 @@ def inviteProxy(path):
         log.debug("Attempted use of invalid invite")
         return render_template(
             "invalidCode.html",
-            css_href=css["href"],
-            css_integrity=css["integrity"],
-            css_crossorigin=css["crossorigin"],
+            bs5=config.getboolean("ui", "bs5"),
+            css_file=css_file,
             contactMessage=config["ui"]["contact_message"],
         )
