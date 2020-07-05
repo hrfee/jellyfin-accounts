@@ -70,6 +70,19 @@
             "name": "General",
             "description": "Settings related to the UI and program functionality."
         },
+        "theme": {
+            "name": "Look",
+            "required": false,
+            "requires_restart": true,
+            "type": "select",
+            "options": [
+                "Bootstrap (Light)",
+                "Jellyfin (Dark)",
+                "Custom CSS"
+            ],
+            "value": "Jellyfin (Dark)",
+            "description": "Choose the look of jellyfin-accounts."
+        },
         "host": {
             "name": "Address",
             "required": true,

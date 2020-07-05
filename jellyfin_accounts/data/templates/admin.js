@@ -3,7 +3,7 @@ var bsVersion = {{ bsVersion }};
 if (bsVersion == 5) {
     function createModal(id, find = false) {
         if (find) {
-            return bootstrap.Modal.getInstance(document.getElementById(modalId));
+            return bootstrap.Modal.getInstance(document.getElementById(id));
         };
         return new bootstrap.Modal(document.getElementById(id));
     };

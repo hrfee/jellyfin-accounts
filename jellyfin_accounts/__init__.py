@@ -142,10 +142,7 @@ def load_config(config_path, data_dir):
         or config["jellyfin"]["public_server"] == ""
     ):
         config["jellyfin"]["public_server"] = config["jellyfin"]["server"]
-    if (
-        "bs5" not in config["ui"]
-        or config["ui"]["bs5"] == ""
-    ):
+    if "bs5" not in config["ui"] or config["ui"]["bs5"] == "":
         config["ui"]["bs5"] = "false"
     return config
 
@@ -192,11 +189,31 @@ data_store = JSONStorage(
 
 if config.getboolean("ui", "bs5"):
     css_file = "bs5-jf.css"
-    log.debug('Using Bootstrap 5')
+    log.debug("Using Bootstrap 5")
 else:
     css_file = "bs4-jf.css"
 
-if "custom_css" in config["files"]:
+
+with open(config_base_path, "r") as f:
+    themes = json.load(f)["ui"]["theme"]
+
+theme_options = themes["options"]
+
+if "theme" not in config["ui"] or config["ui"]["theme"] not in theme_options:
+    config["ui"]["theme"] = themes["value"]
+
+if config.getboolean("ui", "bs5"):
+    num = 5
+else:
+    num = 4
+
+current_theme = config["ui"]["theme"]
+
+if "Bootstrap" in current_theme:
+    css_file = f"bs{num}.css"
+elif "Jellyfin" in current_theme:
+    css_file = f"bs{num}-jf.css"
+elif "Custom" in current_theme and "custom_css" in config["files"]:
     if config["files"]["custom_css"] != "":
         try:
             css_path = Path(config["files"]["custom_css"])
