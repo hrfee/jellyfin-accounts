@@ -12,6 +12,7 @@ jfa/
 colors.txt
 theme.css
 jellyfin_accounts/__pycache__/
+jellyfin_accounts/data/static/*.css
 old/
 .jf-accounts/
 requirements.txt
