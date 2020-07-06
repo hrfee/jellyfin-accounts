@@ -6,6 +6,12 @@ from jellyfin_accounts import web_log as log
 from jellyfin_accounts.web_api import config, checkInvite, validator
 
 
+if config.getboolean("ui", "bs5"):
+    bsVersion = 5
+else:
+    bsVersion = 4
+
+
 @app.errorhandler(404)
 def page_not_found(e):
     return (
@@ -35,12 +41,10 @@ def admin():
 def static_proxy(path):
     if "html" not in path:
         if "admin.js" in path:
-            if config.getboolean("ui", "bs5"):
-                bsVersion = 5
-            else:
-                bsVersion = 4
             return (
-                render_template("admin.js", bsVersion=bsVersion),
+                render_template("admin.js",
+                                bsVersion=bsVersion,
+                                css_file=css_file),
                 200,
                 {"Content-Type": "text/javascript"},
             )

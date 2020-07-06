@@ -14,7 +14,39 @@
         <meta name="theme-color" content="#ffffff">
         <!-- Bootstrap CSS -->
         
-        <link rel="stylesheet" type="text/css" href="{{ css_file }}">
+        <script>
+            function getCookie(cname) {
+                var name = cname + "=";
+                var decodedCookie = decodeURIComponent(document.cookie);
+                var ca = decodedCookie.split(';');
+                for(var i = 0; i < ca.length; i++) {
+                    var c = ca[i];
+                    while (c.charAt(0) == ' ') {
+                        c = c.substring(1);
+                    }
+                    if (c.indexOf(name) == 0) {
+                        return c.substring(name.length, c.length);
+                    } 
+                }
+                return "";
+            };
+            {% if bs5 %}
+            var bsVersion = 5;
+            {% else %}
+            var bsVersion = 4;
+            {% endif %}
+            var css = document.createElement('link');
+            css.setAttribute('rel', 'stylesheet');
+            css.setAttribute('type', 'text/css');
+            var cssCookie = getCookie("css");
+            if (cssCookie.includes('bs' + bsVersion)) {
+                css.setAttribute('href', cssCookie);
+            } else {
+                css.setAttribute('href', '{{ css_file }}');
+            };
+            document.head.appendChild(css);
+                // document.querySelectorAll('link[rel="stylesheet"][type="text/css"]')[0].href = cssCookie;
+        </script>
         {% if not bs5 %}
         <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
         {% endif %}
@@ -53,10 +85,27 @@
                 margin-top: 5%;
                 color: grey;
             }
+            .circle {
+                /*margin-left: 1rem;
+                width: 1rem;
+                height: 1rem;
+                border-radius: 50%;
+                z-index: 5000;*/
+                -webkit-transition: all 300ms cubic-bezier(0.550, 0.055, 0.675, 0.190);
+           -moz-transition: all 300ms cubic-bezier(0.550, 0.055, 0.675, 0.190);
+             -o-transition: all 300ms cubic-bezier(0.550, 0.055, 0.675, 0.190);
+                transition: all 300ms cubic-bezier(0.550, 0.055, 0.675, 0.190); /* easeInCubic */
+            }
+            .smooth-transition {
+                -webkit-transition: all 300ms cubic-bezier(0.550, 0.055, 0.675, 0.190);
+           -moz-transition: all 300ms cubic-bezier(0.550, 0.055, 0.675, 0.190);
+             -o-transition: all 300ms cubic-bezier(0.550, 0.055, 0.675, 0.190);
+                transition: all 300ms cubic-bezier(0.550, 0.055, 0.675, 0.190); /* easeInCubic */
+            }
         </style>
         <title>Admin</title>
     </head>
-    <body>
+    <body class="smooth-transition">
         <div class="modal fade" id="login" role="dialog" aria-labelledby="login" aria-hidden="true" data-backdrop="static">
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
@@ -171,9 +220,11 @@
             <h1>
                 Accounts admin
             </h1>
-            <button type="button" class="btn btn-secondary" id="openSettings">
-                Settings <i class="fa fa-cog"></i>
-            </button>
+            <div class="btn-group" role="group" id="headerButtons">
+                <button type="button" class="btn btn-primary" id="openSettings">
+                    Settings <i class="fa fa-cog"></i>
+                </button>
+            </div>
             <div class="card mb-3 linkGroup">
                 <div class="card-header">Current Invites</div>
                 <ul class="list-group list-group-flush" id="invites">

@@ -1,5 +1,96 @@
-var bsVersion = {{ bsVersion }};
+function getCookie(cname) {
+    var name = cname + "=";
+    var decodedCookie = decodeURIComponent(document.cookie);
+    var ca = decodedCookie.split(';');
+    for(var i = 0; i <ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        } 
+    }
+    return "";
+}
+function whichTransitionEvent(){
+    var t;
+    var el = document.createElement('fakeelement');
+    var transitions = {
+      'transition':'transitionend',
+      'OTransition':'oTransitionEnd',
+      'MozTransition':'transitionend',
+      'WebkitTransition':'webkitTransitionEnd'
+    };
 
+    for(t in transitions){
+        if( el.style[t] !== undefined ){
+            return transitions[t];
+        };
+    };
+};
+function toggleCSS() {
+    var cssEl = document.querySelectorAll('link[rel="stylesheet"][type="text/css"]')[0];
+    if (cssEl.href.includes("bs" + bsVersion + "-jf")) {
+        var href = "bs" + bsVersion + ".css";
+    } else {
+        var href = "bs" + bsVersion + "-jf.css";
+    };
+    cssEl.href = href;
+    document.cookie = "css=" + href;
+};
+var buttonWidth = 0;
+var inTransition = false;
+function toggleCSSAnim(el) {
+    var switchToColor = window.getComputedStyle(document.body, null).backgroundColor;
+    if (window.innerWidth < 1500) { 
+        var radius = Math.sqrt(Math.pow(window.innerWidth, 2) + Math.pow(window.innerHeight, 2));
+        var currentRadius = el.getBoundingClientRect().width / 2;
+        var scale = radius / currentRadius;
+        buttonWidth = window.getComputedStyle(el, null).width;
+        document.body.classList.remove('smooth-transition');
+        el.style.transform = 'scale(' + scale + ')';
+        el.style.color = switchToColor;
+        var transitionEnd = whichTransitionEvent();
+        el.addEventListener(transitionEnd, function() {
+            if (this.style.transform.length != 0) {
+                toggleCSS();
+                this.style.removeProperty('transform');
+                document.body.classList.add('smooth-transition');
+            };
+        }, false);
+    } else {
+        toggleCSS();
+        el.style.color = switchToColor;
+    };
+};
+var cssFile = "{{ css_file }}";
+var buttonColor = 'custom';
+if (cssFile.includes('jf')) {
+    buttonColor = 'rgb(255,255,255)';
+} else if (cssFile.length == 7) {
+    buttonColor = 'rgb(16,16,16)';
+}
+if (buttonColor != 'custom') {
+    var fakeButton = document.createElement('i');
+    fakeButton.classList.add('fa', 'fa-circle', 'circle');
+    // fakeButton.style.color = buttonColor;
+    // fakeButton.style.marginLeft = '2rem;'
+    fakeButton.style = 'color: ' + buttonColor + '; margin-left: 0.4rem;';
+    fakeButton.id = 'fakeButton';
+    var switchButton = document.createElement('button');
+    switchButton.classList.add('btn', 'btn-secondary');
+    switchButton.textContent = 'Theme';
+    switchButton.onclick = function() {
+        var fb = document.getElementById('fakeButton')
+        toggleCSSAnim(fb); 
+    };
+    var group = document.getElementById('headerButtons');
+    switchButton.appendChild(fakeButton);
+    group.appendChild(switchButton);
+};
+
+var bsVersion = {{ bsVersion }};
 if (bsVersion == 5) {
     function createModal(id, find = false) {
         if (find) {
@@ -22,13 +113,6 @@ if (bsVersion == 5) {
             });
         });
     };
-
-
-//     var loginModal = new bootstrap.Modal(document.getElementById('login'));
-//     var settingsModal = new bootstrap.Modal(document.getElementById('settingsMenu'));
-//     var userDefaultsModal = new bootstrap.Modal(document.getElementById('userDefaults'));
-//     var usersModal = new bootstrap.Modal(document.getElementById('users'));
-//     var restartModal = new bootstrap.Modal(document.getElementById('restartModal'));
 } else if (bsVersion == 4) {
     document.getElementById('send_to_address_enabled').classList.remove('form-check-input');
     function createModal(id, find = false) {

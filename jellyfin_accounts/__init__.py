@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-__version__ = "0.3.2"
+__version__ = "0.3.3"
 
 import secrets
 import configparser
@@ -218,7 +218,7 @@ elif "Custom" in current_theme and "custom_css" in config["files"]:
         try:
             css_path = Path(config["files"]["custom_css"])
             shutil.copy(css_path, (local_dir / "static" / css_path.name))
-            log.debug('Loaded custom CSS "{css_path.name}"')
+            log.debug(f'Loaded custom CSS "{css_path.name}"')
             css_file = css_path.name
         except FileNotFoundError:
             log.error(

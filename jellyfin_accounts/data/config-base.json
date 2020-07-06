@@ -71,7 +71,7 @@
             "description": "Settings related to the UI and program functionality."
         },
         "theme": {
-            "name": "Look",
+            "name": "Default Look",
             "required": false,
             "requires_restart": true,
             "type": "select",
@@ -81,7 +81,7 @@
                 "Custom CSS"
             ],
             "value": "Jellyfin (Dark)",
-            "description": "Choose the look of jellyfin-accounts."
+            "description": "Default appearance for all users."
         },
         "host": {
             "name": "Address",
