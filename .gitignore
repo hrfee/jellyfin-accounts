@@ -16,7 +16,6 @@ jellyfin_accounts/data/static/*.css
 old/
 .jf-accounts/
 requirements.txt
-package-lock.json
 video/
 scss/bs5/*.css*
 scss/bs4/*.css*
