@@ -200,7 +200,9 @@ def newUser():
 def generateInvite():
     current_time = datetime.datetime.now()
     data = request.get_json()
-    delta = datetime.timedelta(hours=int(data["hours"]), minutes=int(data["minutes"]))
+    delta = datetime.timedelta(
+        days=int(data["days"]), hours=int(data["hours"]), minutes=int(data["minutes"])
+    )
     invite_code = secrets.token_urlsafe(16)
     invite = {}
     log.debug(f"Creating new invite: {invite_code}")
@@ -245,6 +247,7 @@ def getInvites():
         valid_for = expiry - current_time
         invite = {
             "code": code,
+            "days": valid_for.days,
             "hours": valid_for.seconds // 3600,
             "minutes": (valid_for.seconds // 60) % 60,
         }

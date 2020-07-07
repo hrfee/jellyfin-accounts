@@ -120,6 +120,10 @@ $list-group-action-active-bg: $jf-blue-focus;
     color: $jf-text-bold;
 }
 
+.icon-button:active {
+    color: $text-muted;
+}
+
 .text-bright {
     color: $jf-text-bold;
 }

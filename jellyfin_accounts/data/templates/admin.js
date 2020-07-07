@@ -150,15 +150,19 @@ function parseInvite(invite, empty = false) {
     } else {
         var i = ["", "", "0", invite['email']];
         i[0] = invite['code'];
-        if (invite['hours'] == 0) {
-            i[1] = invite['minutes'] + 'm';
-        } else if (invite['minutes'] == 0) {
-            i[1] = invite['hours'] + 'h';
-        } else {
-            i[1] = invite['hours'] + 'h ' + invite['minutes'] + 'm';
+        var time = ""
+        if (invite['days'] != 0) {
+            time += invite['days'] + 'd ';
         }
-        i[1] = "Expires in " + i[1] + "  ";
+        if (invite['hours'] != 0) {
+            time += invite['hours'] + 'h ';
+        }
+        if (invite['minutes'] != 0) {
+            time += invite['minutes'] + 'm ';
+        }
+        i[1] = "Expires in " + time.slice(0, -1);
         return i
+
     }
 }
 function addItem(invite) {
@@ -176,6 +180,7 @@ function addItem(invite) {
     var listRight = document.createElement('div');
     listText = document.createElement('span');
     listText.id = invite[0] + '_expiry'
+    listText.setAttribute('style', 'margin-right: 1rem;');
     listText.appendChild(document.createTextNode(invite[1]));
     listRight.appendChild(listText);
     if (invite[2] == 0) {
@@ -359,6 +364,9 @@ document.getElementById('loginForm').onsubmit = function() {
                 window.token = data['token'];
                 generateInvites();
                 var interval = setInterval(function() { generateInvites(); }, 60 * 1000);
+                var day = document.getElementById('days');
+                addOptions(30, day);
+                day.selected = "0";
                 var hour = document.getElementById('hours');
                 addOptions(24, hour);
                 hour.selected = "0";

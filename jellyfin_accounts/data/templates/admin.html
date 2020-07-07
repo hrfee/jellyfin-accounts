@@ -35,17 +35,20 @@
             {% else %}
             var bsVersion = 4;
             {% endif %}
+            console.log('create');
             var css = document.createElement('link');
             css.setAttribute('rel', 'stylesheet');
             css.setAttribute('type', 'text/css');
             var cssCookie = getCookie("css");
             if (cssCookie.includes('bs' + bsVersion)) {
+                console.log('href');
                 css.setAttribute('href', cssCookie);
             } else {
+                console.log('href');
                 css.setAttribute('href', '{{ css_file }}');
             };
+            console.log('append');
             document.head.appendChild(css);
-                // document.querySelectorAll('link[rel="stylesheet"][type="text/css"]')[0].href = cssCookie;
         </script>
         {% if not bs5 %}
         <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
@@ -235,6 +238,11 @@
                     <div class="card-header">Generate Invite</div>
                     <div class="card-body">
                         <form action="#" method="POST" id="inviteForm">
+                                <div class="form-group">
+                                    <label for="days">Days</label>
+                                    <select class="form-control" id="days" name="days">
+                                    </select>
+                                </div>
                                 <div class="form-group">
                                     <label for="hours">Hours</label>
                                     <select class="form-control" id="hours" name="hours">
