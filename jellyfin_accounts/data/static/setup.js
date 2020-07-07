@@ -13,6 +13,7 @@ for (var i = 0; i < authRadios.length; i++) {
         checkAuthRadio();
     });
 };
+
 function checkEmailRadio() {
     document.getElementById('emailNextButton').href = '#page-5';
     document.getElementById('valBackButton').href = '#page-7';
@@ -35,6 +36,7 @@ for (var i = 0; i < emailRadios.length; i++) {
         checkEmailRadio();
     });
 };
+
 function checkSSL() {
     var label = document.getElementById('emailSSL_TLSLabel');
     if (document.getElementById('emailSSL_TLS').checked) {
@@ -101,16 +103,15 @@ document.getElementById('jfTestButton').onclick = function() {
     jfData['jfHost'] = document.getElementById('jfHost').value;
     jfData['jfUser'] = document.getElementById('jfUser').value;
     jfData['jfPassword'] = document.getElementById('jfPassword').value;
-    $.ajax('/testJF', {
-        type : 'POST',
-        dataType : 'json',
-        contentType : 'application/json',
-        data : JSON.stringify(jfData),
-        complete: function(response) {
+    var req = new XMLHttpRequest();
+    req.open("POST", "/testJF", true);
+    req.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+    req.responseType = 'json';
+    req.onreadystatechange = function() {
+        if (this.readyState == 4) {
             testButton.disabled = false;
             testButton.className = '';
-            var success = response['responseJSON']['success'];
-            if (success == true) {
+            if (this.response['success'] == true) {
                 testButton.classList.add('btn', 'btn-success');
                 testButton.textContent = 'Success';
                 nextButton.classList.remove('disabled');
@@ -118,9 +119,10 @@ document.getElementById('jfTestButton').onclick = function() {
             } else {
                 testButton.classList.add('btn', 'btn-danger');
                 testButton.textContent = 'Failed';
-            }
-        }
-    });
+            };
+        };
+    };   
+    req.send(JSON.stringify(jfData));
 };
 
 document.getElementById('submitButton').onclick = function() {
@@ -158,7 +160,7 @@ document.getElementById('submitButton').onclick = function() {
     if (document.getElementById('emailDisabledRadio').checked) {
         config['password_resets']['enabled'] = 'false';
         config['invite_emails']['enabled'] = 'false';
-    } else  {
+    } else {
         if (document.getElementById('emailSMTPRadio').checked) {
             if (document.getElementById('emailSSL_TLS').checked) {
                 config['smtp']['encryption'] = 'ssl_tls';
@@ -211,24 +213,24 @@ document.getElementById('submitButton').onclick = function() {
         config['password_validation']['number'] = document.getElementById('valNumber').value;
         config['password_validation']['special'] = document.getElementById('valSpecial').value;
     } else {
-        config['password_validation']['enabled'] = 'false'; 
+        config['password_validation']['enabled'] = 'false';
     };
     // Page 9: Messages
     config['ui']['contact_message'] = document.getElementById('msgContact').value;
     config['ui']['help_message'] = document.getElementById('msgHelp').value;
     config['ui']['success_message'] = document.getElementById('msgSuccess').value;
-    console.log(config);
-    $.ajax('/modifyConfig', {
-        type : 'POST',
-        dataType : 'json',
-        contentType : 'application/json',
-        data : JSON.stringify(config),
-        complete: function(response) {
+    // Send it
+    var req = new XMLHttpRequest();
+    req.open("POST", "/modifyConfig", true);
+    req.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+    req.responseType = 'json';
+    req.onreadystatechange = function() {
+        if (this.readyState == 4) {
             submitButton.disabled = false;
             submitButton.className = '';
             submitButton.classList.add('btn', 'btn-success');
             submitButton.textContent = 'Success';
-        }
-    });
+        };
+    };
+    req.send(JSON.stringify(config));
 };
-
