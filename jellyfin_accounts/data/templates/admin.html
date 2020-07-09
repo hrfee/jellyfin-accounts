@@ -31,9 +31,9 @@
                 return "";
             };
             {% if bs5 %}
-            var bsVersion = 5;
+            const bsVersion = 5;
             {% else %}
-            var bsVersion = 4;
+            const bsVersion = 4;
             {% endif %}
             console.log('create');
             var css = document.createElement('link');
@@ -237,34 +237,65 @@
                 <div class="card mb-3">
                     <div class="card-header">Generate Invite</div>
                     <div class="card-body">
-                        <form action="#" method="POST" id="inviteForm">
-                                <div class="form-group">
-                                    <label for="days">Days</label>
-                                    <select class="form-control" id="days" name="days">
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="hours">Hours</label>
-                                    <select class="form-control" id="hours" name="hours">
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="minutes">Minutes</label>
-                                    <select class="form-control" id="minutes" name="minutes">
-                                    </select>
-                                </div>
-                                {% if email_enabled %}
-                                <div class="form-group">
-                                    <label for="send_to_address">Send invite to address</label>
-                                    <div class="input-group">
-                                        <div class="input-group-text">
-                                            <input class="form-check-input" type="checkbox" onchange="document.getElementById('send_to_address').disabled = !this.checked;" aria-label="Checkbox to allow input of email address" id="send_to_address_enabled">
-                                        </div>
-                                        <input type="email" class="form-control" placeholder="example@example.com" id="send_to_address" disabled>
+                        <form action="#" method="POST" id="inviteForm" class="container">
+                            <div class="row align-items-start">
+                                <div class="col">
+                                    <div class="form-group">
+                                        <label for="days">Days</label>
+                                        <select class="form-control form-select" id="days" name="days">
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="hours">Hours</label>
+                                        <select class="form-control form-select" id="hours" name="hours">
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="minutes">Minutes</label>
+                                        <select class="form-control form-select" id="minutes" name="minutes">
+                                        </select>
                                     </div>
                                 </div>
-                                {% endif %}
-                                <button type="submit" id="generateSubmit" class="btn btn-primary" style="margin-top: 1rem;">Generate</button>
+                                <div class="col">
+                                    <div class="form-group">
+                                        <label for="multiUseCount">
+                                            Multiple uses
+                                        </label>
+                                        <div class="input-group">
+                                            <div class="input-group-text">
+                                                <input class="form-check-input" type="checkbox" onchange="document.getElementById('multiUseCount').disabled = !this.checked; document.getElementById('noUseLimit').disabled = !this.checked; document.getElementById('noUseLimit').checked = false;" aria-label="Checkbox to allow choice of invite usage limit" name="multiple-uses" id="multiUseEnabled">
+                                            </div>
+                                            <input type="number" class="form-control" name="remaining-uses" id="multiUseCount">
+                                        </div>
+                                    </div>
+                                    <div class="form-group form-check" style="margin-top: 1rem; margin-bottom: 1rem;">
+                                        <input class="form-check-input" type="checkbox" value="" name="no-limit" id="noUseLimit" onchange="document.getElementById('multiUseCount').disabled = this.checked;">
+                                        <label class="form-check-label" for="noUseLimit">
+                                            No limit
+                                        </label>
+                                    </div>
+                                    {% if email_enabled %}
+                                    <div class="form-group">
+                                        <label for="send_to_address">Send invite to address</label>
+                                        <div class="input-group">
+                                            <div class="input-group-text">
+                                                <input class="form-check-input" type="checkbox" onchange="document.getElementById('send_to_address').disabled = !this.checked;" aria-label="Checkbox to allow input of email address" id="send_to_address_enabled">
+                                            </div>
+                                            <input type="email" class="form-control" placeholder="example@example.com" id="send_to_address" disabled>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col">
+                                    <div class="form-group d-flex float-right">
+                                        <button type="submit" id="generateSubmit" class="btn btn-primary" style="margin-top: 1rem;">
+                                            Generate
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </form>
                     </div>
                 </div>

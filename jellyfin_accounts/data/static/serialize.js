@@ -16,6 +16,7 @@ function serializeForm(id) {
                 case 'password':
                 case 'select-one':
                 case 'email':
+                case 'number':
                     formData[name] = el.value;
                     break;
             };
