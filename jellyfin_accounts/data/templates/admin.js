@@ -114,7 +114,10 @@ if (bsVersion == 5) {
         });
     };
 } else if (bsVersion == 4) {
-    document.getElementById('send_to_address_enabled').classList.remove('form-check-input');
+    let send_to_address = document.getElementById('send_to_address_enabled');
+    if (send_to_address) {
+        send_to_address.classList.remove('form-check-input');
+    }
     function createModal(id, find = false) {
         return {
             show : function() {
