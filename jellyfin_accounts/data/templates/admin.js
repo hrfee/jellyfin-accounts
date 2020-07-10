@@ -158,7 +158,7 @@ var userDefaultsModal = createModal('userDefaults');
 var usersModal = createModal('users');
 var restartModal = createModal('restartModal');
 
-// Parsed invite: [<code>, <expires in _>, <1: Empty invite (no delete/link), 0: Actual invite>, <email address>]
+// Parsed invite: [<code>, <expires in _>, <1: Empty invite (no delete/link), 0: Actual invite>, <email address>, <remaining uses>, [<used-by>], <date created>]
 function parseInvite(invite, empty = false) {
     if (empty) {
         return ["None", "", 1];
@@ -170,14 +170,30 @@ function parseInvite(invite, empty = false) {
             time += `${invite[m]}${m[0]} `;
         }
     }
-    i[1] = `Expires in ${time.slice(0, -1)}`
+    i[1] = `Expires in ${time.slice(0, -1)}`;
+    if ('remaining-uses' in invite) {
+        i[4] = invite['remaining-uses'];
+    } 
+    if (invite['no-limit']) {
+        i[4] = '∞';
+    }
+    if ('used-by' in invite) {
+        i[5] = invite['used-by'];
+    } else {
+        i[5] = [];
+    }
+    if ('created' in invite) {
+        i[6] = invite['created'];
+    }
     return i;
 }
 
 function addItem(parsedInvite) {
     let links = document.getElementById('invites');
-    let listItem = document.createElement('li');
-    listItem.id = parsedInvite[0];
+    let itemContainer = document.createElement('div');
+    itemContainer.id = parsedInvite[0];
+    let listItem = document.createElement('div');
+    // listItem.id = parsedInvite[0];
     listItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'd-inline-block');
 
     let code = document.createElement('div');
@@ -199,7 +215,6 @@ function addItem(parsedInvite) {
     listRight.appendChild(listText);
 
     if (parsedInvite[2] == 0) {
-        // Check this works!
         let inviteCode = window.location.href.split('#')[0] + 'invite/' + parsedInvite[0];
         //
         codeLink.href = inviteCode;
@@ -227,15 +242,122 @@ function addItem(parsedInvite) {
         deleteButton.textContent = "Delete";
         
         listRight.appendChild(deleteButton);
+        let dropButton = document.createElement('i');
+        dropButton.classList.add('fa', 'fa-angle-down', 'collapsed', 'icon-button', 'not-rotated');
+        dropButton.setAttribute('data-toggle', 'collapse');
+        dropButton.setAttribute('aria-expanded', 'false');
+        dropButton.setAttribute('data-target', '#' + CSS.escape(parsedInvite[0]) + '_collapse');
+        dropButton.onclick = function() {
+            if (this.classList.contains('rotated')) {
+                this.classList.remove('rotated');
+                this.classList.add('not-rotated');
+            } else {
+                this.classList.remove('not-rotated');
+                this.classList.add('rotated');
+            }
+        };
+        dropButton.setAttribute('style', 'margin-left: 1rem;');
+        listRight.appendChild(dropButton);
     }
     
     listItem.appendChild(listRight);
-    links.appendChild(listItem);
+    itemContainer.appendChild(listItem);
+    if (parsedInvite[2] == 0) {
+        let itemDropdown = document.createElement('div');
+        itemDropdown.id = parsedInvite[0] + '_collapse';
+        itemDropdown.classList.add('collapse');
+
+        let dropdownContent = document.createElement('div');
+        dropdownContent.classList.add('container', 'row', 'align-items-start', 'card-body');
+        
+        let dropdownLeft = document.createElement('div');
+        dropdownLeft.classList.add('col');
+        
+        let leftList = document.createElement('ul');
+        leftList.classList.add('list-group', 'list-group-flush');
+        
+        if (typeof(parsedInvite[6]) != 'undefined') {
+            let createdDate = document.createElement('li');
+            createdDate.classList.add('list-group-item', 'py-1');
+            createdDate.textContent = `Created: ${parsedInvite[6]}`;
+            leftList.appendChild(createdDate);
+        }
+
+        let remainingUses = document.createElement('li');
+        remainingUses.classList.add('list-group-item', 'py-1');
+        remainingUses.id = parsedInvite[0] + '_remainingUses';
+        remainingUses.textContent = `Remaining uses: ${parsedInvite[4]}`;
+        leftList.appendChild(remainingUses);
+
+        dropdownLeft.appendChild(leftList);
+        dropdownContent.appendChild(dropdownLeft);
+        
+        let dropdownRight = document.createElement('div');
+        dropdownRight.id = parsedInvite[0] + '_usersCreated';
+        dropdownRight.classList.add('col');
+        if (parsedInvite[5].length != 0) {
+            let userList = document.createElement('ul');
+            userList.classList.add('list-group', 'list-group-flush');
+            userList.innerHTML = '<li class="list-group-item py-1">Users created:</li>';
+            for (let user of parsedInvite[5]) {
+                let li = document.createElement('li');
+                li.classList.add('list-group-item', 'py-1', 'disabled');
+                let username = document.createElement('div');
+                username.classList.add('d-flex', 'float-left');
+                username.textContent = user[0];
+                li.appendChild(username);
+                let date = document.createElement('div');
+                date.classList.add('d-flex', 'float-right');
+                date.textContent = user[1];
+                li.appendChild(date);
+                userList.appendChild(li);
+            }
+            dropdownRight.appendChild(userList);
+        }
+        dropdownContent.appendChild(dropdownRight);
+
+        itemDropdown.appendChild(dropdownContent);
+
+        itemContainer.appendChild(itemDropdown);
+    }
+    links.appendChild(itemContainer);
 }
 
 function updateInvite(parsedInvite) {
     let expiry = document.getElementById(parsedInvite[0] + '_expiry');
     expiry.textContent = parsedInvite[1];
+
+    let remainingUses = document.getElementById(parsedInvite[0] + '_remainingUses');
+    if (remainingUses) {
+        remainingUses.textContent = `Remaining uses: ${parsedInvite[4]}`;
+    }
+
+    if (parsedInvite[5].length != 0) {
+        let usersCreated = document.getElementById(parsedInvite[0] + '_usersCreated'); 
+        let dropdownRight = document.createElement('div');
+        dropdownRight.id = parsedInvite[0] + '_usersCreated';
+        dropdownRight.classList.add('col');
+        let userList = document.createElement('ul');
+        userList.classList.add('list-group', 'list-group-flush');
+        userList.innerHTML = '<li class="list-group-item py-1">Users created:</li>';
+        for (let user of parsedInvite[5]) {
+            let li = document.createElement('li');
+            li.classList.add('list-group-item', 'py-1', 'disabled');
+            let username = document.createElement('div');
+            username.classList.add('d-flex', 'float-left');
+            username.textContent = user[0];
+            li.appendChild(username);
+            let date = document.createElement('div');
+            date.classList.add('d-flex', 'float-right');
+            date.textContent = user[1];
+            li.appendChild(date);
+            userList.appendChild(li);
+        }
+        dropdownRight.appendChild(userList);
+        usersCreated.replaceWith(dropdownRight);
+    }
+    
+
 }
 
 // delete from list on page

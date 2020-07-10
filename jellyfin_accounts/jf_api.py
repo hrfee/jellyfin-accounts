@@ -190,7 +190,7 @@ class Jellyfin:
         )
 
     def newUser(self, username: str, password: str):
-        for user in self.getUsers():
+        for user in self.getUsers(public=False):
             if user["Name"] == username:
                 raise self.UserExistsError
         response = requests.post(

@@ -20,21 +20,49 @@ from jellyfin_accounts import web_log as log
 from jellyfin_accounts.validate_password import PasswordValidator
 
 
-def checkInvite(code, delete=False):
+def format_datetime(dt):
+    result = dt.strftime(config["email"]["date_format"])
+    if config.getboolean("email", "use_24h"):
+        result += f' {dt.strftime("%H:%M")}'
+    else:
+        result += f' {dt.strftime("%I:%M %p")}'
+    return result
+
+
+def checkInvite(code, used=False, username=None):
     current_time = datetime.datetime.now()
     invites = dict(data_store.invites)
     match = False
     for invite in invites:
+        if (
+            "remaining-uses" not in invites[invite]
+            and "no-limit" not in invites[invite]
+        ):
+            invites[invite]["remaining-uses"] = 1
         expiry = datetime.datetime.strptime(
             invites[invite]["valid_till"], "%Y-%m-%dT%H:%M:%S.%f"
         )
-        if current_time >= expiry:
-            log.debug(f"Housekeeping: Deleting old invite {invite}")
+        if current_time >= expiry or (
+            "no-limit" not in invites[invite] and invites[invite]["remaining-uses"] < 1
+        ):
+            log.debug(f"Housekeeping: Deleting expired invite {invite}")
             del data_store.invites[invite]
         elif invite == code:
             match = True
-            if delete:
-                del data_store.invites[code]
+            if used:
+                delete = False
+                inv = dict(data_store.invites[code])
+                if "used-by" not in inv:
+                    inv["used-by"] = []
+                if "remaining-uses" in inv:
+                    if inv["remaining-uses"] == 1:
+                        delete = True
+                        del data_store.invites[code]
+                    elif "no-limit" not in invites[invite]:
+                        inv["remaining-uses"] -= 1
+                inv["used-by"].append([username, format_datetime(current_time)])
+                if not delete:
+                    data_store.invites[code] = inv
     return match
 
 
@@ -157,7 +185,7 @@ def newUser():
                 return jsonify({"error": error})
             except:
                 return jsonify({"error": "Unknown error"})
-            checkInvite(data["code"], delete=True)
+            checkInvite(data["code"], used=True, username=data["username"])
             if user.status_code == 200:
                 try:
                     policy = data_store.user_template
@@ -205,6 +233,14 @@ def generateInvite():
     )
     invite_code = secrets.token_urlsafe(16)
     invite = {}
+    invite["created"] = format_datetime(current_time)
+    if data["multiple-uses"]:
+        if data["no-limit"]:
+            invite["no-limit"] = True
+        else:
+            invite["remaining-uses"] = int(data["remaining-uses"])
+    else:
+        invite["remaining-uses"] = 1
     log.debug(f"Creating new invite: {invite_code}")
     valid_till = current_time + delta
     invite["valid_till"] = valid_till.strftime("%Y-%m-%dT%H:%M:%S.%f")
@@ -251,6 +287,16 @@ def getInvites():
             "hours": valid_for.seconds // 3600,
             "minutes": (valid_for.seconds // 60) % 60,
         }
+        if "created" in invites[code]:
+            invite["created"] = invites[code]["created"]
+        if "used-by" in invites[code]:
+            invite["used-by"] = invites[code]["used-by"]
+        if "no-limit" in invites[code]:
+            invite["no-limit"] = invites[code]["no-limit"]
+        if "remaining-uses" in invites[code]:
+            invite["remaining-uses"] = invites[code]["remaining-uses"]
+        else:
+            invite["remaining-uses"] = 1
         if "email" in invites[code]:
             invite["email"] = invites[code]["email"]
         response["invites"].append(invite)

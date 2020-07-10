@@ -156,6 +156,9 @@
                 submitButton.replaceChild(newSpan, oldSpan);
             };
             document.getElementById('accountForm').onsubmit = function() {
+                if (document.getElementById('errorMessage')) {
+                    document.getElementById('errorMessage').remove();
+                }
                 toggleSpinner();
                 var send = serializeForm('accountForm');
                 send['code'] = code;
@@ -171,12 +174,18 @@
                     if (this.readyState == 4) {
                         toggleSpinner();
                         var data = this.response;
-                        if ('error' in data) {
-                            var text = document.createTextNode(data['error']);
+                        if ('error' in data || data['success'] == false) {
+                            if (typeof(data['error']) != 'undefined') {
+                                var errorMessage = data['error'];
+                            } else {
+                                var errorMessage = 'Unknown Error';
+                            }
+                            var text = document.createTextNode(errorMessage);
                             var error = document.createElement('button');
                             error.classList.add('btn', 'btn-outline-danger');
                             error.setAttribute('disabled', '');
                             error.appendChild(text);
+                            error.id = 'errorMessage';
                             document.getElementById('errorBox').appendChild(error);
                         } else {
                             var valid = true
