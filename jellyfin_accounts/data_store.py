@@ -1,3 +1,4 @@
+# Automatic storage of everything except the config
 import json
 import datetime
 

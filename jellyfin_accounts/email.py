@@ -1,3 +1,4 @@
+# Handles everything related to emails
 import datetime
 import pytz
 import requests
@@ -43,9 +44,7 @@ class Email:
         if expires_in["hours"] == 0:
             expires_in = f'{str(expires_in["minutes"])}m'
         else:
-            expires_in = (
-                f'{str(expires_in["hours"])}h ' + f'{str(expires_in["minutes"])}m'
-            )
+            expires_in = f'{str(expires_in["hours"])}h {str(expires_in["minutes"])}m'
         log.debug(f"{self.address}: Expires in {expires_in}")
         return {"date": date, "time": time, "expires_in": expires_in}
 

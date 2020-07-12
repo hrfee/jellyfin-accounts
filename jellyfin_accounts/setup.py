@@ -1,3 +1,4 @@
+# Views and endpoints for the initial setup
 from flask import request, jsonify, render_template
 from configparser import RawConfigParser
 from jellyfin_accounts.jf_api import Jellyfin

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+# Jellyfin API client
 import requests
 import time
 

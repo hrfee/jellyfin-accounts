@@ -35,19 +35,15 @@
             {% else %}
             const bsVersion = 4;
             {% endif %}
-            console.log('create');
             var css = document.createElement('link');
             css.setAttribute('rel', 'stylesheet');
             css.setAttribute('type', 'text/css');
             var cssCookie = getCookie("css");
             if (cssCookie.includes('bs' + bsVersion)) {
-                console.log('href');
                 css.setAttribute('href', cssCookie);
             } else {
-                console.log('href');
                 css.setAttribute('href', '{{ css_file }}');
             };
-            console.log('append');
             document.head.appendChild(css);
         </script>
         {% if not bs5 %}

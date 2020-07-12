@@ -1,3 +1,4 @@
+# A bit of a mess, but mostly does API endpoints and a couple compatability fixes
 from flask import request, jsonify
 from jellyfin_accounts.jf_api import Jellyfin
 import json
@@ -7,8 +8,6 @@ import time
 from jellyfin_accounts import (
     config,
     config_path,
-    load_config,
-    data_dir,
     app,
     g,
     data_store,
@@ -136,11 +135,11 @@ if (
     version.parse(jf.info["Version"]) >= version.parse("10.6.0")
     and bool(data_store.user_template) is not False
 ):
-    log.info("Updating user_template for Jellyfin >= 10.6.0")
     if (
         data_store.user_template["AuthenticationProviderId"]
         == "Emby.Server.Implementations.Library.DefaultAuthenticationProvider"
     ):
+        log.info("Updating user_template for Jellyfin >= 10.6.0")
         data_store.user_template[
             "AuthenticationProviderId"
         ] = "Jellyfin.Server.Implementations.Users.DefaultAuthenticationProvider"
@@ -153,16 +152,16 @@ if (
         ] = "Jellyfin.Server.Implementations.Users.DefaultPasswordResetProvider"
 
 
-if config.getboolean("password_validation", "enabled"):
-    validator = PasswordValidator(
-        config["password_validation"]["min_length"],
-        config["password_validation"]["upper"],
-        config["password_validation"]["lower"],
-        config["password_validation"]["number"],
-        config["password_validation"]["special"],
-    )
-else:
-    validator = PasswordValidator(0, 0, 0, 0, 0)
+def validator():
+    if config.getboolean("password_validation", "enabled"):
+        return PasswordValidator(
+            config["password_validation"]["min_length"],
+            config["password_validation"]["upper"],
+            config["password_validation"]["lower"],
+            config["password_validation"]["number"],
+            config["password_validation"]["special"],
+        )
+    return PasswordValidator(0, 0, 0, 0, 0)
 
 
 @app.route("/newUser", methods=["POST"])
@@ -170,7 +169,7 @@ def newUser():
     data = request.get_json()
     log.debug("Attempted newUser")
     if checkInvite(data["code"]):
-        validation = validator.validate(data["password"])
+        validation = validator().validate(data["password"])
         valid = True
         for criterion in validation:
             if validation[criterion] is False:
@@ -203,9 +202,7 @@ def newUser():
                             jf.setDisplayPreferences(user.json()["Id"], displayprefs)
                             log.debug("Set homescreen layout.")
                     else:
-                        log.debug(
-                            "user configuration and/or " + "displayprefs were blank"
-                        )
+                        log.debug("user configuration and/or displayprefs were blank")
                 except:
                     log.error("Failed to set new user homescreen layout")
                 if config.getboolean("password_resets", "enabled"):
@@ -392,16 +389,9 @@ def modifyConfig():
                 log.debug(f"{section}/{item} modified")
     with open(config_path, "w") as config_file:
         temp_config.write(config_file)
-    config = load_config(config_path, data_dir)
+    config.trigger_reload()
     log.info("Config written. Restart may be needed to load settings.")
     return resp()
-
-
-# @app.route('/getConfig', methods=["GET"])
-# @auth.login_required
-# def getConfig():
-#     log.debug('Config requested')
-#     return jsonify(config._sections), 200
 
 
 @app.route("/getConfig", methods=["GET"])

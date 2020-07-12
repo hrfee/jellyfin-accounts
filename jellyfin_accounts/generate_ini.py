@@ -1,3 +1,4 @@
+# Generates config file
 import configparser
 import json
 from pathlib import Path

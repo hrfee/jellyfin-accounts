@@ -143,7 +143,7 @@
         "contact_message": {
             "name": "Contact message",
             "required": false,
-            "requires_restart": true,
+            "requires_restart": false,
             "type": "text",
             "value": "Need help? contact me.",
             "description": "Displayed at bottom of all pages except admin"
@@ -151,15 +151,15 @@
         "help_message": {
             "name": "Help message",
             "required": false,
-            "requires_restart": true,
+            "requires_restart": false,
             "type": "text",
             "value": "Enter your details to create an account.",
-            "description": "Display at top of invite form."
+            "description": "Displayed at top of invite form."
         },
         "success_message": {
             "name": "Success message",
             "required": false,
-            "requires_restart": true,
+            "requires_restart": false,
             "type": "text",
             "value": "Your account has been created. Click below to continue to Jellyfin.",
             "description": "Displayed when a user creates an account"
@@ -167,7 +167,7 @@
         "bs5": {
             "name": "Use Bootstrap 5",
             "required": false,
-            "requires_restart": true,
+            "requires_restart": false,
             "type": "bool",
             "value": false,
             "description": "Use Bootstrap 5 (currently in alpha). This also removes the need for jQuery, so the page should load faster."
@@ -181,41 +181,41 @@
         "enabled": {
             "name": "Enabled",
             "required": false,
-            "requires_restart": true,
+            "requires_restart": false,
             "type": "bool",
             "value": true
         },
         "min_length": {
             "name": "Minimum Length",
-            "requires_restart": true,
+            "requires_restart": false,
             "depends_true": "enabled",
             "type": "text",
             "value": "8"
         },
         "upper": {
             "name": "Minimum uppercase characters",
-            "requires_restart": true,
+            "requires_restart": false,
             "depends_true": "enabled",
             "type": "text",
             "value": "1"
         },
         "lower": {
             "name": "Minimum lowercase characters",
-            "requires_restart": true,
+            "requires_restart": false,
             "depends_true": "enabled",
             "type": "text",
             "value": "0"
         },
         "number": {
             "name": "Minimum number count",
-            "requires_restart": true,
+            "requires_restart": false,
             "depends_true": "enabled",
             "type": "text",
             "value": "1"
         },
         "special": {
             "name": "Minimum number of special characters",
-            "requires_restart": true,
+            "requires_restart": false,
             "depends_true": "enabled",
             "type": "text",
             "value": "0"
@@ -229,7 +229,7 @@
         "no_username": {
             "name": "Use email addresses as username",
             "required": false,
-            "requires_restart": true,
+            "requires_restart": false,
             "depends_true": "method",
             "type": "bool",
             "value": false,
@@ -350,7 +350,7 @@
         "enabled": {
             "name": "Enabled",
             "required": false,
-            "requires_restart": true,
+            "requires_restart": false,
             "type": "bool",
             "value": true
         },

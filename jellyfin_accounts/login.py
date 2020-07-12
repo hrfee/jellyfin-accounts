@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+# Handles authentication
 
 from flask_httpauth import HTTPBasicAuth
 from itsdangerous import (

@@ -1,3 +1,4 @@
+# Watches Jellyfin for password resets and sends emails.
 import time
 import json
 from watchdog.observers import Observer

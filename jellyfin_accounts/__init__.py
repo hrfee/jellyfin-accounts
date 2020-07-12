@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+# Runs it!
 __version__ = "0.3.6"
 
 import secrets
@@ -13,6 +13,7 @@ import json
 from pathlib import Path
 from flask import Flask, jsonify, g
 from jellyfin_accounts.data_store import JSONStorage
+from jellyfin_accounts.config import Config
 
 parser = argparse.ArgumentParser(description="jellyfin-accounts")
 
@@ -69,7 +70,7 @@ if data_dir.exists() is False or (data_dir / "config.ini").exists() is False:
 else:
     config_path = data_dir / "config.ini"
 
-
+# Temp config so logger knows whether to use debug mode or not
 temp_config = configparser.RawConfigParser()
 temp_config.read(config_path)
 
@@ -93,61 +94,7 @@ def create_log(name):
 
 log = create_log("main")
 
-
-def load_config(config_path, data_dir):
-    config = configparser.RawConfigParser()
-    config.read(config_path)
-    global log
-    for key in config["files"]:
-        if config["files"][key] == "":
-            if key != "custom_css":
-                log.debug(f"Using default {key}")
-                config["files"][key] = str(data_dir / (key + ".json"))
-
-    for key in ["user_configuration", "user_displayprefs"]:
-        if key not in config["files"]:
-            log.debug(f"Using default {key}")
-            config["files"][key] = str(data_dir / (key + ".json"))
-
-    if "no_username" not in config["email"]:
-        config["email"]["no_username"] = "false"
-        log.debug("Set no_username to false")
-    if (
-        "email_html" not in config["password_resets"]
-        or config["password_resets"]["email_html"] == ""
-    ):
-        log.debug("Using default password reset email HTML template")
-        config["password_resets"]["email_html"] = str(local_dir / "email.html")
-    if (
-        "email_text" not in config["password_resets"]
-        or config["password_resets"]["email_text"] == ""
-    ):
-        log.debug("Using default password reset email plaintext template")
-        config["password_resets"]["email_text"] = str(local_dir / "email.txt")
-
-    if (
-        "email_html" not in config["invite_emails"]
-        or config["invite_emails"]["email_html"] == ""
-    ):
-        log.debug("Using default invite email HTML template")
-        config["invite_emails"]["email_html"] = str(local_dir / "invite-email.html")
-    if (
-        "email_text" not in config["invite_emails"]
-        or config["invite_emails"]["email_text"] == ""
-    ):
-        log.debug("Using default invite email plaintext template")
-        config["invite_emails"]["email_text"] = str(local_dir / "invite-email.txt")
-    if (
-        "public_server" not in config["jellyfin"]
-        or config["jellyfin"]["public_server"] == ""
-    ):
-        config["jellyfin"]["public_server"] = config["jellyfin"]["server"]
-    if "bs5" not in config["ui"] or config["ui"]["bs5"] == "":
-        config["ui"]["bs5"] = "false"
-    return config
-
-
-config = load_config(config_path, data_dir)
+config = Config(config_path, secrets.token_urlsafe(16), data_dir, local_dir, log)
 
 web_log = create_log("waitress")
 if not first_run:
