@@ -19,3 +19,5 @@ requirements.txt
 video/
 scss/bs5/*.css*
 scss/bs4/*.css*
+mail/*.html
+jellyfin_accounts/data/*.html

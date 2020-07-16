@@ -8,8 +8,8 @@ license = "MIT"
 homepage = "https://github.com/hrfee/jellyfin-accounts"
 repository = "https://github.com/hrfee/jellyfin-accounts"
 keywords = ["jellyfin", "jf-accounts"]
-include = ["jellyfin_accounts/data/*", "jellyfin_accounts/data/static/*.css"]
-exclude = ["images/*", "scss/*"]
+include = ["jellyfin_accounts/data/*", "jellyfin_accounts/data/static/*.css", "jellyfin_accounts/data/*.html"]
+exclude = ["images/*", "scss/*", "mail/*"]
 classifiers = [
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
@@ -43,6 +43,8 @@ jf-accounts = 'jellyfin_accounts:main'
 pre_compile-css = "task get-npm-deps"
 compile-css = "python scss/compile.py"
 get-npm-deps = "python scss/get_node_deps.py"
+pre_generate-emails = "task get-npm-deps"
+generate-emails = "python mail/generate.py"
 
 [build-system]
 requires = ["poetry>=0.12"]
