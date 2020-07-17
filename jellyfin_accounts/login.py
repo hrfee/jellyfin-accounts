@@ -106,6 +106,8 @@ def verify_password(username, password):
             user = Account().verify_token(username, accounts)
             if user:
                 verified = True
+                if user in accounts:
+                    user = accounts[user]
             if not user:
                 log.debug(f"User {username} not found on Jellyfin")
                 return False
@@ -116,10 +118,10 @@ def verify_password(username, password):
         if username == user.username and user.verify_password(password):
             g.user = user
             log.debug("HTTPAuth Allowed")
-            return True
+            return user
         else:
             log.debug("HTTPAuth Denied")
             return False
     g.user = user
     log.debug("HTTPAuth Allowed")
-    return True
+    return user

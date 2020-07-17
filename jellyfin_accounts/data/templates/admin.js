@@ -158,7 +158,7 @@ var userDefaultsModal = createModal('userDefaults');
 var usersModal = createModal('users');
 var restartModal = createModal('restartModal');
 
-// Parsed invite: [<code>, <expires in _>, <1: Empty invite (no delete/link), 0: Actual invite>, <email address>, <remaining uses>, [<used-by>], <date created>]
+// Parsed invite: [<code>, <expires in _>, <1: Empty invite (no delete/link), 0: Actual invite>, <email address>, <remaining uses>, [<used-by>], <date created>, <notify on expiry>, <notify on creation>]
 function parseInvite(invite, empty = false) {
     if (empty) {
         return ["None", "", 1];
@@ -184,6 +184,12 @@ function parseInvite(invite, empty = false) {
     }
     if ('created' in invite) {
         i[6] = invite['created'];
+    }
+    if ('notify-expiry' in invite) {
+        i[7] = invite['notify-expiry'];
+    }
+    if ('notify-creation' in invite) {
+        i[8] = invite['notify-creation'];
     }
     return i;
 }
@@ -292,6 +298,78 @@ function addItem(parsedInvite) {
         dropdownLeft.appendChild(leftList);
         dropdownContent.appendChild(dropdownLeft);
         
+        {% if notifications %}
+        let dropdownMiddle = document.createElement('div');
+        dropdownMiddle.id = parsedInvite[0] + '_notifyButtons';
+        dropdownMiddle.classList.add('col');
+
+        let middleList = document.createElement('ul');
+        middleList.classList.add('list-group', 'list-group-flush');
+        middleList.textContent = 'Notify on:';
+
+        let notifyExpiry = document.createElement('li');
+        notifyExpiry.classList.add('list-group-item', 'py-1', 'form-check');
+        notifyExpiry.innerHTML = `
+        <input class="form-check-input" type="checkbox" value="" id="${parsedInvite[0]}_notifyExpiry">
+        <label class="form-check-label" for="${parsedInvite[0]}_notifyExpiry">Expiry</label>
+        `;
+        if (typeof(parsedInvite[7]) == 'boolean') {
+            notifyExpiry.getElementsByTagName('input')[0].checked = parsedInvite[7];
+        }
+
+        notifyExpiry.getElementsByTagName('input')[0].onclick = function() {
+            let req = new XMLHttpRequest();
+            var thisEl = this;
+            let send = {};
+            let code = thisEl.id.replace('_notifyExpiry', '');
+            send[code] = {};
+            send[code]['notify-expiry'] = thisEl.checked;
+            req.open("POST", "/setNotify", true);
+            req.setRequestHeader("Authorization", "Basic " + btoa(window.token + ":"));
+            req.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+            req.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status != 200) {
+                    thisEl.checked = !thisEl.checked;
+                }
+            };
+            req.send(JSON.stringify(send));
+        };
+        middleList.appendChild(notifyExpiry);
+
+        let notifyCreation = document.createElement('li');
+        notifyCreation.classList.add('list-group-item', 'py-1', 'form-check');
+        notifyCreation.innerHTML = `
+        <input class="form-check-input" type="checkbox" value="" id="${parsedInvite[0]}_notifyCreation">
+        <label class="form-check-label" for="${parsedInvite[0]}_notifyCreation">User creation</label>
+        `;
+        if (typeof(parsedInvite[8]) == 'boolean') {
+            notifyCreation.getElementsByTagName('input')[0].checked = parsedInvite[8];
+        }
+        notifyCreation.getElementsByTagName('input')[0].onclick = function() {
+            let req = new XMLHttpRequest();
+            var thisEl = this;
+            let send = {};
+            let code = thisEl.id.replace('_notifyCreation', '');
+            send[code] = {};
+            send[code]['notify-creation'] = thisEl.checked;
+            req.open("POST", "/setNotify", true);
+            req.setRequestHeader("Authorization", "Basic " + btoa(window.token + ":"));
+            req.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+            req.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status != 200) {
+                    thisEl.checked = !thisEl.checked;
+                }
+            };
+            req.send(JSON.stringify(send));
+        };
+        middleList.appendChild(notifyCreation);
+
+        dropdownMiddle.appendChild(middleList);
+        dropdownContent.appendChild(dropdownMiddle);
+
+        {% endif %}
+
+
         let dropdownRight = document.createElement('div');
         dropdownRight.id = parsedInvite[0] + '_usersCreated';
         dropdownRight.classList.add('col');

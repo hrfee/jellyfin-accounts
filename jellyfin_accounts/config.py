@@ -16,6 +16,7 @@ class Config:
 
     @staticmethod
     def load_config(config_path, data_dir, local_dir, log):
+        # Lord forgive me for this mess
         config = configparser.RawConfigParser()
         config.read(config_path)
         for key in config["files"]:
@@ -64,6 +65,31 @@ class Config:
             config["jellyfin"]["public_server"] = config["jellyfin"]["server"]
         if "bs5" not in config["ui"] or config["ui"]["bs5"] == "":
             config["ui"]["bs5"] = "false"
+        if (
+            "expiry_html" not in config["notifications"]
+            or config["notifications"]["expiry_html"] == ""
+        ):
+            log.debug("Using default expiry notification HTML template")
+            config["notifications"]["expiry_html"] = str(local_dir / "expired.html")
+        if (
+            "expiry_text" not in config["notifications"]
+            or config["notifications"]["expiry_text"] == ""
+        ):
+            log.debug("Using default expiry notification plaintext template")
+            config["notifications"]["expiry_text"] = str(local_dir / "expired.txt")
+        if (
+            "created_html" not in config["notifications"]
+            or config["notifications"]["created_html"] == ""
+        ):
+            log.debug("Using default user creation notification HTML template")
+            config["notifications"]["created_html"] = str(local_dir / "created.html")
+        if (
+            "created_text" not in config["notifications"]
+            or config["notifications"]["created_text"] == ""
+        ):
+            log.debug("Using default user creation notification plaintext template")
+            config["notifications"]["created_text"] = str(local_dir / "created.txt")
+
         return config
 
     def __init__(self, file, instance, data_dir, local_dir, log):

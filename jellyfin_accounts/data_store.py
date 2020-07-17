@@ -43,7 +43,10 @@ class JSONFile(dict):
     def __delitem__(self, key):
         data = self.readJSON(self.path)
         super(JSONFile, self).__init__(data)
-        del data[key]
+        try:
+            del data[key]
+        except KeyError:
+            pass
         self.writeJSON(self.path, data)
         super(JSONFile, self).__delitem__(key)
 

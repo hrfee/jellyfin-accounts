@@ -133,6 +133,15 @@
             "value": "your password",
             "description": "Password for admin page (Leave blank if using jellyfin_login)"
         },
+        "email": {
+            "name": "Admin email address",
+            "required": false,
+            "requires_restart": false,
+            "depends_false": "jellyfin_login",
+            "type": "text",
+            "value": "example@example.com",
+            "description": "Address to send notifications to (Leave blank if using jellyfin_login)"
+        },
         "debug": {
             "name": "Debug logging",
             "required": false,
@@ -389,6 +398,56 @@
             "type": "text",
             "value": "http://accounts.jellyf.in:8056/invite",
             "description": "Base URL for jf-accounts. This is necessary because using a reverse proxy means the program has no way of knowing the URL itself."
+        }
+    },
+    "notifications": {
+        "meta": {
+            "name": "Notifications",
+            "description": "Notification related settings."
+        },
+        "enabled": {
+            "name": "Enabled",
+            "required": "false",
+            "requires_restart": true,
+            "type": "bool",
+            "value": true,
+            "description": "Enabling adds optional toggles to invites to notify on expiry and user creation."
+        },
+        "expiry_html": {
+            "name": "Expiry email (HTML)",
+            "required": false,
+            "requires_restart": false,
+            "depends_true": "enabled",
+            "type": "text",
+            "value": "",
+            "description": "Path to expiry notification email HTML."
+        },
+        "expiry_text": {
+            "name": "Expiry email (Plaintext)",
+            "required": false,
+            "requires_restart": "false",
+            "depends_true": "enabled",
+            "type": "text",
+            "value": "",
+            "description": "Path to expiry notification email in plaintext."
+        },
+        "created_html": {
+            "name": "User created email (HTML)",
+            "required": false,
+            "requires_restart": false,
+            "depends_true": "enabled",
+            "type": "text",
+            "value": "",
+            "description": "Path to user creation notification email HTML."
+        },
+        "created_text": {
+            "name": "User created email (Plaintext)",
+            "required": false,
+            "requires_restart": false,
+            "depends_true": "enabled",
+            "type": "text",
+            "value": "",
+            "description": "Path to user creation notification email in plaintext."
         }
     },
     "mailgun": {

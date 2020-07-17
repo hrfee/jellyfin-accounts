@@ -43,7 +43,12 @@ def static_proxy(path):
     if "html" not in path:
         if "admin.js" in path:
             return (
-                render_template("admin.js", bsVersion=bsVersion(), css_file=css_file),
+                render_template(
+                    "admin.js",
+                    bsVersion=bsVersion(),
+                    css_file=css_file,
+                    notifications=config.getboolean("notifications", "enabled"),
+                ),
                 200,
                 {"Content-Type": "text/javascript"},
             )

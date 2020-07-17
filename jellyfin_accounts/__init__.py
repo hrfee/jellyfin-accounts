@@ -290,13 +290,6 @@ def main():
                 success = True
 
     else:
-
-        def signal_handler(sig, frame):
-            print("Quitting...")
-            sys.exit(0)
-
-        signal.signal(signal.SIGINT, signal_handler)
-        signal.signal(signal.SIGTERM, signal_handler)
         global app
         app = Flask(__name__, root_path=str(local_dir))
         app.config["DEBUG"] = config.getboolean("ui", "debug")
@@ -306,6 +299,13 @@ def main():
         from waitress import serve
 
         if first_run:
+
+            def signal_handler(sig, frame):
+                print("Quitting...")
+                sys.exit(0)
+
+            signal.signal(signal.SIGINT, signal_handler)
+            signal.signal(signal.SIGTERM, signal_handler)
             import jellyfin_accounts.setup
 
             host = config["ui"]["host"]
@@ -315,6 +315,7 @@ def main():
         else:
             import jellyfin_accounts.web_api
             import jellyfin_accounts.web
+            import jellyfin_accounts.invite_daemon
 
             host = config["ui"]["host"]
             port = config["ui"]["port"]
@@ -330,4 +331,12 @@ def main():
                 log.info("Starting email thread")
                 pwr.start()
 
+            def signal_handler(sig, frame):
+                print("Quitting...")
+                if config.getboolean("notifications", "enabled"):
+                    jellyfin_accounts.invite_daemon.inviteDaemon.stop()
+                sys.exit(0)
+
+            signal.signal(signal.SIGINT, signal_handler)
+            signal.signal(signal.SIGTERM, signal_handler)
             serve(app, host=host, port=int(port))

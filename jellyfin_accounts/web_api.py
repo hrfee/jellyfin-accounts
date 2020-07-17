@@ -15,6 +15,7 @@ from jellyfin_accounts import (
     configparser,
     config_base_path,
 )
+from jellyfin_accounts.email import Mailgun, Smtp
 from jellyfin_accounts import web_log as log
 from jellyfin_accounts.validate_password import PasswordValidator
 
@@ -45,6 +46,22 @@ def checkInvite(code, used=False, username=None):
             "no-limit" not in invites[invite] and invites[invite]["remaining-uses"] < 1
         ):
             log.debug(f"Housekeeping: Deleting expired invite {invite}")
+            if (
+                config.getboolean("notifications", "enabled")
+                and "notify" in invites[invite]
+            ):
+                for address in invites[invite]["notify"]:
+                    if "notify-expiry" in invites[invite]["notify"][address]:
+                        if invites[invite]["notify"][address]["notify-expiry"]:
+                            method = config["email"]["method"]
+                            if method == "mailgun":
+                                email = Mailgun(address)
+                            elif method == "smtp":
+                                email = Smtp(address)
+                            if email.construct_expiry(
+                                {"code": invite, "expiry": expiry}
+                            ):
+                                email.send()
             del data_store.invites[invite]
         elif invite == code:
             match = True
@@ -184,7 +201,28 @@ def newUser():
                 return jsonify({"error": error})
             except:
                 return jsonify({"error": "Unknown error"})
+            invites = dict(data_store.invites)
             checkInvite(data["code"], used=True, username=data["username"])
+            if (
+                config.getboolean("notifications", "enabled")
+                and "notify" in invites[data["code"]]
+            ):
+                for address in invites[data["code"]]["notify"]:
+                    if "notify-creation" in invites[data["code"]]["notify"][address]:
+                        if invites[data["code"]]["notify"][address]["notify-creation"]:
+                            method = config["email"]["method"]
+                            if method == "mailgun":
+                                email = Mailgun(address)
+                            elif method == "smtp":
+                                email = Smtp(address)
+                            if email.construct_created(
+                                {
+                                    "code": data["code"],
+                                    "username": data["username"],
+                                    "created": datetime.datetime.now(),
+                                }
+                            ):
+                                email.send()
             if user.status_code == 200:
                 try:
                     policy = data_store.user_template
@@ -258,6 +296,11 @@ def generateInvite():
         response = email.send()
         if response is False or type(response) != bool:
             invite["email"] = f"Failed to send to {address}"
+    if config.getboolean("notifications", "enabled"):
+        if "notify-creation" in data:
+            invite["notify-creation"] = data["notify-creation"]
+        if "notify-expiry" in data:
+            invite["notify-expiry"] = data["notify-expiry"]
     data_store.invites[invite_code] = invite
     log.info(f"New invite created: {invite_code}")
     return resp()
@@ -296,6 +339,20 @@ def getInvites():
             invite["remaining-uses"] = 1
         if "email" in invites[code]:
             invite["email"] = invites[code]["email"]
+        if "notify" in invites[code]:
+            if config.getboolean("ui", "jellyfin_login"):
+                address = data_store.emails[g.user.id]
+            else:
+                address = config["ui"]["email"]
+            if address in invites[code]["notify"]:
+                if "notify-expiry" in invites[code]["notify"][address]:
+                    invite["notify-expiry"] = invites[code]["notify"][address][
+                        "notify-expiry"
+                    ]
+                if "notify-creation" in invites[code]["notify"][address]:
+                    invite["notify-creation"] = invites[code]["notify"][address][
+                        "notify-creation"
+                    ]
         response["invites"].append(invite)
     return jsonify(response)
 
@@ -407,3 +464,29 @@ def getConfig():
             if entry in config[section]:
                 response_config[section][entry]["value"] = config[section][entry]
     return jsonify(response_config), 200
+
+
+@app.route("/setNotify", methods=["POST"])
+@auth.login_required
+def setNotify():
+    data = request.get_json()
+    change = False
+    for code in data:
+        for key in data[code]:
+            if key in ["notify-expiry", "notify-creation"]:
+                inv = data_store.invites[code]
+                if config.getboolean("ui", "jellyfin_login"):
+                    address = data_store.emails[g.user.id]
+                else:
+                    address = config["ui"]["email"]
+                if "notify" not in inv:
+                    inv["notify"] = {}
+                if address not in inv["notify"]:
+                    inv["notify"][address] = {}
+                inv["notify"][address][key] = data[code][key]
+                log.debug(f"{code}: Notification settings changed")
+                change = True
+    if change:
+        data_store.invites[code] = inv
+        return resp()
+    return resp(success=False)

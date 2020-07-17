@@ -13,6 +13,15 @@ from jellyfin_accounts import config
 from jellyfin_accounts import email_log as log
 
 
+def format_datetime(dt):
+    result = dt.strftime(config["email"]["date_format"])
+    if config.getboolean("email", "use_24h"):
+        result += f' {dt.strftime("%H:%M")}'
+    else:
+        result += f' {dt.strftime("%I:%M %p")}'
+    return result
+
+
 class Email:
     def __init__(self, address):
         self.address = address
@@ -74,6 +83,47 @@ class Email:
             )
             self.content[key] = c
             log.info(f"{self.address}: {key} constructed")
+
+    def construct_expiry(self, invite):
+        self.subject = "Notice: Invite expired"
+        log.debug(f'Constructing expiry notification for {invite["code"]}')
+        expiry = format_datetime(invite["expiry"])
+        for key in ["text", "html"]:
+            sp = Path(config["notifications"]["expiry_" + key]) / ".."
+            sp = str(sp.resolve()) + "/"
+            template_loader = FileSystemLoader(searchpath=sp)
+            template_env = Environment(loader=template_loader)
+            fname = Path(config["notifications"]["expiry_" + key]).name
+            template = template_env.get_template(fname)
+            c = template.render(code=invite["code"], expiry=expiry)
+            self.content[key] = c
+            log.info(f"{self.address}: {key} constructed")
+        return True
+
+    def construct_created(self, invite):
+        self.subject = "Notice: User created"
+        log.debug(f'Constructing expiry notification for {invite["code"]}')
+        created = format_datetime(invite["created"])
+        if config.getboolean("email", "no_username"):
+            email = "n/a"
+        else:
+            email = invite["address"]
+        for key in ["text", "html"]:
+            sp = Path(config["notifications"]["created_" + key]) / ".."
+            sp = str(sp.resolve()) + "/"
+            template_loader = FileSystemLoader(searchpath=sp)
+            template_env = Environment(loader=template_loader)
+            fname = Path(config["notifications"]["created_" + key]).name
+            template = template_env.get_template(fname)
+            c = template.render(
+                code=invite["code"],
+                username=invite["username"],
+                address=email,
+                time=created,
+            )
+            self.content[key] = c
+            log.info(f"{self.address}: {key} constructed")
+        return True
 
     def construct_reset(self, reset):
         self.subject = config["password_resets"]["subject"]
