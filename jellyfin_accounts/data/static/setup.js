@@ -18,12 +18,15 @@ function checkEmailRadio() {
     document.getElementById('emailNextButton').href = '#page-5';
     document.getElementById('valBackButton').href = '#page-7';
     if (document.getElementById('emailSMTPRadio').checked) {
+        document.getElementById('emailCommonArea').style.display = '';
         document.getElementById('emailSMTPArea').style.display = '';
         document.getElementById('emailMailgunArea').style.display = 'none';
     } else if (document.getElementById('emailMailgunRadio').checked) {
+        document.getElementById('emailCommonArea').style.display = '';
         document.getElementById('emailSMTPArea').style.display = 'none';
         document.getElementById('emailMailgunArea').style.display = '';
     } else if (document.getElementById('emailDisabledRadio').checked) {
+        document.getElementById('emailCommonArea').style.display = 'none';
         document.getElementById('emailSMTPArea').style.display = 'none';
         document.getElementById('emailMailgunArea').style.display = 'none';
         document.getElementById('emailNextButton').href = '#page-8';
@@ -140,6 +143,7 @@ document.getElementById('submitButton').onclick = function() {
     config['invite_emails'] = {};
     config['mailgun'] = {};
     config['smtp'] = {};
+    config['notifications'] = {};
     // Page 2: Auth
     if (document.getElementById('jfAuthRadio').checked) {
         config['ui']['jellyfin_login'] = 'true';
@@ -151,6 +155,7 @@ document.getElementById('submitButton').onclick = function() {
     } else {
         config['ui']['username'] = document.getElementById('manualAuthUsername').value;
         config['ui']['password'] = document.getElementById('manualAuthPassword').value;
+        config['ui']['email'] = document.getElementById('manualAuthEmail').value;
     };
     // Page 3: Connect to jellyfin
     config['jellyfin']['server'] = document.getElementById('jfHost').value;
@@ -178,6 +183,7 @@ document.getElementById('submitButton').onclick = function() {
             config['mailgun']['api_key'] = document.getElementById('emailMailgunKey').value;
             config['email']['address'] = document.getElementById('emailMailgunAddress').value;
         };
+        config['notifications']['enabled'] = document.getElementById('notificationsEnabled').checked.toString();
         // Page 5: Email formatting
         config['email']['from'] = document.getElementById('emailSender').value;
         config['email']['date_format'] = document.getElementById('emailDateFormat').value;
