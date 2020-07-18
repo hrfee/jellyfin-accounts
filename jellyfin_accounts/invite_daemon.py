@@ -35,7 +35,8 @@ class Repeat:
 def checkInvites():
     invites = dict(data_store.invites)
     # checkInvite already loops over everything, no point running it multiple times.
-    checkInvite(list(invites.keys())[0])
+    if len(invites) != 0:
+        checkInvite(list(invites.keys())[0])
 
 
 if config.getboolean("notifications", "enabled"):
