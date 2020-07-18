@@ -23,7 +23,7 @@
           <p>Hi {{ username }},</p>
           <p> Someone has recently requested a password reset on Jellyfin.</p>
           <p>If this was you, enter the below pin into the prompt.</p>
-          <p>The code will expire on {{ expiry_date }}, at {{ expiry_time }}, which is in {{ expires_in }}.</p>
+          <p>The code will expire on {{ expiry_date }}, at {{ expiry_time }} UTC, which is in {{ expires_in }}.</p>
           <p>If this wasn't you, please ignore this email.</p>
         </mj-text>
         <mj-button mj-class="blue bold">{{ pin }}</mj-button>
