@@ -19,7 +19,8 @@ class Watcher:
         self.observer.schedule(event_handler, self.dir, recursive=True)
         try:
             self.observer.start()
-        except NotADirectoryError:
+        except (NotADirectoryError,
+                FileNotFoundError):
             log.error(f"Directory {self.dir} does not exist")
         try:
             while True:
