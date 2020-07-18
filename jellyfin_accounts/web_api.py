@@ -5,6 +5,7 @@ import json
 import datetime
 import secrets
 import time
+import threading
 from jellyfin_accounts import (
     config,
     config_path,
@@ -61,7 +62,7 @@ def checkInvite(code, used=False, username=None):
                             if email.construct_expiry(
                                 {"code": invite, "expiry": expiry}
                             ):
-                                email.send()
+                                threading.Thread(target=email.send).start()
             del data_store.invites[invite]
         elif invite == code:
             match = True
@@ -222,7 +223,7 @@ def newUser():
                                     "created": datetime.datetime.now(),
                                 }
                             ):
-                                email.send()
+                                threading.Thread(target=email.send).start()
             if user.status_code == 200:
                 try:
                     policy = data_store.user_template
