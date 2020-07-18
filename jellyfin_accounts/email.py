@@ -8,7 +8,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from pathlib import Path
 from dateutil import parser as date_parser
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Template
 from jellyfin_accounts import config
 from jellyfin_accounts import email_log as log
 
@@ -35,9 +35,16 @@ class Email:
                 + f"({self.from_name})"
             )
         )
+        # sp = Path(config["invite_emails"]["email_
+        # template_loader = FileSystemLoader(searchpath=sp)
+        # template_loader = PackageLoader("jellyfin_accounts", "data")
+        # self.template_env = Environment(loader=template_loader)
 
-    def pretty_time(self, expiry):
-        current_time = datetime.datetime.now()
+    def pretty_time(self, expiry, tzaware=False):
+        if tzaware:
+            current_time = datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
+        else:
+            current_time = datetime.datetime.now()
         date = expiry.strftime(config["email"]["date_format"])
         if config.getboolean("email", "use_24h"):
             log.debug(f"{self.address}: Using 24h time")
@@ -68,12 +75,9 @@ class Email:
         invite_link = config["invite_emails"]["url_base"]
         invite_link += "/" + invite["code"]
         for key in ["text", "html"]:
-            sp = Path(config["invite_emails"]["email_" + key]) / ".."
-            sp = str(sp.resolve()) + "/"
-            template_loader = FileSystemLoader(searchpath=sp)
-            template_env = Environment(loader=template_loader)
-            fname = Path(config["invite_emails"]["email_" + key]).name
-            template = template_env.get_template(fname)
+            fpath = Path(config["invite_emails"]["email_" + key])
+            with open(fpath, 'r') as f:
+                template = Template(f.read())
             c = template.render(
                 expiry_date=pretty["date"],
                 expiry_time=pretty["time"],
@@ -89,12 +93,9 @@ class Email:
         log.debug(f'Constructing expiry notification for {invite["code"]}')
         expiry = format_datetime(invite["expiry"])
         for key in ["text", "html"]:
-            sp = Path(config["notifications"]["expiry_" + key]) / ".."
-            sp = str(sp.resolve()) + "/"
-            template_loader = FileSystemLoader(searchpath=sp)
-            template_env = Environment(loader=template_loader)
-            fname = Path(config["notifications"]["expiry_" + key]).name
-            template = template_env.get_template(fname)
+            fpath = Path(config["notifications"]["expiry_" + key])
+            with open(fpath, 'r') as f:
+                template = Template(f.read())
             c = template.render(code=invite["code"], expiry=expiry)
             self.content[key] = c
             log.info(f"{self.address}: {key} constructed")
@@ -102,19 +103,16 @@ class Email:
 
     def construct_created(self, invite):
         self.subject = "Notice: User created"
-        log.debug(f'Constructing expiry notification for {invite["code"]}')
+        log.debug(f'Constructing user creation notification for {invite["code"]}')
         created = format_datetime(invite["created"])
         if config.getboolean("email", "no_username"):
             email = "n/a"
         else:
             email = invite["address"]
         for key in ["text", "html"]:
-            sp = Path(config["notifications"]["created_" + key]) / ".."
-            sp = str(sp.resolve()) + "/"
-            template_loader = FileSystemLoader(searchpath=sp)
-            template_env = Environment(loader=template_loader)
-            fname = Path(config["notifications"]["created_" + key]).name
-            template = template_env.get_template(fname)
+            fpath = Path(config["notifications"]["created_" + key])
+            with open(fpath, 'r') as f:
+                template = Template(f.read())
             c = template.render(
                 code=invite["code"],
                 username=invite["username"],
@@ -131,22 +129,18 @@ class Email:
         log.debug(f"{self.address}: Constructing email content")
         try:
             expiry = date_parser.parse(reset["ExpirationDate"])
-            expiry = expiry.replace(tzinfo=None)
         except:
             log.error(f"{self.address}: Couldn't parse expiry time")
             return False
-        current_time = datetime.datetime.now()
+        current_time = datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
         if expiry >= current_time:
             log.debug(f"{self.address}: Invite valid")
-            pretty = self.pretty_time(expiry)
+            pretty = self.pretty_time(expiry, tzaware=True)
             email_message = config["email"]["message"]
             for key in ["text", "html"]:
-                sp = Path(config["password_resets"]["email_" + key]) / ".."
-                sp = str(sp.resolve()) + "/"
-                template_loader = FileSystemLoader(searchpath=sp)
-                template_env = Environment(loader=template_loader)
-                fname = Path(config["password_resets"]["email_" + key]).name
-                template = template_env.get_template(fname)
+                fpath = Path(config["password_resets"]["email_" + key])
+                with open(fpath, 'r') as f:
+                    template = Template(f.read())
                 c = template.render(
                     username=reset["UserName"],
                     expiry_date=pretty["date"],
@@ -169,6 +163,11 @@ class Email:
 
 
 class Mailgun(Email):
+    errors = {
+        400: "Mailgun failed with 400: Bad request",
+        401: "Mailgun failed with 401: Invalid API key",
+    }
+
     def __init__(self, address):
         super().__init__(address)
         self.api_url = config["mailgun"]["api_url"]
@@ -190,7 +189,12 @@ class Mailgun(Email):
         if response.ok:
             log.info(f"{self.address}: Sent via mailgun.")
             return True
-        log.debug(f"{self.address}: Mailgun: {response.status_code}")
+        elif response.status_code in Mailgun.errors:
+            log.error(f"{self.address}: {Mailgun.errors[response.status_code]}")
+        else:
+            log.error(
+                f"{self.address}: Mailgun failed with error {response.status_code}"
+            )
         return response
 
 
@@ -238,9 +242,9 @@ class Smtp(Email):
                     log.info(f"{self.address}: Sent via smtp (starttls)")
                     return True
         except Exception as e:
-            err = f"{self.address}: Failed to send via smtp: "
-            err += type(e).__name__
-            log.error(err)
+            log.error(
+                f"{self.address}: Failed to send via smtp ({type(e).__name__}: {e.args})"
+            )
             try:
                 log.error(e.smtp_error)
             except:
