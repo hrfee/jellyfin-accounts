@@ -6,6 +6,9 @@ import datetime
 import secrets
 import time
 import threading
+import os
+import sys
+import psutil
 from jellyfin_accounts import (
     config,
     config_path,
@@ -440,7 +443,7 @@ def modifyConfig():
     )
     temp_config.read(config_path)
     for section in data:
-        if section in temp_config:
+        if section in temp_config and 'restart-program' not in section:
             for item in data[section]:
                 temp_config[section][item] = data[section][item]
                 data[section][item] = True
@@ -448,7 +451,18 @@ def modifyConfig():
     with open(config_path, "w") as config_file:
         temp_config.write(config_file)
     config.trigger_reload()
-    log.info("Config written. Restart may be needed to load settings.")
+    log.info("Config written.")
+    if 'restart-program' in data:
+        if data['restart-program']:
+            log.info('Restarting...')
+            try:
+                proc = psutil.Process(os.getpid())
+                for handler in proc.open_files() + proc.connections():
+                    os.close(handler.fd)
+            except Exception as e:
+                log.error(f'Failed restart: {type(e).__name__}')
+            python = sys.executable
+            os.execl(python, python, *sys.argv)
     return resp()
 
 

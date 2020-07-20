@@ -28,7 +28,6 @@ def page_not_found(e):
 
 @app.route("/", methods=["GET", "POST"])
 def admin():
-    # return app.send_static_file('admin.html')
     return render_template(
         "admin.html",
         bs5=config.getboolean("ui", "bs5"),

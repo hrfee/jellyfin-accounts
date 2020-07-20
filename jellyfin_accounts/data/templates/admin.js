@@ -157,6 +157,7 @@ var settingsModal = createModal('settingsMenu');
 var userDefaultsModal = createModal('userDefaults');
 var usersModal = createModal('users');
 var restartModal = createModal('restartModal');
+var refreshModal = createModal('refreshModal');
 
 // Parsed invite: [<code>, <expires in _>, <1: Empty invite (no delete/link), 0: Actual invite>, <email address>, <remaining uses>, [<used-by>], <date created>, <notify on expiry>, <notify on creation>]
 function parseInvite(invite, empty = false) {
@@ -961,8 +962,12 @@ document.getElementById('openSettings').onclick = function () {
 
 triggerTooltips();
 
-function sendConfig(modalId) {
+function sendConfig(modalId, restart = false) {
     let modal = document.getElementById(modalId);
+    modifiedConfig['restart-program'] = false;
+    if (restart) {
+        modifiedConfig['restart-program'] = true;
+    }
     let send = JSON.stringify(modifiedConfig);
     let req = new XMLHttpRequest();
     req.open("POST", "/modifyConfig", true);
@@ -975,6 +980,8 @@ function sendConfig(modalId) {
                 if (modalId != 'settingsMenu') {
                     settingsModal.hide();
                 }
+            } else if (restart) {
+                refreshModal.show();
             }
         }
     };
@@ -1010,7 +1017,8 @@ document.getElementById('settingsSave').onclick = function() {
         }
     }
     if (restart_setting_changed) {
-        document.getElementById('applyRestarts').onclick = function(){sendConfig('restartModal');};
+        document.getElementById('applyRestarts').onclick = function(){ sendConfig('restartModal'); };
+        document.getElementById('applyAndRestart').onclick = function(){ sendConfig('restartModal', restart=true); };
         settingsModal.hide();
         restartModal.show();
     } else if (settings_changed) {

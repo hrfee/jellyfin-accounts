@@ -44,7 +44,7 @@ class Jellyfin:
 
         pass
 
-    def __init__(self, server, client, version, device, deviceId):
+    def __init__(self, server, client, version, device, deviceId, cacheMinutes=30):
         """
         Initializes the Jellyfin object. All parameters except server
         have no effect on the client's capability.
@@ -61,7 +61,7 @@ class Jellyfin:
         self.version = version
         self.device = device
         self.deviceId = deviceId
-        self.timeout = 30 * 60
+        self.timeout = cacheMinutes * 60
         self.userCacheAge = time.time() - self.timeout - 1
         self.userCachePublicAge = self.userCacheAge
         self.useragent = f"{self.client}/{self.version}"
@@ -82,6 +82,16 @@ class Jellyfin:
         try:
             self.info = requests.get(self.server + "/System/Info/Public").json()
         except:
+            pass
+    
+    def reloadCache(self):
+        """ Forces a reload of the user caches """
+        self.userCachePublicAge = time.time() - self.timeout - 1
+        self.getUsers()
+        try:
+            self.userCacheAge = self.userCachePublicAge
+            self.getUsers(public=False)
+        except self.AuthenticationRequiredError:
             pass
 
     def getUsers(self, username: str = "all", userId: str = "all", public: bool = True):

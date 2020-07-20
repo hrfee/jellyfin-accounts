@@ -214,18 +214,31 @@
                 </div>
             </div>
         </div>
-        <div class="modal fade" id="restartModal" role="dialog" aria-labelledby"Restart Warning" aria-hidden="true">
+        <div class="modal fade" id="restartModal" role="dialog" aria-labelledby="Restart Warning" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">Warning</h5>
                     </div>
                     <div class="modal-body">
-                        <p>A restart is needed to apply some settings. This must be done manually. Apply now?</p>
+                        <p>A restart is needed to apply some settings. Restart now, later, or cancel?</p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-primary" id="applyRestarts" data-dismiss="alert">Apply</button>
+                        <button type="button" class="btn btn-light" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-secondary" id="applyRestarts" data-dismiss="modal">Apply, Restart later</button>
+                        <button type="button" class="btn btn-primary" id="applyAndRestart" data-dismiss="modal">Apply &amp; Restart</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="refreshModal" role="dialog" aria-labelledby="Refresh page notice" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Settings applied.</h5>
+                    </div>
+                    <div class="modal-body">
+                        <p>Refresh the page in a few seconds.</p>
                     </div>
                 </div>
             </div>

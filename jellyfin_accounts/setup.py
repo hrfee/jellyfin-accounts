@@ -5,6 +5,8 @@ from jellyfin_accounts.jf_api import Jellyfin
 from jellyfin_accounts import config, config_path, app, first_run, resp
 from jellyfin_accounts import web_log as log
 import os
+import psutil
+import sys
 
 if first_run:
 
@@ -51,8 +53,16 @@ if first_run:
         with open(config_path, "w") as config_file:
             temp_config.write(config_file)
         log.debug("Config written")
-        # ugly exit, sorry
-        os._exit(1)
+        log.info('Restarting...')
+        try:
+            p = psutil.Process(os.getpid())
+            for handler in p.open_files() + p.connections():
+                os.close(handler.fd)
+        except:
+            pass
+
+        python = sys.executable
+        os.execl(python, python, *sys.argv)
         return resp()
 
     @app.route("/testJF", methods=["GET", "POST"])
