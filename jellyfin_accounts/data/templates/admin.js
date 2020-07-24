@@ -651,11 +651,11 @@ document.getElementById('openDefaultsWizard').onclick = function() {
                 for (user of users) {
                     let radio = document.createElement('div');
                     radio.classList.add('radio');
+                    let checked = 'checked';
                     if (first) {
-                        const checked = 'checked';
                         first = false;
                     } else {
-                        const checked = '';
+                        checked = '';
                     };
                     radio.innerHTML =
                         `<label><input type="radio" name="defaultRadios" id="default_${user['name']}" style="margin-right: 1rem;" ${checked}>${user['name']}</label>`;
