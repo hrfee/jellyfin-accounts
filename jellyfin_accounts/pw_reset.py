@@ -6,7 +6,7 @@ from watchdog.events import FileSystemEventHandler
 from jellyfin_accounts.email import Mailgun, Smtp
 from jellyfin_accounts.web_api import jf
 from jellyfin_accounts import config, data_store
-from jellyfin_accounts import email_log as log
+from jellyfin_accounts import pwr_log as log
 
 
 class Watcher:

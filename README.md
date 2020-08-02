@@ -1,5 +1,7 @@
 # ![jellyfin-accounts](https://raw.githubusercontent.com/hrfee/jellyfin-accounts/bs5/images/jellyfin-accounts-banner-wide.svg)
 
+#### 👀 ➡️: Have a look at [jfa-go](https://github.com/hrfee/jfa-go), an attempted rewrite in Go. Identical look and features but might be faster.
+
 A basic account management system for [Jellyfin](https://github.com/jellyfin/jellyfin).
 * Provides a web interface for creating/sending invites
 * Sends out emails when a user requests a password reset

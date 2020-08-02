@@ -98,7 +98,8 @@ config = Config(config_path, secrets.token_urlsafe(16), data_dir, local_dir, log
 
 web_log = create_log("waitress")
 if not first_run:
-    email_log = create_log("emails")
+    email_log = create_log("email")
+    pwr_log = create_log("pwr")
     auth_log = create_log("auth")
 
 if args.host is not None:
@@ -185,6 +186,7 @@ def resp(success=True, code=500):
         r.status_code = code
     return r
 
+app = Flask(__name__, root_path=str(local_dir))
 
 def main():
     if args.install:
@@ -290,8 +292,6 @@ def main():
                 success = True
 
     else:
-        global app
-        app = Flask(__name__, root_path=str(local_dir))
         app.config["DEBUG"] = config.getboolean("ui", "debug")
         app.config["SECRET_KEY"] = secrets.token_urlsafe(16)
         app.config["JSON_SORT_KEYS"] = False
@@ -328,7 +328,7 @@ def main():
                     jellyfin_accounts.pw_reset.start()
 
                 pwr = threading.Thread(target=start_pwr, daemon=True)
-                log.info("Starting email thread")
+                log.info("Starting password reset thread")
                 pwr.start()
 
             def signal_handler(sig, frame):

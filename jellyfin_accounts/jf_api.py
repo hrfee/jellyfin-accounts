@@ -61,6 +61,7 @@ class Jellyfin:
         self.version = version
         self.device = device
         self.deviceId = deviceId
+        self.authenticated = False
         self.timeout = cacheMinutes * 60
         self.userCacheAge = time.time() - self.timeout - 1
         self.userCachePublicAge = self.userCacheAge
@@ -80,10 +81,10 @@ class Jellyfin:
             "X-Emby-Authorization": self.auth,
         }
         try:
-            self.info = requests.get(self.server + "/System/Info/Public").json()
+            self.info = requests.get(f"{self.server}/System/Info/Public").json()
         except:
             pass
-    
+
     def reloadCache(self):
         """ Forces a reload of the user caches """
         self.userCachePublicAge = time.time() - self.timeout - 1
@@ -107,7 +108,7 @@ class Jellyfin:
         """
         if public is True:
             if (time.time() - self.userCachePublicAge) >= self.timeout:
-                response = requests.get(self.server + "/emby/Users/Public").json()
+                response = requests.get(f"{self.server}/Users/Public").json()
                 self.userCachePublic = response
                 self.userCachePublicAge = time.time()
             else:
@@ -117,7 +118,7 @@ class Jellyfin:
         ):
             if (time.time() - self.userCacheAge) >= self.timeout:
                 response = requests.get(
-                    self.server + "/emby/Users",
+                    f"{self.server}/Users",
                     headers=self.header,
                     params={"Username": self.username, "Pw": self.password},
                 )
@@ -125,7 +126,7 @@ class Jellyfin:
                     response = response.json()
                     self.userCache = response
                     self.userCacheAge = time.time()
-                else:
+                elif response.status_code == 401:
                     try:
                         self.authenticate(self.username, self.password)
                         return self.getUsers(username, userId, public)
@@ -161,12 +162,10 @@ class Jellyfin:
         :param username: Plaintext username.
         :param password: Plaintext password.
         """
-        self.username = username
-        self.password = password
         response = requests.post(
-            self.server + "/emby/Users/AuthenticateByName",
+            f"{self.server}/Users/AuthenticateByName",
             headers=self.header,
-            params={"Username": self.username, "Pw": self.password},
+            params={"Username": username, "Pw": password},
         )
         if response.status_code == 200:
             json = response.json()
@@ -180,8 +179,11 @@ class Jellyfin:
             self.auth += f", Token={self.accessToken}"
             self.header["X-Emby-Authorization"] = self.auth
             self.info = requests.get(
-                self.server + "/System/Info", headers=self.header
+                f"{self.server}/System/Info", headers=self.header
             ).json()
+            self.username = username
+            self.password = password
+            self.authenticated = True
             return True
         else:
             raise self.AuthenticationError
@@ -194,7 +196,7 @@ class Jellyfin:
         :param policy: User policy in dictionary form.
         """
         return requests.post(
-            self.server + "/Users/" + userId + "/Policy",
+            f"{self.server}/Users/" + userId + "/Policy",
             headers=self.header,
             params=policy,
         )
@@ -204,7 +206,7 @@ class Jellyfin:
             if user["Name"] == username:
                 raise self.UserExistsError
         response = requests.post(
-            self.server + "/emby/Users/New",
+            f"{self.server}/Users/New",
             headers=self.header,
             params={"Name": username, "Password": password},
         )
@@ -222,7 +224,7 @@ class Jellyfin:
         else:
             param = ""
         views = requests.get(
-            self.server + "/Users/" + userId + "/Views" + param, headers=self.header
+            f"{self.server}/Users/" + userId + "/Views" + param, headers=self.header
         ).json()["Items"]
         orderedViews = []
         for library in views:
@@ -236,7 +238,7 @@ class Jellyfin:
         :param configuration: Configuration to write in dictionary form.
         """
         resp = requests.post(
-            self.server + "/Users/" + userId + "/Configuration",
+            f"{self.server}/Users/" + userId + "/Configuration",
             headers=self.header,
             params=configuration,
         )
