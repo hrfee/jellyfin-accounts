@@ -14,12 +14,12 @@ def runcmd(cmd):
 
 print('Installing npm packages')
 
-if os.name == "nt":
-    print("Note: npm on windows installs all packages in the root directory, so things might get ugly.")
-
 root_path = Path(__file__).parents[1]
-runcmd(f'npm install --prefix {root_path}')
+if os.name == 'nt':
+    root_path /= 'node_modules'
+runcmd(f'npm install')
 
 if (root_path / 'node_modules' / 'cleancss').exists():
     print(f'Installed successfully in {str((root_path / "node_modules").resolve())}.')
+
 

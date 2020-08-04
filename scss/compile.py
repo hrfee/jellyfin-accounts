@@ -12,7 +12,13 @@ def runcmd(cmd):
     return proc.communicate()
 
 local_path = Path(__file__).resolve().parent
-node_bin = Path(runcmd("npm bin")[0].decode('utf-8').rstrip())
+out = runcmd("npm bin")
+
+try:
+    node_bin = Path(out[0].decode('utf-8').rstrip())
+except:
+    node_bin = Path(out.decode('utf-8').rstrip())
+
 print(f"assuming npm bin directory \"{node_bin}\". Is this correct?")
 if input("[yY/nN]: ").lower() == "n":
     node_bin = local_path.parent / 'node_modules' / '.bin'
@@ -30,7 +36,11 @@ for bsv in [d for d in local_path.iterdir() if 'bs' in d.name]:
                              precision=6))
     if css.exists():
         print(f'{bsv.name}: Compiled.')
-        runcmd(f'{str((node_bin / "postcss").resolve())} {str(css.resolve())} --replace --use autoprefixer')
+        # postcss only excepts forwards slashes? weird.
+        cssPath = str(css.resolve())
+        if os.name == 'nt':
+            cssPath = cssPath.replace('\\', '/')
+        runcmd(f'{str((node_bin / "postcss").resolve())} {cssPath} --replace --use autoprefixer')
         print(f'{bsv.name}: Prefixed.')
         runcmd(f'{str((node_bin / "cleancss").resolve())} --level 1 --format breakWith=lf --output {str(min_css.resolve())} {str(css.resolve())}')
         if min_css.exists():
