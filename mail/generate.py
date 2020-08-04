@@ -10,7 +10,13 @@ def runcmd(cmd):
     return proc.communicate()
 
 local_path = Path(__file__).resolve().parent
-node_bin = Path(runcmd("npm bin")[0].decode('utf-8').rstrip())
+out = runcmd("npm bin")
+
+try:
+    node_bin = Path(out[0].decode('utf-8').rstrip())
+except:
+    node_bin = Path(out.decode('utf-8').rstrip())
+
 print(f"assuming npm bin directory \"{node_bin}\". Is this correct?")
 if input("[yY/nN]: ").lower() == "n":
     node_bin = local_path.parent / 'node_modules' / '.bin'
