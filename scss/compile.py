@@ -2,14 +2,23 @@
 import sass
 import subprocess
 import shutil
+import os
 from pathlib import Path
 
 def runcmd(cmd):
+    if os.name == "nt":
+        return subprocess.check_output(cmd, shell=True)
     proc = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE)
     return proc.communicate()
 
 local_path = Path(__file__).resolve().parent
-node_bin = local_path.parent / 'node_modules' / '.bin'
+node_bin = Path(runcmd("npm bin")[0].decode('utf-8').rstrip())
+print(f"assuming npm bin directory \"{node_bin}\". Is this correct?")
+if input("[yY/nN]: ").lower() == "n":
+    node_bin = local_path.parent / 'node_modules' / '.bin'
+    print(f"this? \"{node_bin}\"")
+    if input("[yY/nN]: ").lower() == "n":
+        node_bin = input("input bin directory: ")
 
 for bsv in [d for d in local_path.iterdir() if 'bs' in d.name]:
     scss = bsv / f'{bsv.name}-jf.scss'

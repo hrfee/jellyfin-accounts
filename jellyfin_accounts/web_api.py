@@ -441,7 +441,7 @@ def modifyConfig():
     temp_config = configparser.RawConfigParser(
         comment_prefixes="/", allow_no_value=True
     )
-    temp_config.read(config_path)
+    temp_config.read(str(config_path.resolve()))
     for section in data:
         if section in temp_config and 'restart-program' not in section:
             for item in data[section]:

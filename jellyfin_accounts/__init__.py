@@ -72,7 +72,7 @@ else:
 
 # Temp config so logger knows whether to use debug mode or not
 temp_config = configparser.RawConfigParser()
-temp_config.read(config_path)
+temp_config.read(str(config_path.resolve()))
 
 
 def create_log(name):
