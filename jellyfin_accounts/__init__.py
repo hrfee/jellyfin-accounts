@@ -1,7 +1,7 @@
 # Runs it!
 __version__ = "0.3.9"
 
-print("Note: jellyfin-accounts will likely not receive many future updates. Try jfa-go, a rewrite thats fast, portable, and has more features. Find it at\nhttps://github.com/hrfee/jfa-go\n")
+print("Note: jellyfin-accounts has been deprecated. Try jfa-go, a rewrite thats fast, portable, and has more features. Find it at\nhttps://github.com/hrfee/jfa-go\n")
 
 import secrets
 import configparser
